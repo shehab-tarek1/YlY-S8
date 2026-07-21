@@ -56,12 +56,10 @@
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- شاشة التحميل واللوجو --- */
         .spinner-box { position: relative; width: 90px; height: 90px; display: flex; justify-content: center; align-items: center; margin-bottom: 15px; }
         .modern-spinner { position: absolute; width: 100%; height: 100%; border: 4px solid rgba(255, 255, 255, 0.05); border-left-color: #dc2626; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* --- الباركود --- */
         .scanner-wrapper { border-radius: 0.5rem; overflow: hidden; background: #000; position: relative; width: 100%; height: 250px !important; border: 2px solid #374151; }
         .scanner-wrapper video { object-fit: cover; width: 100% !important; height: 100% !important; border-radius: 0.5rem; }
         @media (min-width: 768px) { .scanner-wrapper { height: 400px !important; } }
@@ -119,22 +117,26 @@
             @page { size: A4; margin: 10mm; }
             .no-print { display: none !important; }
         }
+
+        /* --- Custom Dropdown Animation --- */
+        .dropdown-menu { transform-origin: top center; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+        .dropdown-menu.show { opacity: 1; transform: scaleY(1); visibility: visible; }
+        .dropdown-menu.hide { opacity: 0; transform: scaleY(0); visibility: hidden; }
     </style>
 </head>
-<body class="text-gray-800">
+<body class="text-gray-800" onclick="closeAllDropdowns(event)">
 
-<!-- شاشة التحميل المحسنة -->
+<!-- شاشة التحميل -->
 <div id="loadingOverlay">
     <div class="spinner-box">
         <div class="modern-spinner"></div>
-        <!-- اللوجو النظيف بدون خلفية رصاصي -->
         <img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" class="w-14 h-14 object-contain z-10 drop-shadow-xl" alt="YLY Logo">
     </div>
     <div class="text-2xl font-black tracking-wider text-white mb-2">YLY <span class="text-red-500">System</span></div>
     <div class="text-[10px] text-gray-400 font-mono">جاري تأمين النظام وتهيئته...</div>
 </div>
 
-<!-- واجهة تسجيل الدخول المحسنة (المدمجة) -->
+<!-- واجهة تسجيل الدخول -->
 <div id="loginOverlay">
     <div class="login-card">
         <div class="mb-3">
@@ -237,17 +239,10 @@
 <div id="print-container"></div>
 
 <div id="appContent" class="hidden">
-    <style>
-        #navBar .nav-item.active { background-color: white !important; color: #1e3a8a !important; font-weight: 900 !important; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border-bottom-color: #dc2626; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    </style>
-
     <header class="bg-blue-900 text-white shadow-md sticky top-0 z-50 no-print">
         <div class="container mx-auto px-4 py-2 flex justify-between items-center">
             <h1 class="text-sm font-bold flex items-center gap-2 md:text-xl">
-                <!-- لوجو الهيدر المحسن (مدمج بدون مساحات بيضاء زائدة) -->
-                <img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" class="w-7 h-7 object-contain drop-shadow-md" alt="YLY Logo">
+                <img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" class="w-7 h-7 object-cover drop-shadow-md" alt="YLY Logo">
                 YLY System <span class="text-[8px] bg-red-600 px-1 py-0.5 rounded text-white md:text-xs shadow-sm">pro</span>
             </h1>
             <div class="flex items-center gap-2">
@@ -302,7 +297,7 @@
                         <h3 class="font-bold text-sm text-blue-900 border-b pb-2 mb-2 flex items-center gap-2 md:text-base">◇ بيانات العضو</h3>
                         <div class="std-info-row"><span class="std-info-label">تاريخ الانضمام</span><span class="std-info-val" id="dashJoinDate"></span></div>
                         <div class="std-info-row"><span class="std-info-label">مدة الانضمام</span><span class="std-info-val" id="dashDuration"></span></div>
-                        <div class="std-info-row"><span class="std-info-label">إجمالي النقاط</span><span class="std-info-val text-blue-700 text-lg" id="dashPaymentsTotal"></span></div>
+                        <div class="std-info-row"><span class="std-info-label">إجمالي النقاط</span><span class="std-info-val text-blue-700 text-lg font-black" id="dashPaymentsTotal"></span></div>
                     </div>
                     <div class="std-dash-card">
                         <h3 class="font-bold text-sm text-blue-900 border-b pb-2 mb-2 md:text-base">◇ سجل المهام والنقاط</h3>
@@ -325,6 +320,7 @@
                         <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                         <input type="text" id="stdName" class="w-full p-2 text-xs md:text-sm" placeholder="الاسم رباعي">
                     </div>
+                    
                     <div class="flex items-center border border-gray-400 rounded bg-white overflow-hidden h-[30px] md:h-[36px]">
                         <span class="bg-gray-100 px-2 py-1 text-gray-600 text-[10px] font-bold border-l border-gray-400 md:text-sm h-full flex items-center">+20</span>
                         <div class="input-wrapper flex-1 h-full">
@@ -332,17 +328,22 @@
                             <input type="tel" id="stdOwnPhone" oninput="validatePhone(this)" class="w-full p-2 text-xs outline-none md:text-sm !border-0 h-full" placeholder="رقم الهاتف">
                         </div>
                     </div>
-                    <div class="input-wrapper md:col-span-2">
+
+                    <!-- Custom Dropdown for Committee -->
+                    <div class="input-wrapper md:col-span-2 relative" id="levelDropdownContainer">
                         <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                        <select id="stdLevel" class="w-full p-2 text-xs md:text-sm h-full">
-                            <option value="">اختر اللجنة...</option>
-                            <option value="HR">الموارد البشرية (HR)</option>
-                            <option value="PR">العلاقات العامة (PR)</option>
-                            <option value="OR">التنظيم (OR)</option>
-                            <option value="SM">السوشيال ميديا (SM)</option>
-                        </select>
+                        <input type="text" id="stdLevelDisplay" readonly class="w-full p-2 text-xs md:text-sm h-full cursor-pointer bg-white" placeholder="اختر اللجنة..." onclick="toggleCustomDropdown(event, 'levelMenu')">
+                        <input type="hidden" id="stdLevel" value="">
+                        
+                        <div id="levelMenu" class="dropdown-menu hide absolute top-full left-0 right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] overflow-hidden">
+                            <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900 transition flex items-center gap-2" onclick="selectLevel('HR', 'الموارد البشرية (HR)')">👥 الموارد البشرية (HR)</div>
+                            <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900 transition flex items-center gap-2" onclick="selectLevel('PR', 'العلاقات العامة (PR)')">🤝 العلاقات العامة (PR)</div>
+                            <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900 transition flex items-center gap-2" onclick="selectLevel('OR', 'التنظيم (OR)')">⚙️ التنظيم (OR)</div>
+                            <div class="p-2 text-xs hover:bg-blue-50 cursor-pointer font-bold text-blue-900 transition flex items-center gap-2" onclick="selectLevel('SM', 'السوشيال ميديا (SM)')">📱 السوشيال ميديا (SM)</div>
+                        </div>
                     </div>
-                    <button onclick="registerStudent()" class="w-full bg-blue-900 text-white py-2 rounded font-bold shadow hover:bg-blue-800 text-xs transition md:text-sm md:col-span-2 md:py-3">حفظ وإنشاء حساب</button>
+
+                    <button onclick="registerStudent()" class="w-full bg-blue-900 text-white py-2 rounded font-bold shadow hover:bg-blue-800 text-xs transition md:text-sm md:col-span-2 md:py-3">حفظ العضو</button>
                 </div>
             </div>
 
@@ -390,7 +391,7 @@
             </div>
         </section>
 
-        <!-- ATTENDANCE TAB (Events based) -->
+        <!-- ATTENDANCE TAB -->
         <section id="attendance" class="tab-content">
             <div class="glass-card text-center">
                 <h2 class="text-sm font-bold text-gray-900 mb-2 md:text-lg">سجل حضور الفعاليات</h2>
@@ -447,7 +448,6 @@
                     <div onclick="openAttendanceModal('absent')" class="bg-red-50 p-2 rounded border border-red-200 cursor-pointer hover:bg-red-100 transition"><span class="block text-lg font-bold text-red-600 md:text-2xl" id="absentCount">0</span><span class="text-[10px] text-red-800 font-bold md:text-sm">غياب اليوم</span></div>
                 </div>
 
-                <!-- أزرار تفعيل اليوم -->
                 <div class="flex flex-col items-center gap-2 mt-5 border-t border-gray-200 pt-5 no-print">
                     <button onclick="confirmEventDay()" class="w-64 bg-blue-700 text-white py-2 rounded font-bold text-[11px] shadow-sm hover:bg-blue-800 flex justify-center items-center gap-2">✅ تفعيل يوم حضور للجنة المحددة</button>
                     <button onclick="cancelEventDay()" class="w-64 bg-gray-500 text-white py-2 rounded font-bold text-[11px] shadow-sm hover:bg-gray-600 flex justify-center items-center gap-2">❌ إلغاء تفعيل اليوم</button>
@@ -515,7 +515,6 @@
                 </div>
             </div>
 
-            <!-- سجل التقييمات السريع -->
             <div class="bg-gray-900 text-white p-3 rounded-xl shadow-lg mt-4 md:p-5 border-2 border-gray-800">
                 <div class="text-center mb-2">
                     <p class="text-[10px] opacity-70">إجمالي النقاط الممنوحة اليوم</p>
@@ -586,8 +585,6 @@
                     </div>
                 </div>
                 <button onclick="generateAdvancedReport()" class="w-full bg-blue-900 text-white py-1.5 rounded font-bold shadow hover:bg-blue-950 text-[10px] md:text-sm md:py-2">توليد التقرير</button>
-
-                <!-- نتائج التقارير -->
                 <div id="reportResult" class="mt-2 hidden bg-gray-50 p-2 rounded border border-gray-200 text-[10px] md:text-sm"></div>
             </div>
             
@@ -610,10 +607,12 @@
     <div class="bg-white rounded-xl w-full max-w-xs p-4 text-center relative shadow-2xl md:max-w-sm">
         <button onclick="closeModal('studentModal')" class="close-btn-modern" style="top: 10px; right: 10px; position: absolute;">&times;</button>
         <div id="studentCardDisplay" class="unified-card"></div>
-        <div class="grid grid-cols-2 gap-2">
+        <div class="grid grid-cols-2 gap-2 mb-2">
             <button onclick="printStudentCard()" class="bg-gray-800 text-white py-1 rounded text-[10px] font-bold md:text-sm md:py-2">🖨️ طباعة الكارنيه</button>
             <button onclick="shareStudentPdf()" class="bg-red-700 text-white py-1 rounded text-[10px] font-bold md:text-sm md:py-2">📄 PDF</button>
         </div>
+        <!-- زر إغلاق صريح إضافي لراحة المستخدم -->
+        <button onclick="closeModal('studentModal')" class="w-full bg-gray-200 text-gray-800 py-1.5 rounded font-bold text-[11px] hover:bg-gray-300 transition border border-gray-300">إغلاق النافذة</button>
     </div>
 </div>
 
@@ -650,9 +649,6 @@
     import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, onSnapshot, query, where, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    // بيانات قاعدة البيانات الجديدة yly-s8
-    // ملاحظة احترافية: مفاتيح Firebase الخاصة بالواجهة الأمامية ليست أسراراً (يمكن قراءتها من أي تطبيق)
-    // الحماية الحقيقية تكمن في قواعد أمان Firebase Security Rules التي قمت بتكوينها لك
     const firebaseConfig = {
       apiKey: "AIzaSyA3RA_xuVJrvnWXyeimFc9XZJZUvRfLZwk",
       authDomain: "yly-s8.firebaseapp.com",
@@ -672,7 +668,7 @@
 
     const loading = document.getElementById('loadingOverlay');
     
-    // حل مشكلة تعليق شاشة التحميل (تأمين إضافي للإخفاء بعد 5 ثوانٍ مهما حدث)
+    // Fail-Safe لتأكيد اختفاء اللودينج مهما كانت حالة النت (مهم جداً)
     const failSafeTimer = setTimeout(() => {
         if(loading && loading.style.display !== 'none') {
             loading.style.opacity = '0';
@@ -680,12 +676,10 @@
         }
     }, 5000);
     
-    // مراقبة حالة تسجيل الدخول لتطبيق قواعد الأمان بذكاء (الطلب الثاني)
     onAuthStateChanged(auth, (user) => {
-        clearTimeout(failSafeTimer); // إلغاء التايمر إذا استجاب السيرفر سريعاً
+        clearTimeout(failSafeTimer); 
         
         if (user) {
-            // إذا كان المسجل هو حساب القيادة / HR
             if (user.uid === "Y3XYVlXxj7bJwEWas9Hx0DqfPi92") {
                 onSnapshot(collection(db, "members"), (snapshot) => { 
                     window.members = []; snapshot.forEach(doc => window.members.push({ ...doc.data(), docId: doc.id })); 
@@ -697,56 +691,72 @@
                 onSnapshot(collection(db, "accounting"), (snapshot) => { 
                     window.accounting = []; snapshot.forEach(doc => window.accounting.push({ ...doc.data(), docId: doc.id })); window.updateFinance(); 
                 });
-            } 
-            // إذا كان المسجل هو عضو عادي
-            else {
+            } else {
                 const memberCode = user.email.split('@')[0];
-                
-                // جلب بيانات العضو فقط
                 onSnapshot(query(collection(db, "members"), where("id", "==", memberCode)), (snapshot) => { 
                     window.members = []; snapshot.forEach(doc => window.members.push({ ...doc.data(), docId: doc.id })); 
                     if(window.members.length > 0) { loadStudentDashboard(window.members[0]); document.getElementById('appContent').classList.remove('hidden'); }
                     loading.style.opacity = '0'; setTimeout(()=>loading.style.display='none', 300); 
                 });
-                
-                // جلب حضوره الخاص والفعاليات فقط
                 onSnapshot(query(collection(db, "attendance"), where("studentId", "in", [memberCode, "EVENT_MARKER"])), (snapshot) => { 
                     window.attendance = []; snapshot.forEach(doc => window.attendance.push({ ...doc.data(), docId: doc.id })); 
                     if(window.members.length > 0) loadStudentDashboard(window.members[0]);
                 });
-
-                // جلب نقاطه الخاصة فقط
                 onSnapshot(query(collection(db, "accounting"), where("stdId", "==", memberCode)), (snapshot) => { 
                     window.accounting = []; snapshot.forEach(doc => window.accounting.push({ ...doc.data(), docId: doc.id })); 
                     if(window.members.length > 0) loadStudentDashboard(window.members[0]);
                 });
             }
         } else {
-            // غير مسجل دخول
             loading.style.opacity = '0'; setTimeout(()=>loading.style.display='none', 300); 
         }
     });
 </script>
 
 <script>
-    /* -------------------------------------------------------------
-       أمن المعلومات: منع أدوات التطوير وسرقة الكود
-       ------------------------------------------------------------- */
-    document.addEventListener('contextmenu', e => e.preventDefault()); // منع الكليك يمين
+    /* --- أمن المعلومات وحماية الكود من السرقة --- */
+    document.addEventListener('contextmenu', e => e.preventDefault());
     document.onkeydown = function(e) { 
-        // منع F12 و Ctrl+Shift+I و Ctrl+U
         if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) {
             return false; 
         }
     };
-    // فخ الديباجر (يوقف المتصفح إذا تم فتح الكونسول بطرق ملتوية)
     setInterval(function() {
         const before = new Date().getTime();
         debugger;
         const after = new Date().getTime();
-        if (after - before > 100) { document.body.innerHTML = '<h1>ممنوع الوصول غير المصرح به</h1>'; window.location.href = "about:blank"; }
-    }, 2000);
-    /* ------------------------------------------------------------- */
+        if (after - before > 100) { document.body.innerHTML = '<h1 style="color:red; text-align:center; margin-top:20%;">محاولة اختراق النظام! تم إيقاف المتصفح.</h1>'; window.location.href = "about:blank"; }
+    }, 3000);
+    /* ------------------------------------------ */
+
+    /* --- دوال القائمة المنسدلة المخصصة (Custom Dropdown) --- */
+    function toggleCustomDropdown(event, menuId) {
+        event.stopPropagation();
+        const menu = document.getElementById(menuId);
+        if (menu.classList.contains('hide')) {
+            closeAllDropdowns();
+            menu.classList.remove('hide');
+            menu.classList.add('show');
+        } else {
+            menu.classList.remove('show');
+            menu.classList.add('hide');
+        }
+    }
+
+    function selectLevel(value, text) {
+        document.getElementById('stdLevel').value = value;
+        document.getElementById('stdLevelDisplay').value = text;
+        closeAllDropdowns();
+    }
+
+    function closeAllDropdowns(event) {
+        const menus = document.querySelectorAll('.dropdown-menu');
+        menus.forEach(menu => {
+            menu.classList.remove('show');
+            menu.classList.add('hide');
+        });
+    }
+    /* ------------------------------------------ */
 
     let deferredPrompt;
     const pwaBanner = document.getElementById('pwaInstallBanner');
@@ -849,8 +859,26 @@
                 localStorage.setItem('currentStudentId', code); 
                 proceedLogin('student');
             } catch (error) {
-                errorMsg.innerText = "بيانات الدخول غير صحيحة";
-                errorMsg.classList.remove('hidden');
+                if (error.code === 'auth/user-not-found') {
+                    // هنا الذكاء: إنشاء حساب العضو تلقائياً في أول مرة يسجل فيها الدخول، وليس أثناء إنشائه بواسطة الـ HR
+                    const isMemberExist = window.members.find(m => m.id === code);
+                    if (isMemberExist && isMemberExist.password === pass) {
+                        try {
+                            await window.createUserWithEmailAndPassword(window.auth, `${code}@yly.app`, pass);
+                            localStorage.setItem('currentStudentId', code);
+                            proceedLogin('student');
+                        } catch (createErr) {
+                            errorMsg.innerText = "حدث خطأ أثناء تهيئة الحساب";
+                            errorMsg.classList.remove('hidden');
+                        }
+                    } else {
+                        errorMsg.innerText = "بيانات الدخول غير صحيحة";
+                        errorMsg.classList.remove('hidden');
+                    }
+                } else {
+                    errorMsg.innerText = "بيانات الدخول غير صحيحة";
+                    errorMsg.classList.remove('hidden');
+                }
             }
         } 
     }
@@ -865,7 +893,6 @@
             showTab('students', document.getElementById('nav-students')); 
         } else {
             document.getElementById('navBar').classList.add('hidden'); 
-            // البيانات ستحمل تلقائياً من خلال onAuthStateChanged
         }
     }
 
@@ -1102,7 +1129,7 @@
         const level = document.getElementById('stdLevel').value; 
         let ownPhone = document.getElementById('stdOwnPhone').value;
         
-        if(!name || !level) return showToast('أكمل البيانات', 'error'); 
+        if(!name || !level) return showToast('يرجى استكمال الاسم واللجنة', 'error'); 
         
         ownPhone = ownPhone.replace(/\D/g, ''); if(ownPhone.startsWith('0')) ownPhone = ownPhone.substring(1); 
 
@@ -1112,14 +1139,19 @@
         const createdAt = new Date().toISOString(); 
 
         try { 
-            await window.createUserWithEmailAndPassword(window.auth, `${id}@yly.app`, password);
+            // الإضافة تتم لقاعدة البيانات فقط، ليتمكن الـ HR من الاستمرار بالتسجيل دون الخروج
             await window.addDoc(window.collection(window.db, "members"), { id, name, level, phone: ownPhone, ownPhone, date: today, password, createdAt }); 
             openStudentModal(id); 
+            
+            // تفريغ الحقول بعد الحفظ
             document.getElementById('stdName').value = ''; 
             document.getElementById('stdOwnPhone').value = ''; 
-            showToast('تم حفظ العضو وإنشاء الحساب', 'success'); 
+            document.getElementById('stdLevel').value = ''; 
+            document.getElementById('stdLevelDisplay').value = ''; 
+            
+            showToast('تم حفظ العضو بنجاح', 'success'); 
         } catch (e) { 
-            showToast('خطأ في الاتصال أو الحساب موجود', 'error'); 
+            showToast('حدث خطأ أثناء الاتصال بقاعدة البيانات', 'error'); 
         } 
     }
 
@@ -1217,7 +1249,7 @@
     async function startScanner(elemId, mode) { 
         if(isScannerRunning && html5QrCode) { return; }
         html5QrCode = new Html5Qrcode(elemId); 
-        // تحسين الكاميرا لتلتقط الـ QR Code فقط بسرعة عالية
+        // تسريع قارئ الباركود لتجاهل ما عدا QR Code
         const config = { 
             fps: 15, 
             qrbox: { width: 250, height: 250 }, 

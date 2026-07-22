@@ -35,7 +35,6 @@
 
         input, select, textarea { border: 1px solid #9ca3af; border-radius: 0.25rem; background-color: #ffffff; color: #111827; font-weight: 700; transition: all 0.2s ease-in-out; padding-right: 0.5rem !important; padding-left: 1.5rem !important; height: 30px; font-size: 11px !important; width: 100%; }
         input:focus, select:focus { border-color: #1e3a8a; box-shadow: 0 0 0 1px rgba(30, 58, 138, 0.2); outline: none; }
-        select, input[type="date"], input[type="month"] { background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23374151' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); background-position: left 0.2rem center; background-repeat: no-repeat; background-size: 0.8em 0.8em; appearance: none; }
 
         .input-wrapper { position: relative; width: 100%; }
         .input-icon { position: absolute; top: 50%; left: 4px; transform: translateY(-50%); color: #6b7280; pointer-events: none; width: 12px; height: 12px; z-index: 10; }
@@ -363,13 +362,20 @@
                 <div class="flex justify-between items-center mb-2 no-print flex-wrap gap-2">
                     <h2 class="font-bold text-[10px] md:text-sm text-gray-800">قائمة الأعضاء (<span id="stdCount">0</span>)</h2>
                     <div class="flex gap-1.5 items-center flex-1 justify-end max-w-full">
-                        <select id="studentListFilter" onchange="renderStudents()" class="text-[10px] px-1 h-8 w-auto min-w-[80px] text-center md:text-sm shrink-0">
-                            <option value="all">الكل</option>
-                            <option value="HR">HR</option>
-                            <option value="PR">PR</option>
-                            <option value="OR">OR</option>
-                            <option value="SM">SM</option>
-                        </select>
+                        
+                        <!-- الطلب الثاني: Custom Dropdown تصفية لجنة الأعضاء -->
+                        <div class="relative shrink-0" id="studentListFilterContainer">
+                            <input type="text" id="studentListFilterDisplay" readonly value="الكل" class="text-[10px] px-2 h-8 w-auto min-w-[75px] text-center font-bold text-gray-800 bg-white border border-gray-400 rounded cursor-pointer" onclick="toggleCustomDropdown(event, 'studentListFilterMenu')">
+                            <input type="hidden" id="studentListFilter" value="all">
+                            <div id="studentListFilterMenu" class="dropdown-menu hide absolute top-full right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] min-w-[100px] overflow-hidden text-right">
+                                <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('studentListFilter', 'studentListFilterDisplay', 'studentListFilterMenu', 'all', 'الكل', renderStudents)">الكل</div>
+                                <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('studentListFilter', 'studentListFilterDisplay', 'studentListFilterMenu', 'HR', 'HR', renderStudents)">HR</div>
+                                <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('studentListFilter', 'studentListFilterDisplay', 'studentListFilterMenu', 'PR', 'PR', renderStudents)">PR</div>
+                                <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('studentListFilter', 'studentListFilterDisplay', 'studentListFilterMenu', 'OR', 'OR', renderStudents)">OR</div>
+                                <div class="p-2 text-xs hover:bg-blue-50 cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('studentListFilter', 'studentListFilterDisplay', 'studentListFilterMenu', 'SM', 'SM', renderStudents)">SM</div>
+                            </div>
+                        </div>
+
                         <div class="input-wrapper flex-1 min-w-0 max-w-[150px] md:max-w-[200px]">
                             <svg class="input-icon" style="width:14px; height:14px; left:6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                             <input type="text" id="searchStd" onkeyup="renderStudents()" placeholder="بحث باسم أو كود..." class="text-[10px] px-2 w-full h-8 transition-all md:text-sm">
@@ -386,7 +392,6 @@
                     </table>
                 </div>
                 
-                <!-- الطلب الثاني: إضافة زر تصدير اكسيل في السطر مع التالي والسابق (أقصى اليسار والتالي/السابق أقصى اليمين) -->
                 <div class="flex justify-between items-center mt-3 no-print">
                     <div class="flex items-center gap-2">
                         <button onclick="prevPage()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded text-xs">➡️ السابق</button>
@@ -413,18 +418,23 @@
                             <label class="text-[9px] text-gray-600 font-bold block mb-1">تاريخ اليوم</label>
                             <div class="relative"><input type="date" id="attendanceDate" onchange="changeAttendanceDate()" class="w-full p-1 text-center font-bold text-gray-900 text-xs bg-white"></div>
                         </div>
+
+                        <!-- الطلب الثاني: Custom Dropdown تصفية لجنة الحضور -->
                         <div class="input-wrapper">
                             <label class="text-[9px] text-gray-600 font-bold block mb-1">اللجنة</label>
-                            <div class="relative">
-                                <select id="attendanceStage" onchange="updateCounters()" class="w-full p-1 text-center font-bold text-gray-900 text-xs bg-white">
-                                    <option value="all" selected>كل اللجان</option>
-                                    <option value="HR">الموارد البشرية (HR)</option>
-                                    <option value="PR">العلاقات العامة (PR)</option>
-                                    <option value="OR">التنظيم (OR)</option>
-                                    <option value="SM">السوشيال ميديا (SM)</option>
-                                </select>
+                            <div class="relative" id="attendanceStageContainer">
+                                <input type="text" id="attendanceStageDisplay" readonly value="كل اللجان" class="w-full p-1 text-center font-bold text-gray-900 text-xs bg-white cursor-pointer border rounded" onclick="toggleCustomDropdown(event, 'attendanceStageMenu')">
+                                <input type="hidden" id="attendanceStage" value="all">
+                                <div id="attendanceStageMenu" class="dropdown-menu hide absolute top-full left-0 right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] overflow-hidden text-right">
+                                    <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('attendanceStage', 'attendanceStageDisplay', 'attendanceStageMenu', 'all', 'كل اللجان', updateCounters)">كل اللجان</div>
+                                    <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('attendanceStage', 'attendanceStageDisplay', 'attendanceStageMenu', 'HR', 'الموارد البشرية (HR)', updateCounters)">الموارد البشرية (HR)</div>
+                                    <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('attendanceStage', 'attendanceStageDisplay', 'attendanceStageMenu', 'PR', 'العلاقات العامة (PR)', updateCounters)">العلاقات العامة (PR)</div>
+                                    <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('attendanceStage', 'attendanceStageDisplay', 'attendanceStageMenu', 'OR', 'التنظيم (OR)', updateCounters)">التنظيم (OR)</div>
+                                    <div class="p-2 text-xs hover:bg-blue-50 cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('attendanceStage', 'attendanceStageDisplay', 'attendanceStageMenu', 'SM', 'السوشيال ميديا (SM)', updateCounters)">السوشيال ميديا (SM)</div>
+                                </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
 
@@ -471,13 +481,20 @@
                     <div class="text-[9px] text-blue-800 font-bold mb-1">إعدادات التقييم الحالية</div>
                     <div class="flex gap-1">
                         <input type="number" id="defScoreAmount" class="w-1/4 p-1 text-center font-bold text-xs" placeholder="النقاط (+)">
-                        <select id="defScoreType" class="w-1/4 p-1 text-[10px]">
-                            <option value="كويز">كويز</option>
-                            <option value="مهمة/تاسك">مهمة/تاسك</option>
-                            <option value="تفاعل">تفاعل ومشاركة</option>
-                            <option value="تنظيم">دور تنظيمي</option>
-                            <option value="أخرى">أخرى</option>
-                        </select>
+                        
+                        <!-- الطلب الثاني: Custom Dropdown لنوع التقييم الأفتراضي -->
+                        <div class="relative w-1/4" id="defScoreTypeContainer">
+                            <input type="text" id="defScoreTypeDisplay" readonly value="كويز" class="w-full p-1 text-[10px] text-center font-bold bg-white border rounded cursor-pointer" onclick="toggleCustomDropdown(event, 'defScoreTypeMenu')">
+                            <input type="hidden" id="defScoreType" value="كويز">
+                            <div id="defScoreTypeMenu" class="dropdown-menu hide absolute top-full right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] w-full overflow-hidden text-right">
+                                <div class="p-1.5 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('defScoreType', 'defScoreTypeDisplay', 'defScoreTypeMenu', 'كويز', 'كويز')">كويز</div>
+                                <div class="p-1.5 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('defScoreType', 'defScoreTypeDisplay', 'defScoreTypeMenu', 'مهمة/تاسك', 'مهمة/تاسك')">مهمة/تاسك</div>
+                                <div class="p-1.5 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('defScoreType', 'defScoreTypeDisplay', 'defScoreTypeMenu', 'تفاعل', 'تفاعل ومشاركة')">تفاعل ومشاركة</div>
+                                <div class="p-1.5 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('defScoreType', 'defScoreTypeDisplay', 'defScoreTypeMenu', 'تنظيم', 'دور تنظيمي')">دور تنظيمي</div>
+                                <div class="p-1.5 text-[10px] hover:bg-blue-50 cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('defScoreType', 'defScoreTypeDisplay', 'defScoreTypeMenu', 'أخرى', 'أخرى')">أخرى</div>
+                            </div>
+                        </div>
+
                         <input type="text" id="defScoreNote" class="w-2/4 p-1 text-[10px]" placeholder="تفاصيل (اختياري)">
                     </div>
                 </div>
@@ -506,13 +523,20 @@
                     <div class="flex justify-between text-[10px] mb-1 font-bold md:text-sm"><span id="payStdName" class="text-blue-900"></span><span id="payStdID" class="font-mono bg-white px-1 rounded"></span></div>
                     <div class="flex gap-1 mb-1">
                         <input type="number" id="payAmount" class="w-1/3 p-1 text-center font-bold text-xs text-blue-700" placeholder="النقاط">
-                        <select id="payType" class="w-2/3 p-1 text-[10px]">
-                            <option value="كويز">كويز</option>
-                            <option value="مهمة/تاسك">مهمة/تاسك</option>
-                            <option value="تفاعل">تفاعل ومشاركة</option>
-                            <option value="تنظيم">دور تنظيمي</option>
-                            <option value="أخرى">أخرى</option>
-                        </select>
+                        
+                        <!-- الطلب الثاني: Custom Dropdown لنوع تقييم الفردي -->
+                        <div class="relative w-2/3" id="payTypeContainer">
+                            <input type="text" id="payTypeDisplay" readonly value="كويز" class="w-full p-1 text-[10px] text-center font-bold bg-white border rounded cursor-pointer" onclick="toggleCustomDropdown(event, 'payTypeMenu')">
+                            <input type="hidden" id="payType" value="كويز">
+                            <div id="payTypeMenu" class="dropdown-menu hide absolute top-full right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] w-full overflow-hidden text-right">
+                                <div class="p-1.5 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('payType', 'payTypeDisplay', 'payTypeMenu', 'كويز', 'كويز')">كويز</div>
+                                <div class="p-1.5 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('payType', 'payTypeDisplay', 'payTypeMenu', 'مهمة/تاسك', 'مهمة/تاسك')">مهمة/تاسك</div>
+                                <div class="p-1.5 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('payType', 'payTypeDisplay', 'payTypeMenu', 'تفاعل', 'تفاعل ومشاركة')">تفاعل ومشاركة</div>
+                                <div class="p-1.5 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('payType', 'payTypeDisplay', 'payTypeMenu', 'تنظيم', 'دور تنظيمي')">دور تنظيمي</div>
+                                <div class="p-1.5 text-[10px] hover:bg-blue-50 cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('payType', 'payTypeDisplay', 'payTypeMenu', 'أخرى', 'أخرى')">أخرى</div>
+                            </div>
+                        </div>
+
                     </div>
                     <input type="text" id="payNote" class="w-full p-1 text-[10px] mb-1" placeholder="تفاصيل إضافية (اسم الكويز أو المهمة)">
                     <div class="flex gap-2 mt-2">
@@ -522,14 +546,14 @@
                 </div>
             </div>
 
-            <!-- الطلب الخامس: تحويل جزء أحدث تقييمات اليوم لجدول رسمي -->
-            <div class="bg-gray-900 text-white p-3 rounded-xl shadow-lg mt-4 md:p-5 border-2 border-gray-800">
+            <!-- الطلب الأول: تحويل لون الشريحة من الغامق للون السماوي الفاتح الرائع -->
+            <div class="bg-sky-50 text-sky-950 p-3 rounded-xl shadow-sm mt-4 md:p-5 border-2 border-sky-200">
                 <div class="text-center mb-2">
-                    <p class="text-[10px] opacity-70">إجمالي النقاط الممنوحة اليوم</p>
-                    <p class="text-2xl font-bold text-blue-400" id="totalRev">0</p>
+                    <p class="text-[10px] font-bold text-sky-700">إجمالي النقاط الممنوحة اليوم</p>
+                    <p class="text-2xl font-black text-blue-900" id="totalRev">0</p>
                 </div>
-                <div class="bg-white/10 p-2 rounded md:p-3">
-                    <h4 class="text-[10px] font-bold text-blue-300 mb-2 border-b border-white/20 pb-1 md:text-sm">أحدث تقييمات اليوم</h4>
+                <div class="bg-white p-2 rounded-lg border border-sky-200 shadow-inner md:p-3">
+                    <h4 class="text-[10px] font-bold text-blue-900 mb-2 border-b border-sky-100 pb-1 md:text-sm">أحدث تقييمات اليوم</h4>
                     <div class="overflow-x-auto max-h-48 overflow-y-auto">
                         <table class="custom-table text-[10px] md:text-xs">
                             <thead>
@@ -540,7 +564,7 @@
                                     <th>إجمالي النقاط للعضو</th>
                                 </tr>
                             </thead>
-                            <tbody id="todayRevListBody" class="bg-gray-800 text-white"></tbody>
+                            <tbody id="todayRevListBody" class="bg-white text-gray-900"></tbody>
                         </table>
                     </div>
                 </div>
@@ -552,17 +576,23 @@
             <div class="glass-card border-t-4 border-gray-600 mb-4">
                 <h3 class="font-bold mb-1 text-gray-900 flex items-center gap-2 text-xs md:text-base"><span>👤</span> استعلام عن تقرير عضو</h3>
                 <div class="flex gap-1 mb-1">
-                    <select id="searchStage" class="w-1/4 p-1 bg-white text-[10px] md:text-sm md:p-2">
-                        <option value="all">الكل</option>
-                        <option value="HR">HR</option>
-                        <option value="PR">PR</option>
-                        <option value="OR">OR</option>
-                        <option value="SM">SM</option>
-                    </select>
+                    
+                    <!-- الطلب الثاني: Custom Dropdown للجنة في استعلام العضو -->
+                    <div class="relative w-1/4" id="searchStageContainer">
+                        <input type="text" id="searchStageDisplay" readonly value="الكل" class="w-full p-1 bg-white text-[10px] md:text-sm md:p-2 text-center font-bold border rounded cursor-pointer" onclick="toggleCustomDropdown(event, 'searchStageMenu')">
+                        <input type="hidden" id="searchStage" value="all">
+                        <div id="searchStageMenu" class="dropdown-menu hide absolute top-full right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] w-full overflow-hidden text-right">
+                            <div class="p-1.5 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('searchStage', 'searchStageDisplay', 'searchStageMenu', 'all', 'الكل')">الكل</div>
+                            <div class="p-1.5 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('searchStage', 'searchStageDisplay', 'searchStageMenu', 'HR', 'HR')">HR</div>
+                            <div class="p-1.5 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('searchStage', 'searchStageDisplay', 'searchStageMenu', 'PR', 'PR')">PR</div>
+                            <div class="p-1.5 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('searchStage', 'searchStageDisplay', 'searchStageMenu', 'OR', 'OR')">OR</div>
+                            <div class="p-1.5 text-xs hover:bg-blue-50 cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('searchStage', 'searchStageDisplay', 'searchStageMenu', 'SM', 'SM')">SM</div>
+                        </div>
+                    </div>
+
                     <div class="input-wrapper flex-1">
                         <input type="text" id="reportStudentSearch" placeholder="ابحث بالاسم أو الكود" class="w-full p-1 text-xs md:text-sm md:p-2">
                     </div>
-                    <!-- الطلب الثالث: زر يتحول لإلغاء وتفريغ عند الضغط -->
                     <button id="btnSearchStudentReport" onclick="toggleStudentReportSearch()" class="bg-gray-800 text-white px-3 rounded font-bold text-[10px] md:text-sm transition-all">بحث</button>
                 </div>
                 <div id="studentReportResult" class="hidden bg-gray-50 p-2 rounded border border-gray-200 text-[10px] md:text-sm"></div>
@@ -573,20 +603,34 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-1 mb-2">
                     <div>
                         <label class="text-[9px] text-gray-500 block mb-0.5 md:text-xs">المدة الزمنية</label>
-                        <select id="reportType" onchange="toggleReportInputs()" class="w-full p-1 bg-white text-[10px] md:text-sm md:p-2">
-                            <option value="daily">تقرير يومي</option>
-                            <option value="monthly">تقرير شهري</option>
-                        </select>
+                        
+                        <!-- الطلب الثاني: Custom Dropdown للمدة الزمنية -->
+                        <div class="relative w-full" id="reportTypeContainer">
+                            <input type="text" id="reportTypeDisplay" readonly value="تقرير يومي" class="w-full p-1 bg-white text-[10px] md:text-sm md:p-2 font-bold border rounded cursor-pointer" onclick="toggleCustomDropdown(event, 'reportTypeMenu')">
+                            <input type="hidden" id="reportType" value="daily">
+                            <div id="reportTypeMenu" class="dropdown-menu hide absolute top-full right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] w-full overflow-hidden text-right">
+                                <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('reportType', 'reportTypeDisplay', 'reportTypeMenu', 'daily', 'تقرير يومي', toggleReportInputs)">تقرير يومي</div>
+                                <div class="p-2 text-xs hover:bg-blue-50 cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('reportType', 'reportTypeDisplay', 'reportTypeMenu', 'monthly', 'تقرير شهري', toggleReportInputs)">تقرير شهري</div>
+                            </div>
+                        </div>
+
                     </div>
                     <div>
                         <label class="text-[9px] text-gray-500 block mb-0.5 md:text-xs">اللجنة المستهدفة</label>
-                        <select id="reportStage" class="w-full p-1 bg-white text-[10px] md:text-sm md:p-2">
-                            <option value="all">كل اللجان</option>
-                            <option value="HR">الموارد البشرية (HR)</option>
-                            <option value="PR">العلاقات العامة (PR)</option>
-                            <option value="OR">التنظيم (OR)</option>
-                            <option value="SM">السوشيال ميديا (SM)</option>
-                        </select>
+                        
+                        <!-- الطلب الثاني: Custom Dropdown للجنة المستهدفة -->
+                        <div class="relative w-full" id="reportStageContainer">
+                            <input type="text" id="reportStageDisplay" readonly value="كل اللجان" class="w-full p-1 bg-white text-[10px] md:text-sm md:p-2 font-bold border rounded cursor-pointer" onclick="toggleCustomDropdown(event, 'reportStageMenu')">
+                            <input type="hidden" id="reportStage" value="all">
+                            <div id="reportStageMenu" class="dropdown-menu hide absolute top-full right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] w-full overflow-hidden text-right">
+                                <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('reportStage', 'reportStageDisplay', 'reportStageMenu', 'all', 'كل اللجان')">كل اللجان</div>
+                                <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('reportStage', 'reportStageDisplay', 'reportStageMenu', 'HR', 'الموارد البشرية (HR)')">الموارد البشرية (HR)</div>
+                                <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('reportStage', 'reportStageDisplay', 'reportStageMenu', 'PR', 'العلاقات العامة (PR)')">العلاقات العامة (PR)</div>
+                                <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('reportStage', 'reportStageDisplay', 'reportStageMenu', 'OR', 'التنظيم (OR)')">التنظيم (OR)</div>
+                                <div class="p-2 text-xs hover:bg-blue-50 cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('reportStage', 'reportStageDisplay', 'reportStageMenu', 'SM', 'السوشيال ميديا (SM)')">السوشيال ميديا (SM)</div>
+                            </div>
+                        </div>
+
                     </div>
                     <div id="divDateInput">
                         <label class="text-[9px] text-gray-500 block mb-0.5 md:text-xs">تاريخ اليوم</label>
@@ -598,14 +642,20 @@
                     </div>
                     <div class="col-span-1 md:col-span-2">
                         <label class="text-[9px] text-gray-500 block mb-0.5 md:text-xs">نوع التقرير المطلوب</label>
-                        <select id="reportCategory" onchange="toggleReportView()" class="w-full p-1 bg-white text-[10px] md:text-sm md:p-2 font-bold text-blue-900 border-blue-400">
-                            <option value="combined">🌟 تقرير شامل (الحضور والنقاط)</option>
-                            <option value="attendance">📅 تقارير الحضور والغياب فقط</option>
-                            <option value="points">⭐ تقارير المهام والنقاط فقط</option>
-                        </select>
+                        
+                        <!-- الطلب الثاني: Custom Dropdown لنوع التقرير -->
+                        <div class="relative w-full" id="reportCategoryContainer">
+                            <input type="text" id="reportCategoryDisplay" readonly value="🌟 تقرير شامل (الحضور والنقاط)" class="w-full p-1 bg-white text-[10px] md:text-sm md:p-2 font-bold text-blue-900 border border-blue-400 rounded cursor-pointer" onclick="toggleCustomDropdown(event, 'reportCategoryMenu')">
+                            <input type="hidden" id="reportCategory" value="combined">
+                            <div id="reportCategoryMenu" class="dropdown-menu hide absolute top-full right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] w-full overflow-hidden text-right">
+                                <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('reportCategory', 'reportCategoryDisplay', 'reportCategoryMenu', 'combined', '🌟 تقرير شامل (الحضور والنقاط)', toggleReportView)">🌟 تقرير شامل (الحضور والنقاط)</div>
+                                <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('reportCategory', 'reportCategoryDisplay', 'reportCategoryMenu', 'attendance', '📅 تقارير الحضور والغياب فقط', toggleReportView)">📅 تقارير الحضور والغياب فقط</div>
+                                <div class="p-2 text-xs hover:bg-blue-50 cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('reportCategory', 'reportCategoryDisplay', 'reportCategoryMenu', 'points', '⭐ تقارير المهام والنقاط فقط', toggleReportView)">⭐ تقارير المهام والنقاط فقط</div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
-                <!-- الطلب الثالث: تحول زر توليد التقرير إلى إلغاء التقرير -->
                 <button id="btnGenerateReport" onclick="toggleAdvancedReport()" class="w-full bg-blue-900 text-white py-1.5 rounded font-bold shadow hover:bg-blue-950 text-[10px] md:text-sm md:py-2 transition-all">توليد التقرير</button>
                 <div id="reportResult" class="mt-2 hidden bg-gray-50 p-2 rounded border border-gray-200 text-[10px] md:text-sm"></div>
             </div>
@@ -748,7 +798,7 @@
         if (after - before > 100) { document.body.innerHTML = '<h1 style="color:red; text-align:center; margin-top:20%;">محاولة اختراق النظام! تم إيقاف المتصفح.</h1>'; window.location.href = "about:blank"; }
     }, 3000);
 
-    /* --- دوال القائمة المنسدلة المخصصة (Custom Dropdown) --- */
+    /* --- الطلب الثاني: دالة القوائم المنسدلة المخصصة العامة (Custom Dropdown) --- */
     function toggleCustomDropdown(event, menuId) {
         event.stopPropagation();
         const menu = document.getElementById(menuId);
@@ -759,6 +809,17 @@
         } else {
             menu.classList.remove('show');
             menu.classList.add('hide');
+        }
+    }
+
+    function selectCustomOption(hiddenInputId, displayInputId, menuId, value, text, callback) {
+        const hiddenInput = document.getElementById(hiddenInputId);
+        const displayInput = document.getElementById(displayInputId);
+        if(hiddenInput) hiddenInput.value = value;
+        if(displayInput) displayInput.value = text;
+        closeAllDropdowns();
+        if(typeof callback === 'function') {
+            callback(value);
         }
     }
 
@@ -776,37 +837,29 @@
         });
     }
 
-    /* =========================================================================
-       الطلب الأول: دالة تصدير بيانات إلى ملف Excel بأسلوب xlsx-js-style المتقدم
-       ========================================================================= */
+    /* --- دالة تصدير بيانات إلى ملف Excel بأسلوب xlsx-js-style المتقدم --- */
     function exportToExcelStyle(headers, rows, reportTitle, fileName) {
         if (typeof XLSX === 'undefined') {
             showToast('مكتبة Excel غير محملة', 'error');
             return;
         }
 
-        // إنشاء كتاب عمل جديد
         const wb = XLSX.utils.book_new();
-        // تفعيل اتجاه اللغة العربية من اليمين إلى اليسار
         wb.Workbook = { Views: [{ RTL: true }] };
 
-        // بناء مصفوفة البيانات
         const wsData = [
-            [reportTitle], // الصف الأول: عنوان التقرير
-            headers,       // الصف الثاني: رأس الجدول
-            ...rows        // صفوف البيانات
+            [reportTitle],
+            headers,
+            ...rows
         ];
 
-        // تحويل البيانات لورقة عمل
         const ws = XLSX.utils.aoa_to_sheet(wsData);
         const colCount = headers.length;
 
-        // دمج ورقة التقرير في الصف الأول بعرض كل الأعمدة
         ws['!merges'] = [
             { s: { r: 0, c: 0 }, e: { r: 0, c: colCount - 1 } }
         ];
 
-        // حدود الخلايا الخفيفة
         const borderStyle = {
             top: { style: "thin", color: { rgb: "D1D5DB" } },
             bottom: { style: "thin", color: { rgb: "D1D5DB" } },
@@ -821,7 +874,6 @@
             right: { style: "thin", color: { rgb: "000000" } }
         };
 
-        // 1. تنسيق الصف الأول (عنوان التقرير)
         if (ws['A1']) {
             ws['A1'].s = {
                 font: { name: 'Cairo', sz: 15, bold: true, color: { rgb: "DC2626" } },
@@ -830,7 +882,6 @@
             };
         }
 
-        // 2. تنسيق الصف الثاني (Headers)
         for (let col = 0; col < colCount; col++) {
             const cellRef = XLSX.utils.encode_cell({ r: 1, c: col });
             if (ws[cellRef]) {
@@ -843,14 +894,12 @@
             }
         }
 
-        // 3. تنسيق صفوف البيانات (Data Rows)
         const totalRows = wsData.length;
         for (let r = 2; r < totalRows; r++) {
             for (let c = 0; c < colCount; c++) {
                 const cellRef = XLSX.utils.encode_cell({ r: r, c: c });
                 if (ws[cellRef]) {
                     const val = ws[cellRef].v;
-                    // تحديد نوع الخلية تلقائياً (رقم 'n' أو نص 's')
                     if (typeof val === 'number') {
                         ws[cellRef].t = 'n';
                     } else {
@@ -866,7 +915,6 @@
             }
         }
 
-        // 4. الحساب الديناميكي لعرض الأعمدة مع مسافة أمان وحد أدنى 16
         const colWidths = headers.map((h, colIndex) => {
             let maxLen = h ? h.toString().length : 10;
             for (let r = 2; r < totalRows; r++) {
@@ -880,9 +928,8 @@
         });
 
         ws['!cols'] = colWidths;
-        ws['!rows'] = [{ hpt: 35 }, { hpt: 26 }]; // ارتفاع صف العنوان ورأس الجدول
+        ws['!rows'] = [{ hpt: 35 }, { hpt: 26 }];
 
-        // إخراج ورقة العمل وملف Excel
         XLSX.utils.book_append_sheet(wb, ws, "التقرير");
         XLSX.writeFile(wb, `${fileName}.xlsx`);
     }
@@ -1218,7 +1265,6 @@
         savePDF(`تقرير_${name}`, content);
     }
 
-    /* --- التصدير المباشر لقائمة الأعضاء Excel (الطلب الثاني) --- */
     window.exportStudentsListExcel = function() {
         const filterStage = document.getElementById('studentListFilter').value;
         const queryVal = normalizeArabic(document.getElementById('searchStd').value.toLowerCase());
@@ -1418,6 +1464,11 @@
         if(html5QrCode) { try { await html5QrCode.stop(); html5QrCode.clear(); } catch(e) {} html5QrCode = null; isScannerRunning = false; isPaused = false; } 
     }
 
+    /* --- الطلب الرابع: إيقاف الكاميرا فورياً عند خروج أو تنقل المستخدم --- */
+    document.addEventListener('visibilitychange', () => { if (document.hidden) stopScanner(); });
+    window.addEventListener('beforeunload', () => { stopScanner(); });
+    window.addEventListener('pagehide', () => { stopScanner(); });
+
     window.startCheckScanner = function() { document.getElementById('checkReader').classList.remove('hidden'); document.getElementById('btnStartCheck').classList.add('hidden'); document.getElementById('btnStopCheck').classList.remove('hidden'); startScanner('checkReader', 'check'); }
     window.stopCheckScanner = function() { stopScanner(); document.getElementById('checkReader').classList.add('hidden'); document.getElementById('btnStartCheck').classList.remove('hidden'); document.getElementById('btnStopCheck').classList.add('hidden'); }
     
@@ -1580,9 +1631,6 @@
         document.getElementById('absentCount').innerText = absentCount;
     }
 
-    /* =========================================================================
-       الطلب الثالث: زر البحث في تقرير عضو يتحول لإلغاء وإعادة الضغط تفرغه وترجعه
-       ========================================================================= */
     window.toggleStudentReportSearch = function() {
         const btn = document.getElementById('btnSearchStudentReport');
         const input = document.getElementById('reportStudentSearch');
@@ -1611,7 +1659,6 @@
         if(matches.length > 1) { let listHtml = `<div class="text-xs font-bold text-gray-900 mb-2">تم العثور على ${matches.length} عضو:</div><div class="max-h-40 overflow-y-auto border rounded">`; matches.forEach(s => { listHtml += `<div onclick="showSingleReport('${s.id}')" class="p-2 border-b hover:bg-gray-50 cursor-pointer flex justify-between"><span>${s.name}</span><span class="text-gray-500 font-mono">${s.id} (${stageMap[s.level] || s.level})</span></div>`; }); listHtml += `</div>`; resDiv.innerHTML = listHtml; resDiv.classList.remove('hidden'); } else { showSingleReport(matches[0].id); }
     }
 
-    /* الطلب الثاني: أزرار تصدير Excel لاستعلام تقارير عضو */
     window.showSingleReport = function(studentId) {
         const member = window.members.find(s => s.id === studentId);
         if (!member) return;
@@ -1650,12 +1697,10 @@
         const headers = ["نوع السجل", "التاريخ / اليوم", "التقييم / الحالة", "النقاط المكتسبة"];
         const rows = [];
 
-        // سجل النقاط
         points.forEach(p => {
             rows.push(["نقاط وتقييمات", p.date, p.type, p.amount]);
         });
 
-        // سجل الحضور والغياب
         stats.history.forEach(h => {
             rows.push(["حضور وغياب", `${h.date} (${h.day})`, h.status === 'present' ? 'حضور' : 'غياب', '-']);
         });
@@ -1769,9 +1814,6 @@
         isPaused = false; 
     }
 
-    /* =========================================================================
-       الطلب الخامس: تحويل أحدث التقييمات في صفحة التقييمات إلى جدول رسمي
-       ========================================================================= */
     window.updateFinance = function() { 
         const points = window.accounting.filter(a => a.category === 'points'); 
         const todayPoints = points.filter(r => r.date === today); 
@@ -1782,15 +1824,15 @@
         const todayRevBody = document.getElementById('todayRevListBody');
         if (todayRevBody) {
             if (todayPoints.length === 0) {
-                todayRevBody.innerHTML = '<tr><td colspan="4" class="text-center text-gray-400 py-3">لا توجد تقييمات اليوم</td></tr>';
+                todayRevBody.innerHTML = '<tr><td colspan="4" class="text-center text-gray-400 py-3 font-bold">لا توجد تقييمات اليوم</td></tr>';
             } else {
                 todayRevBody.innerHTML = todayPoints.map(r => {
                     const memberTotalPoints = points.filter(p => p.stdId === r.stdId).reduce((s, p) => s + p.amount, 0);
-                    return `<tr>
-                        <td class="font-bold text-gray-100">${r.name}</td>
-                        <td class="col-code font-mono text-gray-300">${r.stdId}</td>
-                        <td class="font-bold text-green-400">+${r.amount} <span class="text-[9px] opacity-75">(${r.type})</span></td>
-                        <td class="font-bold text-blue-300">${memberTotalPoints} نقطة</td>
+                    return `<tr class="hover:bg-sky-50 transition">
+                        <td class="font-bold text-gray-900">${r.name}</td>
+                        <td class="col-code font-mono text-blue-900">${r.stdId}</td>
+                        <td class="font-bold text-green-700">+${r.amount} <span class="text-[9px] text-gray-500">(${r.type})</span></td>
+                        <td class="font-bold text-blue-800">${memberTotalPoints} نقطة</td>
                     </tr>`;
                 }).join('');
             }
@@ -1799,9 +1841,6 @@
 
     function toggleReportInputs() { const type = document.getElementById('reportType').value; if(type === 'daily') { document.getElementById('divDateInput').classList.remove('hidden'); document.getElementById('divMonthInput').classList.add('hidden'); } else { document.getElementById('divDateInput').classList.add('hidden'); document.getElementById('divMonthInput').classList.remove('hidden'); } }
 
-    /* =========================================================================
-       الطلب الثالث: زر توليد التقرير يتحول إلى إلغاء التقرير عند توليده
-       ========================================================================= */
     window.toggleAdvancedReport = function() {
         const btn = document.getElementById('btnGenerateReport');
         const resDiv = document.getElementById('reportResult');
@@ -1820,9 +1859,6 @@
         }
     }
 
-    /* =========================================================================
-       الطلب الرابع: إضافة تواريخ الغياب والحضور التفصيلية لكل عضو في التقارير
-       ========================================================================= */
     function generateAdvancedReport() {
         const type = document.getElementById('reportType').value;
         const stage = document.getElementById('reportStage').value;
@@ -1841,7 +1877,7 @@
         if(type === 'daily') {
             if(!dateInput) return showToast('اختر التاريخ', 'error');
             datesArray = [dateInput];
-            dateLabel = dateInput;
+            dateLabel = `يومي بتاريخ (${dateInput})`;
         } else {
             if(!monthInput) return showToast('اختر الشهر', 'error');
             const [year, month] = monthInput.split('-').map(Number);
@@ -1849,7 +1885,7 @@
             for(let i=1; i<=daysInMonth; i++) {
                 datesArray.push(`${year}-${String(month).padStart(2, '0')}-${String(i).padStart(2, '0')}`);
             }
-            dateLabel = monthInput;
+            dateLabel = `شهري لشهر (${monthInput})`;
         }
 
         let totalPointsForPeriod = 0;
@@ -1892,7 +1928,7 @@
 
         currentReportData.points = pointsForPeriod;
 
-        let html = `<h4 class="font-bold text-center border-b pb-2 mb-2 text-blue-900">تقرير ${dateLabel}</h4>`;
+        let html = `<h4 class="font-bold text-center border-b pb-2 mb-2 text-blue-900">تقرير ${dateLabel} - لجنة (${stageMap[stage] || 'كل اللجان'})</h4>`;
 
         if (category === 'combined') {
             html += `
@@ -1956,10 +1992,21 @@
 
     window.toggleReportView = function() { if (!document.getElementById('reportResult').classList.contains('hidden')) { generateAdvancedReport(); } }
 
-    /* --- تصدير الأكسيل للتقارير الشاملة والحضور والغياب والنقاط (الطلب الثاني والرابع) --- */
+    /* --- الطلب الثالث: إظهار نوع التقرير وتاريخه/شغره بوضوح في عنوان الـ Excel --- */
+    function getReportTitleHeader(baseTitle) {
+        const type = document.getElementById('reportType').value;
+        const stage = document.getElementById('reportStage').value;
+        const dateInput = document.getElementById('reportDate').value;
+        const monthInput = document.getElementById('reportMonth').value;
+        const periodText = type === 'daily' ? `تقرير يومي بتاريخ (${dateInput})` : `تقرير شهري لشهر (${monthInput})`;
+        const stageText = stageMap[stage] || 'كل اللجان';
+        return `${baseTitle} - ${periodText} - لجنة: ${stageText}`;
+    }
+
     window.exportCombinedExcel = function() {
         if(!currentReportData.combined || currentReportData.combined.length === 0) return showToast('لا توجد بيانات للتصدير', 'error');
         
+        const titleHeader = getReportTitleHeader("التقرير الشامل YLY (الحضور والغياب والنقاط)");
         const headers = ["م", "الكود", "الاسم", "اللجنة", "رقم الهاتف", "النقاط المكتسبة", "أيام الحضور", "أيام الغياب", "تواريخ الحضور", "تواريخ الغياب"];
         const rows = currentReportData.combined.map((c, i) => [
             i + 1,
@@ -1974,12 +2021,13 @@
             c.absentDates.join(', ') || 'لا يوجد'
         ]);
 
-        exportToExcelStyle(headers, rows, "التقرير الشامل YLY (الحضور والغياب والنقاط)", "تقرير_شامل_YLY");
+        exportToExcelStyle(headers, rows, titleHeader, "تقرير_شامل_YLY");
     }
 
     window.exportAttendanceReportExcel = function() {
         if(!currentReportData.combined || currentReportData.combined.length === 0) return showToast('لا توجد بيانات للتصدير', 'error');
 
+        const titleHeader = getReportTitleHeader("تقرير الحضور والغياب التفصيلي YLY");
         const headers = ["م", "الكود", "الاسم", "اللجنة", "رقم الهاتف", "أيام الحضور", "أيام الغياب", "تواريخ الحضور التفصيلية", "تواريخ الغياب التفصيلية"];
         const rows = currentReportData.combined.map((c, i) => [
             i + 1,
@@ -1993,12 +2041,13 @@
             c.absentDates.join(', ') || 'لا يوجد'
         ]);
 
-        exportToExcelStyle(headers, rows, "تقرير الحضور والغياب التفصيلي YLY", "تقرير_الحضور_والغياب_YLY");
+        exportToExcelStyle(headers, rows, titleHeader, "تقرير_الحضور_والغياب_YLY");
     }
 
     window.exportPointsReportExcel = function() {
         if(!currentReportData.points || currentReportData.points.length === 0) return showToast('لا توجد بيانات للتصدير', 'error');
 
+        const titleHeader = getReportTitleHeader("تقرير النقاط والمهام YLY");
         const headers = ["م", "كود العضو", "اسم العضو", "المهمة / التقييم", "النقاط المكتسبة", "التاريخ", "الوقت"];
         const rows = currentReportData.points.map((p, i) => [
             i + 1,
@@ -2010,7 +2059,7 @@
             p.time || '-'
         ]);
 
-        exportToExcelStyle(headers, rows, "تقرير النقاط والمهام YLY", "تقرير_النقاط_والمهام_YLY");
+        exportToExcelStyle(headers, rows, titleHeader, "تقرير_النقاط_والمهام_YLY");
     }
 
     function openReportDetails(key) { 
@@ -2046,9 +2095,6 @@
     function printContent(elementId, title) { const content = `<table class="print-table"><thead>${document.getElementById('detailsTableHead').innerHTML}</thead><tbody>${document.getElementById('detailsTableBody').innerHTML}</tbody></table>`; printHTML(title, content); }
     function pdfContent(elementId, title) { const content = `<table class="print-table"><thead>${document.getElementById('detailsTableHead').innerHTML}</thead><tbody>${document.getElementById('detailsTableBody').innerHTML}</tbody></table>`; savePDF(title, content); }
     
-    /* =========================================================================
-       الطلب السادس: جعل كود طباعة بطاقة العضو نفس كود حفظ البطاقة كـ PDF
-       ========================================================================= */
     window.printStudentCard = async function() { 
         const s = window.members.find(st => st.id === currentModalStudentId); if(!s) return; 
         showToast('جاري تجهيز الكارنيه...', 'success');

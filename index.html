@@ -31,9 +31,28 @@
         body { font-family: 'Cairo', sans-serif; background-color: #f3f4f6; padding-bottom: 80px; font-size: 10px; -webkit-tap-highlight-color: transparent; user-select: none; }
         body.modal-open { overflow: hidden !important; height: 100vh; }
 
-        input, select, textarea { border: 1px solid #9ca3af; border-radius: 0.25rem; background-color: #ffffff; color: #111827; font-weight: 700; transition: all 0.2s ease-in-out; padding-right: 0.5rem !important; padding-left: 1.5rem !important; height: 30px; font-size: 11px !important; width: 100%; }
+        input, select, textarea { 
+            border: 1px solid #9ca3af; 
+            border-radius: 0.25rem; 
+            background-color: #ffffff; 
+            color: #111827; 
+            font-weight: 700; 
+            transition: all 0.2s ease-in-out; 
+            padding-right: 0.5rem !important; 
+            padding-left: 1.8rem !important; 
+            height: 30px; 
+            font-size: 11px !important; 
+            width: 100%; 
+        }
         input:focus, select:focus { border-color: #1e3a8a; box-shadow: 0 0 0 1px rgba(30, 58, 138, 0.2); outline: none; }
-        select, input[type="date"], input[type="month"] { background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23374151' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); background-position: left 0.2rem center; background-repeat: no-repeat; background-size: 0.8em 0.8em; appearance: none; }
+        select, input[type="date"], input[type="month"] { 
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%231e3a8a' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); 
+            background-position: left 0.4rem center; 
+            background-repeat: no-repeat; 
+            background-size: 0.8em 0.8em; 
+            appearance: none; 
+            -webkit-appearance: none;
+        }
 
         .input-wrapper { position: relative; width: 100%; }
         .input-icon { position: absolute; top: 50%; left: 4px; transform: translateY(-50%); color: #6b7280; pointer-events: none; width: 12px; height: 12px; z-index: 10; }
@@ -62,24 +81,25 @@
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
         /* --- الباركود --- */
-        .scanner-wrapper { border-radius: 0.5rem; overflow: hidden; background: #000; position: relative; width: 100%; height: 250px !important; border: 2px solid #374151; }
+        .scanner-wrapper { border-radius: 0.5rem; overflow: hidden; background: #000; position: relative; width: 100%; height: 220px !important; border: 2px solid #374151; }
         .scanner-wrapper video { object-fit: cover; width: 100% !important; height: 100% !important; border-radius: 0.5rem; }
-        @media (min-width: 768px) { .scanner-wrapper { height: 400px !important; } }
+        @media (min-width: 768px) { .scanner-wrapper { height: 350px !important; } }
         #html5-qrcode-button-camera-stop, #html5-qrcode-anchor-scan-type-change { display: none !important; }
 
         .glass-card { background: white; border-radius: 0.5rem; padding: 0.5rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); border: 1px solid #d1d5db; margin-bottom: 0.5rem; }
 
+        /* جداول مدمجة ومحسنة لاستغلال المساحة */
         .custom-table { width: 100%; border-collapse: collapse; font-size: 10px; table-layout: fixed; border: 1px solid #374151; }
-        @media (min-width: 768px) { .custom-table { font-size: 12px; } }
+        @media (min-width: 768px) { .custom-table { font-size: 11px; } }
         .custom-table thead { background-color: #1e3a8a; color: white; font-weight: 800; border-bottom: 2px solid #000; }
-        .custom-table th, .custom-table td { padding: 4px; border: 1px solid #e5e7eb; text-align: center; vertical-align: middle; line-height: 1.3; }
+        .custom-table th, .custom-table td { padding: 4px 2px; border: 1px solid #e5e7eb; text-align: center; vertical-align: middle; line-height: 1.2; word-break: break-word; }
         .custom-table thead th { color: white !important; }
-        .col-code { width: 45px; font-family: monospace; font-weight: bold; }
-        .custom-table tbody td.col-code { color: #000; }
-        .col-date { width: 55px; font-size: 9px; }
-        .custom-table tbody td.col-date { color: #4b5563; }
-        .col-index { width: 25px; color: #6b7280; }
-        .col-action { width: 45px; min-width: 45px; } 
+        
+        .col-index { width: 22px; color: #6b7280; font-weight: bold; }
+        .col-code { width: 42px; font-family: monospace; font-weight: bold; }
+        .col-stage { width: 35px; font-weight: bold; }
+        .col-date { width: 55px; font-size: 9px; color: #4b5563; }
+        .col-action { width: 40px; min-width: 40px; } 
 
         #loadingOverlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(15px); z-index: 999999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; transition: opacity 0.3s ease; }
         
@@ -100,13 +120,13 @@
         .alert-icon { font-size: 35px; margin-bottom: 8px; display: block; }
         .alert-btn { background: #1e3a8a; color: white; padding: 8px 20px; border-radius: 6px; font-weight: bold; margin-top: 15px; width: 100%; border: 1px solid #000; }
 
-        .unified-card { border: 4px double #1e3a8a; border-radius: 15px; padding: 20px; width: 100%; max-width: 350px; margin: 0 auto 15px auto; text-align: center; background: #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .unified-card-title { font-size: 14pt; font-weight: bold; margin-bottom: 10px; color: #dc2626; }
-        .unified-card-name { font-size: 18pt; font-weight: 900; margin: 10px 0; border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; color: #111827; }
-        .unified-card-row { font-size: 11pt; font-weight: bold; margin: 5px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #d1d5db; padding: 4px 0; color: #1e3a8a; }
-        .unified-card-footer { margin-top: 15px; font-size: 9pt; color: #6b7280; font-weight: bold; border-top: 1px solid #1e3a8a; padding-top: 5px; }
+        .unified-card { border: 4px double #1e3a8a; border-radius: 15px; padding: 15px; width: 100%; max-width: 320px; margin: 0 auto 15px auto; text-align: center; background: #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .unified-card-title { font-size: 13pt; font-weight: bold; margin-bottom: 8px; color: #dc2626; }
+        .unified-card-name { font-size: 16pt; font-weight: 900; margin: 8px 0; border-bottom: 2px solid #1e3a8a; padding-bottom: 6px; color: #111827; }
+        .unified-card-row { font-size: 10pt; font-weight: bold; margin: 4px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #d1d5db; padding: 3px 0; color: #1e3a8a; }
+        .unified-card-footer { margin-top: 12px; font-size: 9pt; color: #6b7280; font-weight: bold; border-top: 1px solid #1e3a8a; padding-top: 4px; }
 
-        .close-btn-modern { width: 28px; height: 28px; background-color: #ef4444; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.1s; flex-shrink: 0; margin-right: 10px; }
+        .close-btn-modern { width: 28px; height: 28px; background-color: #ef4444; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.1s; flex-shrink: 0; cursor: pointer; }
         .close-btn-modern:active { transform: scale(0.9); }
 
         #print-container { position: fixed; top: 0; left: 0; width: 100%; height: 0px; overflow: hidden; z-index: -1; background: white; visibility: hidden; }
@@ -123,18 +143,17 @@
 </head>
 <body class="text-gray-800">
 
-<!-- شاشة التحميل المحسنة -->
+<!-- شاشة التحميل -->
 <div id="loadingOverlay">
     <div class="spinner-box">
         <div class="modern-spinner"></div>
-        <!-- اللوجو النظيف بدون خلفية رصاصي -->
         <img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" class="w-14 h-14 object-contain z-10 drop-shadow-xl" alt="YLY Logo">
     </div>
     <div class="text-2xl font-black tracking-wider text-white mb-2">YLY <span class="text-red-500">System</span></div>
     <div class="text-[10px] text-gray-400 font-mono">جاري تأمين النظام وتهيئته...</div>
 </div>
 
-<!-- واجهة تسجيل الدخول المحسنة (المدمجة) -->
+<!-- واجهة تسجيل الدخول -->
 <div id="loginOverlay">
     <div class="login-card">
         <div class="mb-3">
@@ -206,7 +225,7 @@
                     <h4 class="font-bold text-xs border-b pb-1 mb-1 text-green-700">✅ سجل الحضور (<span id="checkResPresentCount">0</span>)</h4>
                     <div class="max-h-24 overflow-y-auto">
                         <table class="w-full text-[10px] text-center">
-                            <thead class="bg-green-100"><tr><th>التاريخ</th><th>الوقت</th></tr></thead>
+                            <thead class="bg-green-100"><tr><th>التاريخ</th><th>اليوم</th></tr></thead>
                             <tbody id="checkResPresentTable"></tbody>
                         </table>
                     </div>
@@ -246,7 +265,6 @@
     <header class="bg-blue-900 text-white shadow-md sticky top-0 z-50 no-print">
         <div class="container mx-auto px-4 py-2 flex justify-between items-center">
             <h1 class="text-sm font-bold flex items-center gap-2 md:text-xl">
-                <!-- لوجو الهيدر المحسن (مدمج بدون مساحات بيضاء زائدة) -->
                 <img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" class="w-7 h-7 object-contain drop-shadow-md" alt="YLY Logo">
                 YLY System <span class="text-[8px] bg-red-600 px-1 py-0.5 rounded text-white md:text-xs shadow-sm">pro</span>
             </h1>
@@ -336,10 +354,10 @@
                         <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                         <select id="stdLevel" class="w-full p-2 text-xs md:text-sm h-full">
                             <option value="">اختر اللجنة...</option>
-                            <option value="HR">الموارد البشرية (HR)</option>
-                            <option value="PR">العلاقات العامة (PR)</option>
-                            <option value="OR">التنظيم (OR)</option>
-                            <option value="SM">السوشيال ميديا (SM)</option>
+                            <option value="HR">HR (الموارد البشرية)</option>
+                            <option value="PR">PR (العلاقات العامة)</option>
+                            <option value="OR">OR (التنظيم)</option>
+                            <option value="SM">SM (السوشيال ميديا)</option>
                         </select>
                     </div>
                     <button onclick="registerStudent()" class="w-full bg-blue-900 text-white py-2 rounded font-bold shadow hover:bg-blue-800 text-xs transition md:text-sm md:col-span-2 md:py-3">حفظ وإنشاء حساب</button>
@@ -360,7 +378,7 @@
                 <div class="flex justify-between items-center mb-2 no-print flex-wrap gap-2">
                     <h2 class="font-bold text-[10px] md:text-sm text-gray-800">قائمة الأعضاء (<span id="stdCount">0</span>)</h2>
                     <div class="flex gap-1.5 items-center flex-1 justify-end max-w-full">
-                        <select id="studentListFilter" onchange="renderStudents()" class="text-[10px] px-1 h-8 w-auto min-w-[80px] text-center md:text-sm shrink-0">
+                        <select id="studentListFilter" onchange="renderStudents()" class="text-[10px] px-1 h-8 w-auto min-w-[70px] text-center md:text-sm shrink-0">
                             <option value="all">الكل</option>
                             <option value="HR">HR</option>
                             <option value="PR">PR</option>
@@ -378,7 +396,7 @@
                 
                 <div id="studentsListArea">
                     <table class="custom-table">
-                        <thead><tr><th class="col-index">م</th><th class="col-code">الكود</th><th>الاسم</th><th>اللجنة</th><th class="col-date">التاريخ</th><th class="no-print col-action">حذف</th></tr></thead>
+                        <thead><tr><th class="col-index">م</th><th class="col-code">الكود</th><th>الاسم</th><th class="col-stage">اللجنة</th><th class="col-date">التاريخ</th><th class="no-print col-action">حذف</th></tr></thead>
                         <tbody id="studentsTable"></tbody>
                     </table>
                 </div>
@@ -390,7 +408,7 @@
             </div>
         </section>
 
-        <!-- ATTENDANCE TAB (Events based) -->
+        <!-- ATTENDANCE TAB -->
         <section id="attendance" class="tab-content">
             <div class="glass-card text-center">
                 <h2 class="text-sm font-bold text-gray-900 mb-2 md:text-lg">سجل حضور الفعاليات</h2>
@@ -410,10 +428,10 @@
                             <div class="relative">
                                 <select id="attendanceStage" onchange="updateCounters()" class="w-full p-1 text-center font-bold text-gray-900 text-xs bg-white">
                                     <option value="all" selected>كل اللجان</option>
-                                    <option value="HR">الموارد البشرية (HR)</option>
-                                    <option value="PR">العلاقات العامة (PR)</option>
-                                    <option value="OR">التنظيم (OR)</option>
-                                    <option value="SM">السوشيال ميديا (SM)</option>
+                                    <option value="HR">HR</option>
+                                    <option value="PR">PR</option>
+                                    <option value="OR">OR</option>
+                                    <option value="SM">SM</option>
                                 </select>
                             </div>
                         </div>
@@ -427,7 +445,6 @@
 
                 <div id="attScanArea" class="relative">
                     <div id="reader" class="scanner-wrapper w-full mb-2"></div>
-                    <div id="scanOverlay" class="absolute inset-0 pointer-events-none border-2 border-blue-500 hidden md:block" style="top: 50%; left: 50%; transform: translate(-50%, -50%); width: 250px; height: 250px;"></div>
                     <div id="scanFeedback" class="absolute inset-0 flex items-center justify-center bg-green-500/90 hidden z-10 rounded-lg"><div class="text-white font-bold text-lg animate-bounce md:text-2xl">✅ تم التسجيل</div></div>
                     <div class="flex justify-center gap-2 no-print">
                         <button onclick="startScanner('reader', 'attendance')" class="bg-blue-900 text-white px-4 py-1 rounded shadow text-[10px]">تشغيل الكاميرا</button>
@@ -515,15 +532,33 @@
                 </div>
             </div>
 
-            <!-- سجل التقييمات السريع -->
+            <!-- سجل التقييمات السريع - مدمج ومنظم في جدول -->
             <div class="bg-gray-900 text-white p-3 rounded-xl shadow-lg mt-4 md:p-5 border-2 border-gray-800">
-                <div class="text-center mb-2">
-                    <p class="text-[10px] opacity-70">إجمالي النقاط الممنوحة اليوم</p>
-                    <p class="text-2xl font-bold text-blue-400" id="totalRev">0</p>
+                <div class="flex justify-between items-center mb-3 border-b border-gray-700 pb-2">
+                    <div>
+                        <h4 class="text-xs font-bold text-blue-400 md:text-sm">⭐ جدول تقييمات الأعضاء</h4>
+                        <p class="text-[9px] text-gray-400">إجمالي النقاط الممنوحة للفترة: <span class="text-yellow-400 font-bold" id="totalRev">0</span></p>
+                    </div>
+                    <div class="flex bg-gray-800 rounded p-0.5 border border-gray-700">
+                        <button onclick="setEvalPeriod('today')" id="btnEvalToday" class="px-2 py-1 rounded text-[9px] font-bold bg-blue-600 text-white transition">اليوم</button>
+                        <button onclick="setEvalPeriod('month')" id="btnEvalMonth" class="px-2 py-1 rounded text-[9px] font-bold text-gray-300 hover:text-white transition">الشهر</button>
+                    </div>
                 </div>
-                <div class="bg-white/10 p-2 rounded md:p-3">
-                    <h4 class="text-[10px] font-bold text-blue-300 mb-2 border-b border-white/20 pb-1 md:text-sm">أحدث تقييمات اليوم</h4>
-                    <div id="todayRevList" class="h-32 overflow-y-auto text-[10px] space-y-1.5 md:text-xs"></div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-[10px] text-center border-collapse">
+                        <thead>
+                            <tr class="bg-gray-800 text-blue-300 border-b border-gray-700">
+                                <th class="p-1.5 col-index">م</th>
+                                <th class="p-1.5">العضو</th>
+                                <th class="p-1.5 col-stage">اللجنة</th>
+                                <th class="p-1.5">التقييم / المهمة</th>
+                                <th class="p-1.5">النقاط</th>
+                                <th class="p-1.5">إجمالي الفترة</th>
+                            </tr>
+                        </thead>
+                        <tbody id="todayRevList"></tbody>
+                    </table>
                 </div>
             </div>
         </section>
@@ -562,10 +597,10 @@
                         <label class="text-[9px] text-gray-500 block mb-0.5 md:text-xs">اللجنة المستهدفة</label>
                         <select id="reportStage" class="w-full p-1 bg-white text-[10px] md:text-sm md:p-2">
                             <option value="all">كل اللجان</option>
-                            <option value="HR">الموارد البشرية (HR)</option>
-                            <option value="PR">العلاقات العامة (PR)</option>
-                            <option value="OR">التنظيم (OR)</option>
-                            <option value="SM">السوشيال ميديا (SM)</option>
+                            <option value="HR">HR</option>
+                            <option value="PR">PR</option>
+                            <option value="OR">OR</option>
+                            <option value="SM">SM</option>
                         </select>
                     </div>
                     <div id="divDateInput">
@@ -579,9 +614,9 @@
                     <div class="col-span-1 md:col-span-2">
                         <label class="text-[9px] text-gray-500 block mb-0.5 md:text-xs">نوع التقرير المطلوب</label>
                         <select id="reportCategory" onchange="toggleReportView()" class="w-full p-1 bg-white text-[10px] md:text-sm md:p-2 font-bold text-blue-900 border-blue-400">
-                            <option value="combined">🌟 تقرير شامل (الحضور والنقاط)</option>
-                            <option value="attendance">📅 تقارير الحضور والغياب فقط</option>
-                            <option value="points">⭐ تقارير المهام والنقاط فقط</option>
+                            <option value="combined">🌟 تقرير شامل (الحضور والنقاط والتواريخ)</option>
+                            <option value="attendance">📅 تقارير الحضور والغياب بتفاصيل التواريخ</option>
+                            <option value="points">⭐ تقارير المهام والنقاط المكتسبة</option>
                         </select>
                     </div>
                 </div>
@@ -608,23 +643,26 @@
 <!-- MODALS -->
 <div id="studentModal" class="fixed inset-0 bg-black/80 hidden z-[150] flex items-center justify-center p-4 no-print">
     <div class="bg-white rounded-xl w-full max-w-xs p-4 text-center relative shadow-2xl md:max-w-sm">
-        <button onclick="closeModal('studentModal')" class="close-btn-modern" style="top: 10px; right: 10px; position: absolute;">&times;</button>
+        <div class="flex justify-between items-center mb-2">
+            <h3 class="font-bold text-xs text-gray-700">بطاقة التعريف</h3>
+            <button onclick="closeModal('studentModal')" class="close-btn-modern">&times;</button>
+        </div>
         <div id="studentCardDisplay" class="unified-card"></div>
         <div class="grid grid-cols-2 gap-2">
-            <button onclick="printStudentCard()" class="bg-gray-800 text-white py-1 rounded text-[10px] font-bold md:text-sm md:py-2">🖨️ طباعة الكارنيه</button>
-            <button onclick="shareStudentPdf()" class="bg-red-700 text-white py-1 rounded text-[10px] font-bold md:text-sm md:py-2">📄 PDF</button>
+            <button onclick="printStudentCard()" class="bg-gray-800 text-white py-1.5 rounded text-[10px] font-bold md:text-sm">🖨️ طباعة الكارنيه</button>
+            <button onclick="shareStudentPdf()" class="bg-red-700 text-white py-1.5 rounded text-[10px] font-bold md:text-sm">📄 حفظ PDF</button>
         </div>
     </div>
 </div>
 
 <div id="detailsModal" class="fixed inset-0 bg-black/80 hidden z-[100] flex items-center justify-center p-4 no-print">
-    <div class="bg-white rounded-xl w-full max-w-xl p-0 h-[80vh] flex flex-col shadow-2xl overflow-hidden md:max-w-2xl relative">
+    <div class="bg-white rounded-xl w-full max-w-2xl p-0 h-[80vh] flex flex-col shadow-2xl overflow-hidden relative">
         <div class="flex justify-between items-center p-3 border-b bg-gray-50">
             <h3 id="detailsTitle" class="font-bold text-sm text-gray-800 md:text-lg"></h3>
             <div class="flex items-center gap-2">
                 <button onclick="printContent('detailsTableArea', document.getElementById('detailsTitle').innerText)" class="bg-gray-800 text-white px-2 py-1 rounded text-[10px] md:text-sm border border-gray-900">🖨️ طباعة</button>
                 <button onclick="pdfContent('detailsTableArea', document.getElementById('detailsTitle').innerText)" class="bg-red-700 text-white px-2 py-1 rounded text-[10px] md:text-sm border border-red-900">PDF</button>
-                <button onclick="closeModal('detailsModal')" class="close-btn-modern" style="position: static; margin-right: 5px;">&times;</button>
+                <button onclick="closeModal('detailsModal')" class="close-btn-modern">&times;</button>
             </div>
         </div>
         <div id="detailsTableArea" class="overflow-y-auto flex-1 p-0">
@@ -650,9 +688,6 @@
     import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, onSnapshot, query, where, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    // بيانات قاعدة البيانات الجديدة yly-s8
-    // ملاحظة احترافية: مفاتيح Firebase الخاصة بالواجهة الأمامية ليست أسراراً (يمكن قراءتها من أي تطبيق)
-    // الحماية الحقيقية تكمن في قواعد أمان Firebase Security Rules التي قمت بتكوينها لك
     const firebaseConfig = {
       apiKey: "AIzaSyA3RA_xuVJrvnWXyeimFc9XZJZUvRfLZwk",
       authDomain: "yly-s8.firebaseapp.com",
@@ -667,12 +702,19 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    window.db = db; window.auth = auth; window.collection = collection; window.addDoc = addDoc; window.getDocs = getDocs; window.doc = doc; window.deleteDoc = deleteDoc; window.onSnapshot = onSnapshot; window.query = query; window.where = where; window.setDoc = setDoc; window.updateDoc = updateDoc;
-    window.signInWithEmailAndPassword = signInWithEmailAndPassword; window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+    // تطبيق ثانوي خاص لإنشاء الأعضاء دون الخروج من حساب القيادة الحالي
+    const secondaryApp = initializeApp(firebaseConfig, "secondaryAuthApp");
+    const secondaryAuth = getAuth(secondaryApp);
+
+    window.db = db; window.auth = auth; window.secondaryAuth = secondaryAuth; 
+    window.collection = collection; window.addDoc = addDoc; window.getDocs = getDocs; 
+    window.doc = doc; window.deleteDoc = deleteDoc; window.onSnapshot = onSnapshot; 
+    window.query = query; window.where = where; window.setDoc = setDoc; window.updateDoc = updateDoc;
+    window.signInWithEmailAndPassword = signInWithEmailAndPassword; 
+    window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
 
     const loading = document.getElementById('loadingOverlay');
     
-    // حل مشكلة تعليق شاشة التحميل (تأمين إضافي للإخفاء بعد 5 ثوانٍ مهما حدث)
     const failSafeTimer = setTimeout(() => {
         if(loading && loading.style.display !== 'none') {
             loading.style.opacity = '0';
@@ -680,12 +722,10 @@
         }
     }, 5000);
     
-    // مراقبة حالة تسجيل الدخول لتطبيق قواعد الأمان بذكاء (الطلب الثاني)
     onAuthStateChanged(auth, (user) => {
-        clearTimeout(failSafeTimer); // إلغاء التايمر إذا استجاب السيرفر سريعاً
+        clearTimeout(failSafeTimer);
         
         if (user) {
-            // إذا كان المسجل هو حساب القيادة / HR
             if (user.uid === "Y3XYVlXxj7bJwEWas9Hx0DqfPi92") {
                 onSnapshot(collection(db, "members"), (snapshot) => { 
                     window.members = []; snapshot.forEach(doc => window.members.push({ ...doc.data(), docId: doc.id })); 
@@ -698,55 +738,38 @@
                     window.accounting = []; snapshot.forEach(doc => window.accounting.push({ ...doc.data(), docId: doc.id })); window.updateFinance(); 
                 });
             } 
-            // إذا كان المسجل هو عضو عادي
             else {
                 const memberCode = user.email.split('@')[0];
                 
-                // جلب بيانات العضو فقط
                 onSnapshot(query(collection(db, "members"), where("id", "==", memberCode)), (snapshot) => { 
                     window.members = []; snapshot.forEach(doc => window.members.push({ ...doc.data(), docId: doc.id })); 
                     if(window.members.length > 0) { loadStudentDashboard(window.members[0]); document.getElementById('appContent').classList.remove('hidden'); }
                     loading.style.opacity = '0'; setTimeout(()=>loading.style.display='none', 300); 
                 });
                 
-                // جلب حضوره الخاص والفعاليات فقط
                 onSnapshot(query(collection(db, "attendance"), where("studentId", "in", [memberCode, "EVENT_MARKER"])), (snapshot) => { 
                     window.attendance = []; snapshot.forEach(doc => window.attendance.push({ ...doc.data(), docId: doc.id })); 
                     if(window.members.length > 0) loadStudentDashboard(window.members[0]);
                 });
 
-                // جلب نقاطه الخاصة فقط
                 onSnapshot(query(collection(db, "accounting"), where("stdId", "==", memberCode)), (snapshot) => { 
                     window.accounting = []; snapshot.forEach(doc => window.accounting.push({ ...doc.data(), docId: doc.id })); 
                     if(window.members.length > 0) loadStudentDashboard(window.members[0]);
                 });
             }
         } else {
-            // غير مسجل دخول
             loading.style.opacity = '0'; setTimeout(()=>loading.style.display='none', 300); 
         }
     });
 </script>
 
 <script>
-    /* -------------------------------------------------------------
-       أمن المعلومات: منع أدوات التطوير وسرقة الكود
-       ------------------------------------------------------------- */
-    document.addEventListener('contextmenu', e => e.preventDefault()); // منع الكليك يمين
+    document.addEventListener('contextmenu', e => e.preventDefault());
     document.onkeydown = function(e) { 
-        // منع F12 و Ctrl+Shift+I و Ctrl+U
         if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) {
             return false; 
         }
     };
-    // فخ الديباجر (يوقف المتصفح إذا تم فتح الكونسول بطرق ملتوية)
-    setInterval(function() {
-        const before = new Date().getTime();
-        debugger;
-        const after = new Date().getTime();
-        if (after - before > 100) { document.body.innerHTML = '<h1>ممنوع الوصول غير المصرح به</h1>'; window.location.href = "about:blank"; }
-    }, 2000);
-    /* ------------------------------------------------------------- */
 
     let deferredPrompt;
     const pwaBanner = document.getElementById('pwaInstallBanner');
@@ -779,7 +802,7 @@
         window.addEventListener('load', () => { navigator.serviceWorker.register('./service-worker.js').catch(()=>{}); });
     }
 
-    const stageMap = { "HR": "الموارد البشرية (HR)", "PR": "العلاقات العامة (PR)", "OR": "التنظيم (OR)", "SM": "السوشيال ميديا (SM)" };
+    const stageMap = { "HR": "HR", "PR": "PR", "OR": "OR", "SM": "SM" };
     window.members = []; window.attendance = []; window.accounting = [];
 
     function getEgyptDate() { return new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' }); }
@@ -790,8 +813,9 @@
     let isPrinting = false; 
     let currentPage = 1;
     const itemsPerPage = 10;
+    let evalPeriod = 'today';
 
-    function normalizeArabic(text) { return text.replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي'); }
+    function normalizeArabic(text) { return text ? text.replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي') : ''; }
 
     window.onload = () => {
         today = getEgyptDate();
@@ -865,7 +889,6 @@
             showTab('students', document.getElementById('nav-students')); 
         } else {
             document.getElementById('navBar').classList.add('hidden'); 
-            // البيانات ستحمل تلقائياً من خلال onAuthStateChanged
         }
     }
 
@@ -959,20 +982,16 @@
                 .print-title-area h1 { font-size: 24pt; font-weight: 900; margin: 0; color: #1e3a8a; }
                 .print-title-area h2 { font-size: 16pt; font-weight: bold; margin: 5px 0 0 0; color: #333; }
                 .print-logo-area { font-size: 40px; }
-                table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 11pt; table-layout: fixed; page-break-inside: auto; }
+                table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 10pt; table-layout: fixed; page-break-inside: auto; }
                 tr { page-break-inside: avoid; page-break-after: auto; }
                 thead { display: table-header-group; }
-                th { background-color: #1e3a8a !important; color: #fff !important; font-weight: 900; border: 1px solid #000; padding: 8px; text-align: center; -webkit-print-color-adjust: exact; }
-                td { border: 1px solid #000; padding: 8px; text-align: center; vertical-align: middle; }
-                .print-student-card { border: 4px double #1e3a8a !important; border-radius: 15px; padding: 20px; width: 350px; margin: 20px auto; text-align: center; page-break-inside: avoid; background: #fff; }
-                .print-card-title { font-size: 16pt; font-weight: bold; margin-bottom: 10px; color: #dc2626; }
-                .print-card-name { font-size: 20pt; font-weight: 900; margin: 10px 0; border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; color: #000; }
-                .print-card-row { font-size: 12pt; font-weight: bold; margin: 5px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding: 2px 0; color: #000; }
-                .print-card-footer { margin-top: 15px; font-size: 10pt; color: #555; font-weight: bold; border-top: 1px solid #1e3a8a; padding-top: 5px; }
-                .print-stats-table { width: 100%; margin-bottom: 20px; border-collapse: separate; border-spacing: 10px 0; page-break-inside: avoid; }
-                .print-stats-cell { border: 1px solid #1e3a8a; padding: 10px; text-align: center; border-radius: 8px; width: 33%; vertical-align: middle; }
-                .print-box-title { font-size: 12pt; font-weight: bold; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 5px; }
-                .print-box-val { font-size: 16pt; font-weight: 900; }
+                th { background-color: #1e3a8a !important; color: #fff !important; font-weight: 900; border: 1px solid #000; padding: 6px 2px; text-align: center; -webkit-print-color-adjust: exact; }
+                td { border: 1px solid #000; padding: 6px 2px; text-align: center; vertical-align: middle; word-wrap: break-word; }
+                .print-student-card { border: 4px double #1e3a8a !important; border-radius: 15px; padding: 20px; width: 320px; margin: 20px auto; text-align: center; page-break-inside: avoid; background: #fff; }
+                .print-card-title { font-size: 14pt; font-weight: bold; margin-bottom: 8px; color: #dc2626; }
+                .print-card-name { font-size: 18pt; font-weight: 900; margin: 8px 0; border-bottom: 2px solid #1e3a8a; padding-bottom: 8px; color: #000; }
+                .print-card-row { font-size: 11pt; font-weight: bold; margin: 4px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding: 2px 0; color: #000; }
+                .print-card-footer { margin-top: 12px; font-size: 10pt; color: #555; font-weight: bold; border-top: 1px solid #1e3a8a; padding-top: 4px; }
             </style>
             <div class="print-page">
                 <div class="print-header">
@@ -1070,8 +1089,8 @@
         let filtered = window.members;
         if(filterStage !== 'all') { filtered = filtered.filter(s => s.level === filterStage); }
         if(query !== '') { filtered = filtered.filter(s => normalizeArabic(s.name.toLowerCase()).includes(query) || s.id.includes(query)); }
-        filtered.forEach((s, i) => { rows += `<tr><td style="width:50px;">${i+1}</td><td style="width:100px;">${s.id}</td><td>${s.name}</td><td>${stageMap[s.level] || s.level}</td><td>${s.date}</td></tr>`; });
-        const content = `<table class="print-table"><thead><tr><th style="width: 50px;">م</th><th style="width: 100px;">الكود</th><th>الاسم</th><th>اللجنة</th><th>تاريخ الانضمام</th></tr></thead><tbody>${rows}</tbody></table>`;
+        filtered.forEach((s, i) => { rows += `<tr><td style="width:25px;">${i+1}</td><td style="width:50px;">${s.id}</td><td>${s.name}</td><td style="width:40px;">${stageMap[s.level] || s.level}</td><td style="width:65px;">${s.date}</td></tr>`; });
+        const content = `<table class="print-table"><thead><tr><th style="width: 25px;">م</th><th style="width: 50px;">الكود</th><th>الاسم</th><th style="width:40px;">اللجنة</th><th style="width:65px;">التاريخ</th></tr></thead><tbody>${rows}</tbody></table>`;
         printHTML('قائمة الأعضاء المسجلين', content);
     }
 
@@ -1082,8 +1101,8 @@
         let filtered = window.members;
         if(filterStage !== 'all') { filtered = filtered.filter(s => s.level === filterStage); }
         if(query !== '') { filtered = filtered.filter(s => normalizeArabic(s.name.toLowerCase()).includes(query) || s.id.includes(query)); }
-        filtered.forEach((s, i) => { rows += `<tr><td style="width:50px;">${i+1}</td><td style="width:100px;">${s.id}</td><td>${s.name}</td><td>${stageMap[s.level] || s.level}</td><td>${s.date}</td></tr>`; });
-        const content = `<table class="print-table"><thead><tr><th style="width: 50px;">م</th><th style="width: 100px;">الكود</th><th>الاسم</th><th>اللجنة</th><th>تاريخ الانضمام</th></tr></thead><tbody>${rows}</tbody></table>`;
+        filtered.forEach((s, i) => { rows += `<tr><td style="width:25px;">${i+1}</td><td style="width:50px;">${s.id}</td><td>${s.name}</td><td style="width:40px;">${stageMap[s.level] || s.level}</td><td style="width:65px;">${s.date}</td></tr>`; });
+        const content = `<table class="print-table"><thead><tr><th style="width: 25px;">م</th><th style="width: 50px;">الكود</th><th>الاسم</th><th style="width:40px;">اللجنة</th><th style="width:65px;">التاريخ</th></tr></thead><tbody>${rows}</tbody></table>`;
         savePDF('قائمة الأعضاء المسجلين', content);
     }
 
@@ -1098,11 +1117,11 @@
     }
 
     async function registerStudent() { 
-        const name = document.getElementById('stdName').value; 
+        const name = document.getElementById('stdName').value.trim(); 
         const level = document.getElementById('stdLevel').value; 
-        let ownPhone = document.getElementById('stdOwnPhone').value;
+        let ownPhone = document.getElementById('stdOwnPhone').value.trim();
         
-        if(!name || !level) return showToast('أكمل البيانات', 'error'); 
+        if(!name || !level) return showToast('يرجى كتابة الاسم واختيار اللجنة', 'error'); 
         
         ownPhone = ownPhone.replace(/\D/g, ''); if(ownPhone.startsWith('0')) ownPhone = ownPhone.substring(1); 
 
@@ -1112,14 +1131,18 @@
         const createdAt = new Date().toISOString(); 
 
         try { 
-            await window.createUserWithEmailAndPassword(window.auth, `${id}@yly.app`, password);
+            // استخدام الثانوية لمنع تغيير حساب تسجيل الدخول
+            await window.createUserWithEmailAndPassword(window.secondaryAuth, `${id}@yly.app`, password);
             await window.addDoc(window.collection(window.db, "members"), { id, name, level, phone: ownPhone, ownPhone, date: today, password, createdAt }); 
-            openStudentModal(id); 
+            
             document.getElementById('stdName').value = ''; 
             document.getElementById('stdOwnPhone').value = ''; 
-            showToast('تم حفظ العضو وإنشاء الحساب', 'success'); 
+            showToast('تم حفظ العضو وإنشاء الحساب بنجاح', 'success'); 
+            
+            openStudentModal(id);
         } catch (e) { 
-            showToast('خطأ في الاتصال أو الحساب موجود', 'error'); 
+            console.error(e);
+            showToast('حدث خطأ في الاتصال أثناء حفظ البيانات', 'error'); 
         } 
     }
 
@@ -1130,7 +1153,7 @@
         let filtered = window.members;
         
         if(filterStage !== 'all') { filtered = filtered.filter(s => s.level === filterStage); }
-        if(query !== '') { filtered = filtered.filter(s => normalizeArabic(s.name.toLowerCase()).includes(query) || s.id.includes(query)); }
+        if(query !== '') { filtered = filtered.filter(s => normalizeArabic(s.name ? s.name.toLowerCase() : '').includes(query) || (s.id && s.id.includes(query))); }
         
         filtered.sort((a, b) => { const dateA = a.createdAt ? new Date(a.createdAt) : new Date(a.date); const dateB = b.createdAt ? new Date(b.createdAt) : new Date(b.date); return dateB - dateA; });
         
@@ -1144,7 +1167,7 @@
         const end = start + itemsPerPage;
         const pageItems = filtered.slice(start, end);
 
-        tbody.innerHTML = pageItems.map((s, index) => `<tr class="cursor-pointer" onclick="openStudentModal('${s.id}')"><td class="col-index">${start + index + 1}</td><td class="col-code font-mono font-bold text-gray-900">${s.id}</td><td class="font-bold">${s.name}</td><td>${stageMap[s.level] || s.level}</td><td class="col-date text-gray-500">${s.date || '-'}</td><td class="no-print col-action" onclick="event.stopPropagation()"><button onclick="delStudent('${s.docId}', '${s.id}')" class="text-red-500 text-[10px] font-bold">حذف</button></td></tr>`).join('');
+        tbody.innerHTML = pageItems.map((s, index) => `<tr class="cursor-pointer hover:bg-gray-100" onclick="openStudentModal('${s.id}')"><td class="col-index">${start + index + 1}</td><td class="col-code font-mono font-bold text-gray-900">${s.id}</td><td class="font-bold text-right pr-2">${s.name}</td><td class="col-stage font-bold text-blue-900">${stageMap[s.level] || s.level}</td><td class="col-date text-gray-500">${s.date || '-'}</td><td class="no-print col-action" onclick="event.stopPropagation()"><button onclick="delStudent('${s.docId}', '${s.id}')" class="text-red-500 text-[10px] font-bold hover:underline">حذف</button></td></tr>`).join('');
         document.getElementById('pageIndicator').innerText = `صفحة ${currentPage} من ${totalPages || 1}`;
     }
 
@@ -1174,7 +1197,6 @@
     let html5QrCode = null; let isScannerRunning = false; let isPaused = false;
     window.changeAttendanceDate = function() { selectedAttendanceDate = document.getElementById('attendanceDate').value; window.updateCounters(); }
     
-    // تفعيل اليوم
     window.confirmEventDay = async function() {
         const date = document.getElementById('attendanceDate').value;
         const selectedLevel = document.getElementById('attendanceStage').value;
@@ -1194,7 +1216,6 @@
         showToast(`تم تفعيل يوم الحضور بنجاح`, 'success'); window.updateCounters();
     }
     
-    // الغاء تفعيل اليوم
     window.cancelEventDay = async function() {
         const date = document.getElementById('attendanceDate').value;
         document.getElementById('exceptionalStatusIndicator').classList.add('hidden');
@@ -1217,10 +1238,9 @@
     async function startScanner(elemId, mode) { 
         if(isScannerRunning && html5QrCode) { return; }
         html5QrCode = new Html5Qrcode(elemId); 
-        // تحسين الكاميرا لتلتقط الـ QR Code فقط بسرعة عالية
         const config = { 
             fps: 15, 
-            qrbox: { width: 250, height: 250 }, 
+            qrbox: { width: 220, height: 220 }, 
             aspectRatio: 1.0, 
             disableFlip: false, 
             formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ] 
@@ -1329,7 +1349,6 @@
         if (date > today) { showCustomAlert("تاريخ غير صحيح", "لا يمكن تسجيل الحضور لموعد في المستقبل."); return; }
         const member = window.members.find(s => s.id === id);
         if(member) {
-            const selectedLevel = document.getElementById('attendanceStage').value;
             const statusObj = getStudentStatusForDate(member, date);
             if (statusObj.status === 'present') { showToast('مسجل مسبقاً', 'warning'); playSound('error'); setTimeout(() => { isPaused = false; }, 2000); return; }
             
@@ -1352,7 +1371,7 @@
         const title = type === 'present' ? `قائمة الحضور (${selectedAttendanceDate})` : `قائمة الغياب (${selectedAttendanceDate})`; 
         document.getElementById('detailsTitle').innerText = title; 
         const thead = document.getElementById('detailsTableHead'); 
-        thead.innerHTML = `<tr><th class="col-index">م</th><th>الاسم</th><th>الكود</th><th>اللجنة</th><th>${type === 'present' ? 'وقت' : 'تاريخ'}</th></tr>`; 
+        thead.innerHTML = `<tr><th class="col-index">م</th><th>الاسم</th><th class="col-code">الكود</th><th class="col-stage">اللجنة</th><th>${type === 'present' ? 'الوقت' : 'التاريخ'}</th></tr>`; 
         document.getElementById('detailsModal').classList.remove('hidden'); 
         document.body.classList.add('modal-open'); filterAttendanceList(); 
     }
@@ -1371,7 +1390,7 @@
         });
         
         if(list.length === 0) tbody.innerHTML = `<tr><td colspan="5" class="text-center text-gray-500 py-4">لا توجد بيانات</td></tr>`;
-        else tbody.innerHTML = list.map((s, index) => `<tr class="cursor-pointer hover:bg-blue-50" onclick="openStudentModal('${s.id}')"><td class="col-index">${index + 1}</td><td class="font-bold">${s.name}</td><td class="font-mono text-blue-600">${s.id}</td><td>${stageMap[s.level] || s.level}</td><td class="${currentAttType === 'present' ? 'text-green-600' : 'text-red-600'}">${s.time}</td></tr>`).join(''); 
+        else tbody.innerHTML = list.map((s, index) => `<tr class="cursor-pointer hover:bg-blue-50" onclick="openStudentModal('${s.id}')"><td class="col-index">${index + 1}</td><td class="font-bold text-right pr-2">${s.name}</td><td class="col-code font-mono text-blue-600">${s.id}</td><td class="col-stage font-bold">${stageMap[s.level] || s.level}</td><td class="${currentAttType === 'present' ? 'text-green-600' : 'text-red-600'}">${s.time}</td></tr>`).join(''); 
     }
 
     window.updateCounters = function() {
@@ -1384,7 +1403,7 @@
         if (eventRec) { 
             let levelsText = ""; 
             if (eventRec.levels.includes('all')) levelsText = "الكل"; 
-            else levelsText = eventRec.levels.map(l => stageMap[l]).join('، '); 
+            else levelsText = eventRec.levels.map(l => stageMap[l] || l).join('، '); 
             levelNameSpan.innerText = levelsText; 
             indicator.classList.remove('hidden'); 
         } else { 
@@ -1407,7 +1426,7 @@
     function generateStudentReport() {
         const query = normalizeArabic(document.getElementById('reportStudentSearch').value.toLowerCase());
         const stage = document.getElementById('searchStage').value;
-        let matches = window.members.filter(s => { const nameMatch = normalizeArabic(s.name.toLowerCase()).includes(query); const idMatch = s.id.includes(query); const stageMatch = stage === 'all' || s.level === stage; return (nameMatch || idMatch) && stageMatch; });
+        let matches = window.members.filter(s => { const nameMatch = normalizeArabic(s.name ? s.name.toLowerCase() : '').includes(query); const idMatch = s.id.includes(query); const stageMatch = stage === 'all' || s.level === stage; return (nameMatch || idMatch) && stageMatch; });
         const resDiv = document.getElementById('studentReportResult');
         if(matches.length === 0) { resDiv.innerHTML = '<p class="text-red-500 text-center font-bold">لم يتم العثور على نتائج</p>'; resDiv.classList.remove('hidden'); return; }
         if(matches.length > 1) { let listHtml = `<div class="text-xs font-bold text-gray-900 mb-2">تم العثور على ${matches.length} عضو:</div><div class="max-h-40 overflow-y-auto border rounded">`; matches.forEach(s => { listHtml += `<div onclick="showSingleReport('${s.id}')" class="p-2 border-b hover:bg-gray-50 cursor-pointer flex justify-between"><span>${s.name}</span><span class="text-gray-500 font-mono">${s.id} (${stageMap[s.level] || s.level})</span></div>`; }); listHtml += `</div>`; resDiv.innerHTML = listHtml; resDiv.classList.remove('hidden'); } else { showSingleReport(matches[0].id); }
@@ -1422,19 +1441,30 @@
         const points = window.accounting.filter(r => r.category === 'points' && r.stdId === member.id);
         const totalPoints = points.reduce((sum, p) => sum + p.amount, 0);
         
+        const presentDates = stats.history.filter(h => h.status === 'present').map(h => `${h.date} (${h.day})`).join(' ، ') || 'لا يوجد';
+        const absentDates = stats.history.filter(h => h.status === 'absent').map(h => `${h.date} (${h.day})`).join(' ، ') || 'لا يوجد';
+
         resDiv.innerHTML = `
             <div class="text-center border-b pb-3 mb-2">
                 <p class="text-[10px] text-gray-500 font-bold mb-0.5">اسم العضو</p>
-                <h2 class="text-xl font-bold text-blue-900 mb-2">${member.name}</h2>
-                <p class="text-[10px] text-gray-500 font-bold mb-0.5">كود العضو</p>
-                <p class="text-gray-500 font-mono text-lg font-bold mb-2">${member.id}</p>
-                <div class="bg-blue-100 rounded-lg p-2 text-xs text-blue-800 font-bold inline-block mb-3">${stageMap[member.level] || member.level}</div>
+                <h2 class="text-xl font-bold text-blue-900 mb-1">${member.name}</h2>
+                <p class="text-gray-500 font-mono text-sm font-bold mb-2">كود: ${member.id} | اللجنة: <span class="text-blue-700">${stageMap[member.level] || member.level}</span></p>
             </div>
-            <div class="grid grid-cols-2 gap-2 mb-4 text-center">
-                <div class="bg-green-100 p-2 rounded"><div class="text-xs">الحضور</div><div class="font-bold text-green-700">${stats.present}</div></div>
-                <div class="bg-red-100 p-2 rounded"><div class="text-xs">الغياب</div><div class="font-bold text-red-700">${stats.absent}</div></div>
+            <div class="grid grid-cols-2 gap-2 mb-3 text-center">
+                <div class="bg-green-100 p-2 rounded"><div class="text-xs">أيام الحضور</div><div class="font-bold text-green-700">${stats.present}</div></div>
+                <div class="bg-red-100 p-2 rounded"><div class="text-xs">أيام الغياب</div><div class="font-bold text-red-700">${stats.absent}</div></div>
             </div>
-            <div class="mb-4"><h5 class="font-bold text-xs mb-1 text-blue-900">سجل النقاط (${totalPoints} نقطة)</h5><div class="max-h-32 overflow-y-auto text-xs border rounded p-1">${points.length ? points.map(p => `<div class="flex justify-between border-b p-1"><span>${p.type}</span><span class="font-bold text-blue-700">${p.amount} (${p.date})</span></div>`).join('') : '<p class="text-center">لا يوجد</p>'}</div></div>
+            <div class="space-y-2 mb-3 text-xs">
+                <div class="p-2 bg-green-50 rounded border border-green-200">
+                    <span class="font-bold text-green-800 block mb-0.5">📅 تواريخ الحضور:</span>
+                    <p class="text-gray-700 font-mono leading-relaxed">${presentDates}</p>
+                </div>
+                <div class="p-2 bg-red-50 rounded border border-red-200">
+                    <span class="font-bold text-red-800 block mb-0.5">📅 تواريخ الغياب:</span>
+                    <p class="text-gray-700 font-mono leading-relaxed">${absentDates}</p>
+                </div>
+            </div>
+            <div class="mb-4"><h5 class="font-bold text-xs mb-1 text-blue-900">سجل النقاط والتقييمات (${totalPoints} نقطة)</h5><div class="max-h-32 overflow-y-auto text-xs border rounded p-1">${points.length ? points.map(p => `<div class="flex justify-between border-b p-1"><span>${p.type}</span><span class="font-bold text-blue-700">${p.amount} (${p.date})</span></div>`).join('') : '<p class="text-center text-gray-400">لا يوجد نقاط</p>'}</div></div>
             <div class="flex gap-2">
                 <button onclick="pdfDetailedStudentReport('${member.id}')" class="flex-1 bg-red-700 text-white py-1.5 rounded text-xs font-bold flex items-center justify-center gap-2"><span>📄</span> حفظ PDF</button>
                 <button onclick="printDetailedStudentReport('${member.id}')" class="flex-1 bg-gray-800 text-white py-1.5 rounded text-xs font-bold flex items-center justify-center gap-2"><span>🖨️</span> طباعة</button>
@@ -1461,7 +1491,7 @@
             </div>
             <table class="print-stats-table"><tr><td class="print-stats-cell"><div class="print-box-title">أيام الحضور</div><div class="print-box-val">${stats.present}</div></td><td class="print-stats-cell"><div class="print-box-title">أيام الغياب</div><div class="print-box-val">${stats.absent}</div></td><td class="print-stats-cell"><div class="print-box-title">إجمالي النقاط</div><div class="print-box-val" style="color:blue;">${totalPoints}</div></td></tr></table>
             <h3 style="border-bottom: 2px solid #1e3a8a; margin-top: 15px;">النقاط والتقييمات</h3><table class="print-table"><thead><tr><th>التاريخ</th><th>المهمة/التقييم</th><th>النقاط</th></tr></thead><tbody>${points.map(p => `<tr><td>${p.date}</td><td>${p.type}</td><td>${p.amount}</td></tr>`).join('') || '<tr><td colspan="3">لا يوجد</td></tr>'}</tbody></table>
-            <h3 style="border-bottom: 2px solid #1e3a8a; margin-top: 15px;">سجل الحضور والغياب</h3><table class="print-table"><thead><tr><th>التاريخ</th><th>اليوم</th><th>الحالة</th></tr></thead><tbody>${stats.history.map(h => `<tr><td>${h.date}</td><td>${h.day}</td><td>${h.status==='present'?'حضور':'غياب'}</td></tr>`).join('')}</tbody></table>
+            <h3 style="border-bottom: 2px solid #1e3a8a; margin-top: 15px;">سجل الحضور والغياب المفصل</h3><table class="print-table"><thead><tr><th>التاريخ</th><th>اليوم</th><th>الحالة</th></tr></thead><tbody>${stats.history.map(h => `<tr><td>${h.date}</td><td>${h.day}</td><td>${h.status==='present'?'حضور':'غياب'}</td></tr>`).join('')}</tbody></table>
         `;
         printHTML('تقرير تفصيلي لعضو', content);
     }
@@ -1548,14 +1578,58 @@
         isPaused = false; 
     }
 
+    window.setEvalPeriod = function(period) {
+        evalPeriod = period;
+        document.getElementById('btnEvalToday').className = period === 'today' ? 'px-2 py-1 rounded text-[9px] font-bold bg-blue-600 text-white transition' : 'px-2 py-1 rounded text-[9px] font-bold text-gray-300 hover:text-white transition';
+        document.getElementById('btnEvalMonth').className = period === 'month' ? 'px-2 py-1 rounded text-[9px] font-bold bg-blue-600 text-white transition' : 'px-2 py-1 rounded text-[9px] font-bold text-gray-300 hover:text-white transition';
+        window.updateFinance();
+    }
+
     window.updateFinance = function() { 
         const points = window.accounting.filter(a => a.category === 'points'); 
-        const todayPoints = points.filter(r => r.date === today); 
-        
-        const totalPointsToday = todayPoints.reduce((sum, r) => sum + r.amount, 0); 
-        document.getElementById('totalRev').innerText = totalPointsToday; 
+        let filteredPoints = [];
 
-        document.getElementById('todayRevList').innerHTML = todayPoints.map(r => `<div class="flex justify-between border-b border-white/10 pb-1"><span>${r.name} <span class="text-[9px] opacity-70">(${r.type})</span></span><span class="font-bold text-blue-300">${r.amount} نقطة</span></div>`).join('') || '<div class="text-center opacity-50">لا يوجد نقاط اليوم</div>'; 
+        if (evalPeriod === 'today') {
+            filteredPoints = points.filter(r => r.date === today);
+        } else {
+            const currentMonth = today.substring(0, 7); // YYYY-MM
+            filteredPoints = points.filter(r => r.date && r.date.startsWith(currentMonth));
+        }
+
+        const totalPointsPeriod = filteredPoints.reduce((sum, r) => sum + r.amount, 0); 
+        document.getElementById('totalRev').innerText = totalPointsPeriod; 
+
+        // حساب إجمالي نقاط كل عضو للفترة المحددة
+        const memberTotals = {};
+        filteredPoints.forEach(r => {
+            memberTotals[r.stdId] = (memberTotals[r.stdId] || 0) + r.amount;
+        });
+
+        const listBody = document.getElementById('todayRevList');
+        if (filteredPoints.length === 0) {
+            listBody.innerHTML = `<tr><td colspan="6" class="p-3 text-center text-gray-500">لا توجد تقييمات مسجلة لهذه الفترة</td></tr>`;
+            return;
+        }
+
+        // ترتيب الأحدث أولاً
+        filteredPoints.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+        listBody.innerHTML = filteredPoints.map((r, index) => {
+            const member = window.members.find(m => m.id === r.stdId);
+            const level = member ? (stageMap[member.level] || member.level) : '-';
+            const totalForMember = memberTotals[r.stdId] || r.amount;
+
+            return `
+                <tr class="border-b border-gray-800 hover:bg-gray-800/50">
+                    <td class="p-1.5 col-index text-gray-400">${index + 1}</td>
+                    <td class="p-1.5 font-bold text-right text-gray-200">${r.name}</td>
+                    <td class="p-1.5 col-stage font-bold text-blue-400">${level}</td>
+                    <td class="p-1.5 text-gray-300 text-[9px]">${r.type}</td>
+                    <td class="p-1.5 font-bold text-green-400">+${r.amount}</td>
+                    <td class="p-1.5 font-bold text-yellow-400">${totalForMember}</td>
+                </tr>
+            `;
+        }).join('');
     }
 
     function toggleReportInputs() { const type = document.getElementById('reportType').value; if(type === 'daily') { document.getElementById('divDateInput').classList.remove('hidden'); document.getElementById('divMonthInput').classList.add('hidden'); } else { document.getElementById('divDateInput').classList.add('hidden'); document.getElementById('divMonthInput').classList.remove('hidden'); } }
@@ -1594,42 +1668,111 @@
 
         targetMembers.forEach(member => {
             let presentCount = 0; let absentCount = 0;
+            let pDates = []; let aDates = [];
+
             datesArray.forEach(d => {
                 if (d >= member.date && d <= today) {
                     const statusObj = getStudentStatusForDate(member, d);
-                    if (statusObj.status === 'present') presentCount++;
-                    else if (statusObj.status === 'absent') absentCount++;
+                    if (statusObj.status === 'present') { presentCount++; pDates.push(d); }
+                    else if (statusObj.status === 'absent') { absentCount++; aDates.push(d); }
                 }
             });
+
             const memberPoints = pointsForPeriod.filter(p => p.stdId === member.id).reduce((sum, p) => sum + p.amount, 0);
             
-            if (presentCount > 0) currentReportData.present.push({ ...member, count: presentCount });
-            if (absentCount > 0) currentReportData.absent.push({ ...member, count: absentCount });
-            currentReportData.combined.push({ ...member, presentCount, absentCount, totalPoints: memberPoints });
+            const recordObj = { 
+                ...member, 
+                presentCount, 
+                absentCount, 
+                totalPoints: memberPoints,
+                presentDatesStr: pDates.join(' ، ') || 'لا يوجد',
+                absentDatesStr: aDates.join(' ، ') || 'لا يوجد'
+            };
+
+            if (presentCount > 0) currentReportData.present.push(recordObj);
+            if (absentCount > 0) currentReportData.absent.push(recordObj);
+            currentReportData.combined.push(recordObj);
             
             totalPointsForPeriod += memberPoints;
         });
 
         currentReportData.points = pointsForPeriod;
 
-        let html = `<h4 class="font-bold text-center border-b pb-2 mb-2 text-blue-900">تقرير ${dateLabel}</h4>`;
+        let html = `<h4 class="font-bold text-center border-b pb-2 mb-2 text-blue-900">تقرير (${dateLabel}) - ${stage === 'all' ? 'كل اللجان' : stageMap[stage] || stage}</h4>`;
 
         if (category === 'combined') {
             html += `
-                <div class="overflow-x-auto">
-                    <table class="w-full text-[10px] text-center border custom-table mb-2">
-                        <thead class="bg-blue-900 text-white"><tr><th>م</th><th>الاسم</th><th>اللجنة</th><th>النقاط</th><th>حضور</th><th>غياب</th></tr></thead>
-                        <tbody>${currentReportData.combined.map((c, i) => `<tr><td>${i+1}</td><td class="font-bold">${c.name}</td><td>${stageMap[c.level]||c.level}</td><td class="text-blue-700 font-bold">${c.totalPoints}</td><td class="text-green-600">${c.presentCount}</td><td class="text-red-600">${c.absentCount}</td></tr>`).join('')}</tbody>
+                <div class="overflow-x-auto mb-2">
+                    <table class="w-full text-[9px] text-center border custom-table">
+                        <thead class="bg-blue-900 text-white">
+                            <tr>
+                                <th class="col-index">م</th>
+                                <th>الاسم</th>
+                                <th class="col-stage">اللجنة</th>
+                                <th>حضور</th>
+                                <th>غياب</th>
+                                <th>نقاط</th>
+                                <th>تواريخ الحضور</th>
+                                <th>تواريخ الغياب</th>
+                            </tr>
+                        </thead>
+                        <tbody>${currentReportData.combined.map((c, i) => `<tr><td class="col-index">${i+1}</td><td class="font-bold text-right pr-1">${c.name}</td><td class="col-stage font-bold">${stageMap[c.level]||c.level}</td><td class="text-green-600 font-bold">${c.presentCount}</td><td class="text-red-600 font-bold">${c.absentCount}</td><td class="text-blue-700 font-bold">${c.totalPoints}</td><td class="text-[8px] text-gray-600 font-mono">${c.presentDatesStr}</td><td class="text-[8px] text-gray-600 font-mono">${c.absentDatesStr}</td></tr>`).join('')}</tbody>
                     </table>
                 </div>
-                <button onclick="exportCombinedExcel()" class="w-full bg-green-700 text-white py-1.5 rounded font-bold shadow text-[10px] md:text-sm">📥 تصدير التقرير الشامل (Excel)</button>
+                <div class="flex gap-2">
+                    <button onclick="exportReportExcel('combined')" class="flex-1 bg-green-700 text-white py-1.5 rounded font-bold shadow text-[10px]">📥 تصدير Excel</button>
+                    <button onclick="exportReportPDF('combined')" class="flex-1 bg-red-700 text-white py-1.5 rounded font-bold shadow text-[10px]">📄 حفظ PDF</button>
+                </div>
             `;
         }
         else if (category === 'attendance') {
-            html += `<div class="grid grid-cols-2 gap-2 text-center"><div onclick='openReportDetails("present")' class="bg-green-100 p-2 rounded cursor-pointer hover:bg-green-200"><div class="text-xs">حضور</div><div class="font-bold text-green-700">${currentReportData.present.length} عضو</div></div><div onclick='openReportDetails("absent")' class="bg-red-100 p-2 rounded cursor-pointer hover:bg-red-200"><div class="text-xs">غياب</div><div class="font-bold text-red-700">${currentReportData.absent.length} عضو</div></div></div>`;
+            html += `
+                <div class="overflow-x-auto mb-2">
+                    <table class="w-full text-[9px] text-center border custom-table">
+                        <thead class="bg-blue-900 text-white">
+                            <tr>
+                                <th class="col-index">م</th>
+                                <th>الاسم</th>
+                                <th class="col-stage">اللجنة</th>
+                                <th>عدد الحضور</th>
+                                <th>تواريخ الحضور</th>
+                                <th>عدد الغياب</th>
+                                <th>تواريخ الغياب</th>
+                            </tr>
+                        </thead>
+                        <tbody>${currentReportData.combined.map((c, i) => `<tr><td class="col-index">${i+1}</td><td class="font-bold text-right pr-1">${c.name}</td><td class="col-stage font-bold">${stageMap[c.level]||c.level}</td><td class="text-green-600 font-bold">${c.presentCount}</td><td class="text-[8px] text-gray-600 font-mono">${c.presentDatesStr}</td><td class="text-red-600 font-bold">${c.absentCount}</td><td class="text-[8px] text-gray-600 font-mono">${c.absentDatesStr}</td></tr>`).join('')}</tbody>
+                    </table>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="exportReportExcel('attendance')" class="flex-1 bg-green-700 text-white py-1.5 rounded font-bold shadow text-[10px]">📥 تصدير Excel</button>
+                    <button onclick="exportReportPDF('attendance')" class="flex-1 bg-red-700 text-white py-1.5 rounded font-bold shadow text-[10px]">📄 حفظ PDF</button>
+                </div>
+            `;
         } 
         else {
-            html += `<div onclick='openReportDetails("points")' class="bg-blue-50 p-3 rounded border border-blue-200 cursor-pointer hover:bg-blue-100 text-center"><span class="text-xs text-gray-500 block">إجمالي النقاط الممنوحة</span><span class="font-bold text-blue-700 text-xl">${totalPointsForPeriod} نقطة</span><br><span class="text-[9px] text-gray-400">اضغط للتفاصيل</span></div>`;
+            html += `
+                <div class="overflow-x-auto mb-2">
+                    <table class="w-full text-[9px] text-center border custom-table">
+                        <thead class="bg-blue-900 text-white">
+                            <tr>
+                                <th class="col-index">م</th>
+                                <th>الاسم</th>
+                                <th class="col-stage">اللجنة</th>
+                                <th>النقاط المكتسبة</th>
+                                <th>تفاصيل المهام</th>
+                            </tr>
+                        </thead>
+                        <tbody>${currentReportData.combined.map((c, i) => {
+                            const mTasks = pointsForPeriod.filter(p => p.stdId === c.id).map(p => `${p.type}: ${p.amount}`).join(' | ') || 'لا يوجد';
+                            return `<tr><td class="col-index">${i+1}</td><td class="font-bold text-right pr-1">${c.name}</td><td class="col-stage font-bold">${stageMap[c.level]||c.level}</td><td class="text-blue-700 font-bold">${c.totalPoints}</td><td class="text-[8px] text-gray-600">${mTasks}</td></tr>`;
+                        }).join('')}</tbody>
+                    </table>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="exportReportExcel('points')" class="flex-1 bg-green-700 text-white py-1.5 rounded font-bold shadow text-[10px]">📥 تصدير Excel</button>
+                    <button onclick="exportReportPDF('points')" class="flex-1 bg-red-700 text-white py-1.5 rounded font-bold shadow text-[10px]">📄 حفظ PDF</button>
+                </div>
+            `;
         }
 
         resDiv.innerHTML = html; resDiv.classList.remove('hidden');
@@ -1637,37 +1780,40 @@
 
     window.toggleReportView = function() { if (!document.getElementById('reportResult').classList.contains('hidden')) { generateAdvancedReport(); } }
 
-    window.exportCombinedExcel = function() {
-        if(!currentReportData.combined || currentReportData.combined.length === 0) return showToast('لا توجد بيانات', 'error');
-        let csvContent = "\uFEFFالكود,الاسم,اللجنة,رقم الهاتف,أيام الحضور,أيام الغياب,إجمالي النقاط\n";
-        currentReportData.combined.forEach(c => {
-            csvContent += `${c.id},"${c.name}",${stageMap[c.level]||c.level},'${c.ownPhone||c.phone},${c.presentCount},${c.absentCount},${c.totalPoints}\n`;
-        });
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' }); const url = URL.createObjectURL(blob); const link = document.createElement("a"); link.setAttribute("href", url); link.setAttribute("download", `تقرير_YLY_شامل.csv`); document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    window.exportReportExcel = function(category) {
+        if(!currentReportData.combined || currentReportData.combined.length === 0) return showToast('لا توجد بيانات للتصدير', 'error');
+        let csvContent = "\uFEFF";
+        
+        if (category === 'combined') {
+            csvContent += "الكود,الاسم,اللجنة,رقم الهاتف,أيام الحضور,أيام الغياب,إجمالي النقاط,تواريخ الحضور,تواريخ الغياب\n";
+            currentReportData.combined.forEach(c => {
+                csvContent += `${c.id},"${c.name}",${stageMap[c.level]||c.level},'${c.ownPhone||c.phone},${c.presentCount},${c.absentCount},${c.totalPoints},"${c.presentDatesStr}","${c.absentDatesStr}"\n`;
+            });
+        } else if (category === 'attendance') {
+            csvContent += "الكود,الاسم,اللجنة,عدد الحضور,تواريخ الحضور,عدد الغياب,تواريخ الغياب\n";
+            currentReportData.combined.forEach(c => {
+                csvContent += `${c.id},"${c.name}",${stageMap[c.level]||c.level},${c.presentCount},"${c.presentDatesStr}",${c.absentCount},"${c.absentDatesStr}"\n`;
+            });
+        } else if (category === 'points') {
+            csvContent += "الكود,الاسم,اللجنة,إجمالي النقاط\n";
+            currentReportData.combined.forEach(c => {
+                csvContent += `${c.id},"${c.name}",${stageMap[c.level]||c.level},${c.totalPoints}\n`;
+            });
+        }
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' }); 
+        const url = URL.createObjectURL(blob); 
+        const link = document.createElement("a"); 
+        link.setAttribute("href", url); 
+        link.setAttribute("download", `تقرير_YLY_${category}.csv`); 
+        document.body.appendChild(link); 
+        link.click(); 
+        document.body.removeChild(link);
     }
 
-    function openReportDetails(key) { 
-        const list = currentReportData[key]; 
-        let title = ''; 
-        if(key === 'present') title = 'تفاصيل الحضور'; 
-        else if(key === 'absent') title = 'تفاصيل الغياب'; 
-        else if(key === 'points') title = 'تفاصيل النقاط والمهام'; 
-
-        document.getElementById('detailsTitle').innerText = title; 
-        const thead = document.getElementById('detailsTableHead'); 
-        const tbody = document.getElementById('detailsTableBody'); 
-
-        if(key === 'present' || key === 'absent') { 
-            thead.innerHTML = `<tr><th class="col-index">م</th><th>الاسم</th><th>اللجنة</th><th>العدد</th></tr>`; 
-            if(!list || list.length === 0) tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4">لا توجد بيانات</td></tr>`; 
-            else tbody.innerHTML = list.map((s, i) => `<tr class="hover:bg-gray-50"><td class="text-gray-500">${i + 1}</td><td class="font-bold">${s.name}</td><td>${stageMap[s.level] || s.level}</td><td class="font-bold ${key === 'absent' ? 'text-red-600' : 'text-green-600'}">${s.count} يوم</td></tr>`).join('');
-        } else if (key === 'points') {
-            thead.innerHTML = `<tr><th class="col-index">م</th><th>الاسم</th><th>النقاط</th><th>المهمة</th><th>التاريخ</th></tr>`; 
-            if(!list || list.length === 0) tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4">لا توجد بيانات</td></tr>`; 
-            else tbody.innerHTML = list.map((item, i) => `<tr class="hover:bg-gray-50"><td class="text-gray-500">${i + 1}</td><td class="font-bold">${item.name}</td><td class="font-bold text-blue-700">${item.amount}</td><td class="text-xs">${item.type}</td><td class="text-gray-500 text-xs">${item.date}</td></tr>`).join(''); 
-        } 
-        document.getElementById('detailsModal').classList.remove('hidden'); 
-        document.body.classList.add('modal-open');
+    window.exportReportPDF = function(category) {
+        const reportResultHtml = document.getElementById('reportResult').innerHTML;
+        savePDF(`تقرير_YLY_${category}`, reportResultHtml);
     }
 
     function exportData() { const data = { members: window.members, attendance: window.attendance, accounting: window.accounting }; const blob = new Blob([JSON.stringify(data)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `backup_YLY_${today}.json`; a.click(); }
@@ -1686,16 +1832,14 @@
         const stdPhone = s.ownPhone ? (s.ownPhone.startsWith('0') ? s.ownPhone : '0' + s.ownPhone) : (s.phone ? (s.phone.startsWith('0') ? s.phone : '0'+s.phone) : 'غير مسجل');
 
         const content = `
-            <div class="id-card-print-wrapper">
-                <div class="id-card-qr">${qrImageHtml}</div>
-                <div class="id-card-info">
-                    <div class="id-card-title">YLY System</div>
-                    <div class="id-card-name">${s.name}</div>
-                    <div class="id-card-row"><span>الكود:</span> <span>${s.id}</span></div>
-                    <div class="id-card-row"><span>اللجنة:</span> <span>${stageMap[s.level] || s.level}</span></div>
-                    <div class="id-card-row"><span>رقم الهاتف:</span> <span>${stdPhone}</span></div>
-                    <div class="id-card-footer">بطاقة هوية عضو</div>
-                </div>
+            <div class="print-student-card">
+                <div class="print-card-title">YLY System Pro</div>
+                <div class="print-card-name">${s.name}</div>
+                <div style="display:flex; justify-content:center; margin:10px 0;">${qrImageHtml}</div>
+                <div class="print-card-row"><span>كود العضو:</span> <span>${s.id}</span></div>
+                <div class="print-card-row"><span>اللجنة:</span> <span>${stageMap[s.level] || s.level}</span></div>
+                <div class="print-card-row"><span>رقم الهاتف:</span> <span>${stdPhone}</span></div>
+                <div class="print-card-footer">بطاقة هوية عضو مبادرة YLY</div>
             </div>`;
         printHTML('بطاقة عضو', content);
     }

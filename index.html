@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
+    <!-- SEO & Open Graph -->
     <meta property="og:title" content="YLY Management | Pro System">
     <meta property="og:description" content="نظام إدارة اللجان والأعضاء لمبادرة شباب يدير شباب YLY">
     <meta property="og:image" content="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657868/etyefoyw9madba5a5u1z.png">
     
+    <!-- PWA Settings -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#1e3a8a">
@@ -16,6 +18,7 @@
 
     <title>YLY Management | Pro System</title>
 
+    <!-- Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
@@ -23,17 +26,27 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
+        /* --- الأساسيات والمحاذاة --- */
         body { font-family: 'Cairo', sans-serif; background-color: #f3f4f6; padding-bottom: 80px; font-size: 10px; -webkit-tap-highlight-color: transparent; user-select: none; }
         body.modal-open { overflow: hidden !important; height: 100vh; }
+        
+        label { text-align: right; display: block; width: 100%; font-weight: bold; }
 
-        input, select, textarea { border: 1px solid #9ca3af; border-radius: 0.25rem; background-color: #ffffff; color: #111827; font-weight: 700; transition: all 0.2s ease-in-out; padding-right: 1.5rem !important; padding-left: 0.5rem !important; height: 30px; font-size: 11px !important; width: 100%; outline: none; }
+        /* النصوص يمين، والأيقونات يسار */
+        input, select, textarea { 
+            border: 1px solid #9ca3af; border-radius: 0.25rem; background-color: #ffffff; color: #111827; 
+            font-weight: 700; transition: all 0.2s ease-in-out; height: 30px; font-size: 11px !important; 
+            width: 100%; outline: none; text-align: right; 
+            padding-right: 0.5rem !important; padding-left: 2rem !important; /* مساحة للأيقونة على اليسار */
+        }
         input:focus, select:focus { border-color: #1e3a8a; box-shadow: 0 0 0 1px rgba(30, 58, 138, 0.2); }
         
         .input-wrapper { position: relative; width: 100%; }
-        /* الايقونات اليمين */
-        .input-icon { position: absolute; top: 50%; right: 6px; transform: translateY(-50%); color: #6b7280; pointer-events: none; width: 14px; height: 14px; z-index: 10; }
-        /* سهم القائمة المنسدلة يسار */
-        .dropdown-arrow { position: absolute; top: 50%; left: 8px; transform: translateY(-50%); color: #6b7280; pointer-events: none; width: 12px; height: 12px; z-index: 10; }
+        /* تثبيت الأيقونات والأسهم في اليسار تماماً */
+        .input-icon, .dropdown-arrow { 
+            position: absolute; top: 50%; left: 8px !important; right: auto !important; 
+            transform: translateY(-50%); color: #6b7280; pointer-events: none; width: 14px; height: 14px; z-index: 10; 
+        }
 
         .sub-nav-item { border: 1px solid #1e40af !important; color: #1e40af; background: transparent; font-weight: bold; transition: all 0.2s; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 10px; }
         .sub-nav-item.active { background: #1e40af !important; color: white !important; box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
@@ -44,8 +57,7 @@
             .glass-card { padding: 1.25rem !important; }
             .login-card { max-width: 400px !important; padding: 25px !important; }
             .nav-item { font-size: 13px !important; padding: 10px !important; }
-            input, select, button { font-size: 12px !important; padding: 8px !important; height: 36px; padding-right: 2rem !important; }
-            .input-icon { right: 8px; width: 16px; height: 16px; }
+            input, select, button { font-size: 12px !important; height: 36px; }
         }
 
         .nav-item { transition: all 0.2s; opacity: 0.7; border-bottom: 3px solid transparent; }
@@ -76,12 +88,12 @@
         #loadingOverlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(15px); z-index: 999999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; transition: opacity 0.3s ease; }
         #loginOverlay { position: fixed; inset: 0; background: linear-gradient(135deg, #1e3a8a 0%, #111827 100%); z-index: 100000; display: none; align-items: center; justify-content: center; padding: 15px; }
         .login-card { background: rgba(255, 255, 255, 0.98); width: 100%; max-width: 360px; border-radius: 12px; padding: 20px; box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.4); text-align: center; border: 1px solid #4b5563; }
-        .login-input { width: 100%; padding: 10px; margin-bottom: 12px; border: 1px solid #4b5563; border-radius: 8px; font-size: 13px; padding-right: 2.5rem !important; }
+        .login-input { padding: 10px; margin-bottom: 12px; border: 1px solid #4b5563; border-radius: 8px; font-size: 13px; text-align: right; }
         .login-btn { width: 100%; padding: 10px; background: #dc2626; color: white; border-radius: 8px; font-weight: bold; font-size: 13px; transition: transform 0.1s; border: 1px solid #991b1b; }
         .login-tab { flex: 1; padding: 8px; cursor: pointer; font-weight: bold; border-bottom: 3px solid transparent; color: #6b7280; transition: all 0.3s; }
         .login-tab.active { color: #1e3a8a; border-bottom-color: #1e3a8a; background: #f3f4f6; border-radius: 5px 5px 0 0; }
 
-        /* Custom Dropdown Styles */
+        /* Custom Dropdowns */
         .dropdown-menu { transform-origin: top center; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
         .dropdown-menu.show { opacity: 1; transform: scaleY(1); visibility: visible; }
         .dropdown-menu.hide { opacity: 0; transform: scaleY(0); visibility: hidden; }
@@ -152,7 +164,6 @@
     </div>
 </div>
 
-<!-- Modal التنبيهات -->
 <div id="customAlertModal" class="fixed inset-0 bg-black/80 hidden z-[200000] flex items-center justify-center p-4 backdrop-blur-sm">
     <div class="alert-card bg-white rounded-xl p-5 w-full max-w-xs text-center border-t-4 border-blue-900 shadow-2xl">
         <div id="alertIcon" class="text-4xl mb-2">⚠️</div>
@@ -174,7 +185,7 @@
     </div>
 </div>
 
-<!-- نافذة فحص الباركود السريع -->
+<!-- نافذة فحص الباركود السريع (Check Reader) -->
 <div id="checkResultModal" class="fixed inset-0 bg-black/80 hidden z-[250] flex items-center justify-center p-4 no-print">
     <div class="bg-white rounded-xl w-full max-w-md p-4 shadow-2xl relative h-[85vh] flex flex-col text-right">
         <div class="flex justify-between items-center border-b pb-2 mb-2">
@@ -202,17 +213,31 @@
                         <table class="w-full text-[10px]"><thead class="bg-blue-100"><tr><th class="text-center">التاريخ</th><th class="text-right">المهمة</th><th class="text-center">النقاط</th></tr></thead><tbody id="checkResPayTable"></tbody></table>
                     </div>
                 </div>
-                <!-- الجداول تم دمجها بشكل عرضي للمشاهدة السريعة -->
+                <!-- الجداول المدمجة للمشاهدة السريعة -->
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="border rounded p-1 border-green-200 bg-green-50/30 text-center">
+                        <h4 class="font-bold text-[10px] border-b pb-1 mb-1 text-green-700">حضور (<span id="checkResPresentCount">0</span>)</h4>
+                        <div class="max-h-24 overflow-y-auto text-[9px] font-mono text-green-700" id="checkResPresentTable"></div>
+                    </div>
+                    <div class="border rounded p-1 border-red-200 bg-red-50/30 text-center">
+                        <h4 class="font-bold text-[10px] border-b pb-1 mb-1 text-red-700">غياب (<span id="checkResAbsentCount">0</span>)</h4>
+                        <div class="max-h-24 overflow-y-auto text-[9px] font-mono text-red-700" id="checkResAbsentTable"></div>
+                    </div>
+                </div>
             </div>
         </div>
-        <button onclick="closeModal('checkResultModal')" class="w-full bg-blue-900 text-white rounded py-2 mt-2 font-bold text-xs">إغلاق النافذة</button>
+        <div class="grid grid-cols-2 gap-2 mt-2 pt-2 border-t">
+             <div class="text-center bg-gray-100 p-1 rounded border border-gray-300"><div class="text-[9px] text-gray-500">كلمة المرور</div><div class="font-bold text-gray-800 font-mono" id="checkResPass"></div></div>
+            <button onclick="closeModal('checkResultModal')" class="bg-blue-900 text-white rounded font-bold text-xs">إغلاق</button>
+        </div>
     </div>
 </div>
 
 <div id="print-container"></div>
 
 <div id="appContent" class="hidden">
-    <header class="bg-blue-900 text-white shadow-md sticky top-0 z-50 no-print">
+    <!-- Header Z-index: 1000 ليبقى دائماً فوق المحتوى -->
+    <header class="bg-blue-900 text-white shadow-md sticky top-0 z-[1000] no-print">
         <div class="container mx-auto px-4 py-2 flex justify-between items-center">
             <h1 class="text-sm font-bold flex items-center gap-2 md:text-xl">
                 <img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" class="w-7 h-7 object-cover drop-shadow-md" alt="YLY Logo">
@@ -235,7 +260,7 @@
         </div>
     </header>
 
-    <main id="mainContent" class="container mx-auto p-3 max-w-4xl md:max-w-6xl">
+    <main id="mainContent" class="container mx-auto p-3 max-w-4xl md:max-w-6xl relative z-10">
 
         <!-- MEMBER DASHBOARD -->
         <section id="studentDashboard" class="tab-content text-right">
@@ -253,6 +278,12 @@
                         <p class="text-gray-500 font-mono text-lg font-bold md:text-xl" id="dashCode"></p>
                         <p class="text-[10px] text-gray-500 font-bold mt-2">اللجنة:</p>
                         <div class="bg-blue-100 rounded-lg p-2 text-xs text-blue-900 font-bold inline-block" id="dashLevel"></div>
+                        <div class="mt-3 pt-2 border-t border-dashed border-gray-300">
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-gray-500 font-bold">رقم الهاتف:</span>
+                                <span id="dashOwnPhone" class="font-bold text-gray-900"></span>
+                            </div>
+                        </div>
                     </div>
                     <div class="grid grid-cols-2 gap-2 mt-4">
                         <div class="bg-green-50 p-2 rounded border border-green-100"><div class="text-2xl font-bold text-green-600 md:text-3xl" id="dashPresent">0</div><div class="text-[10px] text-green-800 md:text-xs">حضور (يوم)</div></div>
@@ -261,16 +292,16 @@
                 </div>
                 <div class="md:col-span-2 space-y-4">
                     <div class="std-dash-card">
-                        <h3 class="font-bold text-sm text-blue-900 border-b pb-2 mb-2 flex items-center gap-2 md:text-base">بيانات العضو</h3>
+                        <h3 class="font-bold text-sm text-blue-900 border-b pb-2 mb-2 flex items-center gap-2 md:text-base">◇ بيانات العضو</h3>
                         <div class="std-info-row"><span class="std-info-label">تاريخ الانضمام</span><span class="std-info-val" id="dashJoinDate"></span></div>
                         <div class="std-info-row"><span class="std-info-label">إجمالي النقاط</span><span class="std-info-val text-blue-700 text-lg font-black" id="dashPaymentsTotal"></span></div>
                     </div>
                     <div class="std-dash-card">
-                        <h3 class="font-bold text-sm text-blue-900 border-b pb-2 mb-2 md:text-base">سجل المهام والنقاط</h3>
+                        <h3 class="font-bold text-sm text-blue-900 border-b pb-2 mb-2 md:text-base">◇ سجل المهام والنقاط</h3>
                         <div class="overflow-x-auto"><table class="custom-table"><thead><tr><th class="text-center">التاريخ</th><th class="text-right pr-2">المهمة/التقييم</th><th class="text-center">النقاط</th></tr></thead><tbody id="dashPaymentsTable"></tbody></table></div>
                     </div>
                     <div class="std-dash-card">
-                        <h3 class="font-bold text-sm text-blue-900 border-b pb-2 mb-2 md:text-base">سجل حضور الفعاليات</h3>
+                        <h3 class="font-bold text-sm text-blue-900 border-b pb-2 mb-2 md:text-base">◇ سجل حضور الفعاليات</h3>
                         <div id="dashHistory" class="max-h-48 overflow-y-auto pr-1 space-y-1"></div>
                     </div>
                 </div>
@@ -278,33 +309,38 @@
         </section>
 
         <!-- MEMBERS TAB -->
-        <section id="students" class="tab-content">
+        <section id="students" class="tab-content text-right">
             <div class="glass-card border-r-4 border-blue-700 no-print mb-4">
                 <h2 class="font-bold text-gray-900 mb-2 text-xs md:text-base">تسجيل عضو جديد</h2>
                 <div class="space-y-2 md:grid md:grid-cols-2 md:gap-4 md:space-y-0 text-right">
                     
                     <div class="input-wrapper">
+                        <label class="text-[9px] text-gray-500 block mb-0.5">الاسم رباعي</label>
                         <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                        <input type="text" id="stdName" class="w-full text-xs md:text-sm text-right" placeholder="الاسم رباعي">
+                        <input type="text" id="stdName" class="w-full text-xs md:text-sm">
                     </div>
                     
-                    <div class="flex items-center border border-gray-400 rounded bg-white overflow-hidden h-[30px] md:h-[36px]">
-                        <span class="bg-gray-100 px-2 py-1 text-gray-600 text-[10px] font-bold border-l border-gray-400 md:text-sm h-full flex items-center" dir="ltr">+20</span>
-                        <div class="input-wrapper flex-1 h-full">
-                            <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                            <input type="tel" id="stdOwnPhone" oninput="validatePhone(this)" class="w-full text-xs outline-none md:text-sm !border-0 h-full text-right" placeholder="رقم الهاتف">
+                    <div class="input-wrapper">
+                        <label class="text-[9px] text-gray-500 block mb-0.5">رقم الهاتف</label>
+                        <div class="flex items-center border border-gray-400 rounded bg-white overflow-hidden h-[30px] md:h-[36px]" dir="ltr">
+                            <span class="bg-gray-100 px-2 py-1 text-gray-600 text-[10px] font-bold border-r border-gray-400 h-full flex items-center">+20</span>
+                            <div class="input-wrapper flex-1 h-full relative" dir="rtl">
+                                <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                                <input type="tel" id="stdOwnPhone" oninput="validatePhone(this)" class="w-full text-xs outline-none md:text-sm !border-0 h-full">
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Custom Dropdown for Committee -->
-                    <div class="input-wrapper md:col-span-2 relative">
+                    <!-- Custom Dropdown -->
+                    <div class="input-wrapper md:col-span-2 relative z-[90]">
+                        <label class="text-[9px] text-gray-500 block mb-0.5">اللجنة</label>
                         <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                         <svg class="dropdown-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         
-                        <input type="text" id="stdLevelDisplay" readonly class="w-full text-xs md:text-sm h-full cursor-pointer bg-white text-right" placeholder="اختر اللجنة..." onclick="toggleCustomDropdown(event, 'levelMenu')">
+                        <input type="text" id="stdLevelDisplay" readonly class="w-full text-xs md:text-sm h-full cursor-pointer bg-white" placeholder="اختر اللجنة..." onclick="toggleCustomDropdown(event, 'levelMenu')">
                         <input type="hidden" id="stdLevel" value="">
                         
-                        <div id="levelMenu" class="dropdown-menu hide absolute top-full left-0 right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] overflow-hidden text-right">
+                        <div id="levelMenu" class="dropdown-menu hide absolute top-full left-0 right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl overflow-hidden text-right">
                             <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900 transition" onclick="selectCustomOption('stdLevel', 'stdLevelDisplay', 'HR', 'الموارد البشرية (HR)')">الموارد البشرية (HR)</div>
                             <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900 transition" onclick="selectCustomOption('stdLevel', 'stdLevelDisplay', 'PR', 'العلاقات العامة (PR)')">العلاقات العامة (PR)</div>
                             <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900 transition" onclick="selectCustomOption('stdLevel', 'stdLevelDisplay', 'OR', 'التنظيم (OR)')">التنظيم (OR)</div>
@@ -312,21 +348,30 @@
                         </div>
                     </div>
 
-                    <button onclick="registerStudent()" class="w-full bg-blue-900 text-white py-2 rounded font-bold shadow hover:bg-blue-800 text-xs transition md:text-sm md:col-span-2 md:py-3 text-center">حفظ العضو</button>
+                    <button onclick="registerStudent()" class="w-full bg-blue-900 text-white py-2 rounded font-bold shadow hover:bg-blue-800 text-xs transition md:text-sm md:col-span-2 md:py-3 text-center mt-2">حفظ العضو</button>
                 </div>
             </div>
 
-            <div class="glass-card">
+            <!-- الكاميرا (تم إرجاعها) -->
+            <div class="glass-card border-r-4 border-red-600 no-print mb-4">
+                <h2 class="font-bold text-gray-900 mb-2 text-xs md:text-base">🔍 استعلام عن عضو (باركود)</h2>
+                <div id="checkReader" class="scanner-wrapper h-32 mb-2 hidden border-2 border-gray-800"></div>
+                <div class="flex gap-2">
+                    <button onclick="startCheckScanner()" id="btnStartCheck" class="flex-1 bg-gray-800 text-white py-1.5 rounded font-bold text-xs shadow text-center">تشغيل الكاميرا</button>
+                    <button onclick="stopCheckScanner()" id="btnStopCheck" class="flex-1 bg-red-100 text-red-600 py-1.5 rounded font-bold text-xs hidden text-center">إيقاف</button>
+                </div>
+            </div>
+
+            <div class="glass-card relative z-[80]">
                 <div class="flex justify-between items-center mb-2 no-print flex-wrap gap-2 text-right">
                     <h2 class="font-bold text-[10px] md:text-sm text-gray-800">قائمة الأعضاء (<span id="stdCount">0</span>)</h2>
-                    <div class="flex gap-1.5 items-center flex-1 justify-end max-w-full z-[90]">
+                    <div class="flex gap-1.5 items-center flex-1 justify-end max-w-full">
                         
-                        <!-- Custom Dropdown for Filter -->
                         <div class="relative min-w-[90px] shrink-0 h-8">
                             <svg class="dropdown-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                            <input type="text" id="studentListFilterDisplay" readonly class="w-full p-1 text-[10px] md:text-sm h-full cursor-pointer bg-white text-center rounded border border-gray-300" placeholder="الكل" value="الكل" onclick="toggleCustomDropdown(event, 'filterMenu')">
+                            <input type="text" id="studentListFilterDisplay" readonly class="w-full text-[10px] md:text-sm h-full cursor-pointer bg-white text-center rounded border border-gray-300" placeholder="الكل" value="الكل" onclick="toggleCustomDropdown(event, 'filterMenu')">
                             <input type="hidden" id="studentListFilter" value="all">
-                            <div id="filterMenu" class="dropdown-menu hide absolute top-full right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-xl z-[100] overflow-hidden w-full text-center">
+                            <div id="filterMenu" class="dropdown-menu hide absolute top-full right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-xl overflow-hidden w-full text-center z-50">
                                 <div class="p-2 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold" onclick="selectCustomOption('studentListFilter', 'studentListFilterDisplay', 'all', 'الكل', 'renderStudents')">الكل</div>
                                 <div class="p-2 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold" onclick="selectCustomOption('studentListFilter', 'studentListFilterDisplay', 'HR', 'HR', 'renderStudents')">HR</div>
                                 <div class="p-2 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold" onclick="selectCustomOption('studentListFilter', 'studentListFilterDisplay', 'PR', 'PR', 'renderStudents')">PR</div>
@@ -336,17 +381,17 @@
                         </div>
 
                         <div class="input-wrapper flex-1 min-w-0 max-w-[150px] md:max-w-[200px] h-8">
-                            <svg class="input-icon" style="width:14px; height:14px; right:6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                            <input type="text" id="searchStd" onkeyup="renderStudents()" placeholder="بحث بالاسم..." class="text-[10px] px-2 w-full h-full transition-all md:text-sm text-right pr-6 !important">
+                            <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            <input type="text" id="searchStd" onkeyup="renderStudents()" placeholder="بحث بالاسم..." class="text-[10px] w-full h-full transition-all md:text-sm">
                         </div>
                         <button onclick="printStudentsList()" class="bg-blue-900 text-white px-2 h-8 rounded text-[10px] flex items-center justify-center gap-1 shrink-0">🖨️</button>
                         <button onclick="pdfStudentsList()" class="bg-red-700 text-white px-2 h-8 rounded text-[10px] flex items-center justify-center gap-1 shrink-0">PDF</button>
                     </div>
                 </div>
                 
-                <div id="studentsListArea" class="overflow-visible relative z-10">
-                    <table class="custom-table text-right">
-                        <thead><tr><th class="col-index">م</th><th class="col-code">الكود</th><th class="text-right pr-2">الاسم</th><th class="text-center">اللجنة</th><th class="col-date">التاريخ</th><th class="no-print col-action">حذف</th></tr></thead>
+                <div id="studentsListArea" class="overflow-x-auto relative z-10">
+                    <table class="custom-table text-right min-w-[500px]">
+                        <thead><tr><th class="col-index">م</th><th class="col-code text-center">الكود</th><th class="text-right pr-2">الاسم</th><th class="text-center">اللجنة</th><th class="col-date text-center">التاريخ</th><th class="no-print col-action text-center">حذف</th></tr></thead>
                         <tbody id="studentsTable"></tbody>
                     </table>
                 </div>
@@ -359,7 +404,7 @@
         </section>
 
         <!-- ATTENDANCE TAB -->
-        <section id="attendance" class="tab-content text-right">
+        <section id="attendance" class="tab-content text-right relative z-[80]">
             <div class="glass-card text-center">
                 <h2 class="text-sm font-bold text-gray-900 mb-2 md:text-lg">سجل حضور الفعاليات</h2>
                 
@@ -367,24 +412,23 @@
                     تفعيل الحضور اليوم لـ: <span id="exceptionalLevelName"></span>
                 </div>
 
-                <div class="mb-2 bg-white p-2 rounded border border-gray-300 shadow-sm text-right">
+                <div class="mb-2 bg-white p-2 rounded border border-gray-300 shadow-sm text-right relative z-[90]">
                     <div class="grid grid-cols-2 gap-2">
                         <div class="input-wrapper">
-                            <label class="text-[9px] text-gray-600 font-bold block mb-1">تاريخ اليوم</label>
+                            <label class="text-[9px] text-gray-600 font-bold block mb-0.5">تاريخ اليوم</label>
                             <div class="relative">
                                 <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                <input type="date" id="attendanceDate" onchange="changeAttendanceDate()" class="w-full text-center font-bold text-gray-900 text-xs bg-white pr-7 !important">
+                                <input type="date" id="attendanceDate" onchange="changeAttendanceDate()" class="w-full text-center font-bold text-gray-900 text-xs bg-white">
                             </div>
                         </div>
-                        <div class="input-wrapper relative z-[80]">
-                            <label class="text-[9px] text-gray-600 font-bold block mb-1">اللجنة</label>
-                            <!-- Custom Dropdown for Attendance -->
+                        <div class="input-wrapper relative">
+                            <label class="text-[9px] text-gray-600 font-bold block mb-0.5">اللجنة</label>
                             <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                             <svg class="dropdown-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                             
-                            <input type="text" id="attendanceStageDisplay" readonly class="w-full text-center font-bold text-gray-900 text-xs bg-white rounded border border-gray-300 cursor-pointer h-[30px] pr-7 !important" value="كل اللجان" onclick="toggleCustomDropdown(event, 'attStageMenu')">
+                            <input type="text" id="attendanceStageDisplay" readonly class="w-full text-center font-bold text-gray-900 text-xs bg-white rounded border border-gray-300 cursor-pointer h-[30px]" value="كل اللجان" onclick="toggleCustomDropdown(event, 'attStageMenu')">
                             <input type="hidden" id="attendanceStage" value="all">
-                            <div id="attStageMenu" class="dropdown-menu hide absolute top-full left-0 right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-xl z-[100] overflow-hidden text-center">
+                            <div id="attStageMenu" class="dropdown-menu hide absolute top-full left-0 right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-xl overflow-hidden text-center z-50">
                                 <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold" onclick="selectCustomOption('attendanceStage', 'attendanceStageDisplay', 'all', 'كل اللجان', 'updateCounters')">كل اللجان</div>
                                 <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold" onclick="selectCustomOption('attendanceStage', 'attendanceStageDisplay', 'HR', 'الموارد البشرية (HR)', 'updateCounters')">الموارد البشرية (HR)</div>
                                 <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold" onclick="selectCustomOption('attendanceStage', 'attendanceStageDisplay', 'PR', 'العلاقات العامة (PR)', 'updateCounters')">العلاقات العامة (PR)</div>
@@ -395,7 +439,7 @@
                     </div>
                 </div>
 
-                <div class="flex bg-gray-100 p-1 rounded mb-2 no-print border border-gray-300">
+                <div class="flex bg-gray-100 p-1 rounded mb-2 no-print border border-gray-300 relative z-10">
                     <button onclick="setAttMode('scan')" id="btnAttScan" class="sub-nav-item flex-1 rounded text-[10px] active transition-all">📷 قارئ الباركود</button>
                     <button onclick="setAttMode('manual')" id="btnAttManual" class="sub-nav-item flex-1 rounded text-[10px] transition-all">⌨️ إدخال يدوي</button>
                 </div>
@@ -410,11 +454,11 @@
                     </div>
                 </div>
 
-                <div id="attManualArea" class="hidden">
+                <div id="attManualArea" class="hidden relative z-10">
                     <div class="input-wrapper mb-2">
                         <input type="number" id="manualAttID" placeholder="كود العضو" class="w-full text-center text-xl font-bold p-2 font-mono md:text-2xl md:p-3">
                     </div>
-                    <button onclick="manualAttendance()" class="w-full bg-blue-900 text-white py-2 rounded font-bold text-xs md:text-sm md:py-3">تسجيل الحضور</button>
+                    <button onclick="manualAttendance()" class="w-full bg-blue-900 text-white py-2 rounded font-bold text-xs md:text-sm md:py-3 text-center">تسجيل الحضور</button>
                 </div>
 
                 <div class="grid grid-cols-2 gap-2 mt-3 no-print md:gap-4 relative z-10">
@@ -430,21 +474,20 @@
         </section>
 
         <!-- POINTS & EVALUATION TAB -->
-        <section id="accounting" class="tab-content text-right">
+        <section id="accounting" class="tab-content text-right relative z-[70]">
             <div class="glass-card border-t-4 border-blue-600">
                 <h3 class="font-bold text-blue-900 mb-2 text-xs md:text-base">إضافة نقاط وتقييمات الأعضاء</h3>
 
-                <div id="defaultPaymentBar" class="bg-blue-50 p-2 rounded mb-2 border border-blue-200 relative z-[80]">
+                <div id="defaultPaymentBar" class="bg-blue-50 p-2 rounded mb-2 border border-blue-200 relative z-[90]">
                     <div class="text-[9px] text-blue-800 font-bold mb-1">إعدادات التقييم الحالية</div>
                     <div class="flex gap-1 items-center">
                         <input type="number" id="defScoreAmount" class="w-1/4 p-1 text-center font-bold text-xs" placeholder="النقاط (+)">
                         
-                        <!-- Custom Dropdown for Def Score Type -->
                         <div class="w-1/4 relative h-[30px]">
                             <svg class="dropdown-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                             <input type="text" id="defScoreTypeDisplay" readonly class="w-full text-[10px] text-center font-bold bg-white rounded border border-gray-300 cursor-pointer h-full" value="مهمة/تاسك" onclick="toggleCustomDropdown(event, 'defScoreMenu')">
                             <input type="hidden" id="defScoreType" value="مهمة/تاسك">
-                            <div id="defScoreMenu" class="dropdown-menu hide absolute top-full left-0 right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-xl z-[100] overflow-hidden min-w-[120px] text-right">
+                            <div id="defScoreMenu" class="dropdown-menu hide absolute top-full left-0 right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-xl overflow-hidden min-w-[120px] text-right z-50">
                                 <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold" onclick="selectCustomOption('defScoreType', 'defScoreTypeDisplay', 'كويز', 'كويز')">كويز</div>
                                 <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold" onclick="selectCustomOption('defScoreType', 'defScoreTypeDisplay', 'مهمة/تاسك', 'مهمة/تاسك')">مهمة/تاسك</div>
                                 <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold" onclick="selectCustomOption('defScoreType', 'defScoreTypeDisplay', 'تفاعل', 'تفاعل ومشاركة')">تفاعل ومشاركة</div>
@@ -453,7 +496,7 @@
                             </div>
                         </div>
 
-                        <input type="text" id="defScoreNote" class="w-2/4 p-1 text-[10px] h-[30px] text-right" placeholder="تفاصيل (اختياري)">
+                        <input type="text" id="defScoreNote" class="w-2/4 p-1 text-[10px] h-[30px]" placeholder="تفاصيل إضافية">
                     </div>
                 </div>
 
@@ -474,20 +517,19 @@
                     <div class="input-wrapper flex-1">
                         <input type="number" id="paySearchID" placeholder="كود العضو" class="w-full text-center font-bold text-xs md:text-sm h-full">
                     </div>
-                    <button onclick="searchStudentForPay()" class="bg-blue-700 text-white px-4 rounded text-xs md:text-sm h-full">بحث</button>
+                    <button onclick="searchStudentForPay()" class="bg-blue-700 text-white px-4 rounded text-xs md:text-sm h-full text-center">بحث</button>
                 </div>
 
-                <div id="paymentForm" class="hidden bg-yellow-50 p-2 rounded border border-yellow-200 relative z-[70]">
+                <div id="paymentForm" class="hidden bg-yellow-50 p-2 rounded border border-yellow-200 relative z-[80]">
                     <div class="flex justify-between text-[10px] mb-1 font-bold md:text-sm"><span id="payStdName" class="text-blue-900"></span><span id="payStdID" class="font-mono bg-white px-1 rounded"></span></div>
                     <div class="flex gap-1 mb-1 items-center">
                         <input type="number" id="payAmount" class="w-1/3 p-1 text-center font-bold text-xs text-blue-700 h-[30px]" placeholder="النقاط">
                         
-                        <!-- Custom Dropdown for Pay Type -->
                         <div class="w-2/3 relative h-[30px]">
                             <svg class="dropdown-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                             <input type="text" id="payTypeDisplay" readonly class="w-full text-[10px] font-bold bg-white rounded border border-gray-300 cursor-pointer h-full text-center" value="مهمة/تاسك" onclick="toggleCustomDropdown(event, 'payTypeMenu')">
                             <input type="hidden" id="payType" value="مهمة/تاسك">
-                            <div id="payTypeMenu" class="dropdown-menu hide absolute top-full left-0 right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-xl z-[100] overflow-hidden text-right">
+                            <div id="payTypeMenu" class="dropdown-menu hide absolute top-full left-0 right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-xl overflow-hidden text-right z-50">
                                 <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold" onclick="selectCustomOption('payType', 'payTypeDisplay', 'كويز', 'كويز')">كويز</div>
                                 <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold" onclick="selectCustomOption('payType', 'payTypeDisplay', 'مهمة/تاسك', 'مهمة/تاسك')">مهمة/تاسك</div>
                                 <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold" onclick="selectCustomOption('payType', 'payTypeDisplay', 'تفاعل', 'تفاعل ومشاركة')">تفاعل ومشاركة</div>
@@ -496,10 +538,10 @@
                             </div>
                         </div>
                     </div>
-                    <input type="text" id="payNote" class="w-full text-[10px] mb-1 h-[30px] text-right" placeholder="تفاصيل إضافية (اسم الكويز أو المهمة)">
+                    <input type="text" id="payNote" class="w-full text-[10px] mb-1 h-[30px]" placeholder="تفاصيل (اختياري)">
                     <div class="flex gap-2 mt-2">
-                        <button onclick="confirmPayment()" class="flex-1 bg-blue-700 text-white py-1.5 rounded font-bold shadow text-[10px] md:text-sm">تأكيد ومنح النقاط</button>
-                        <button onclick="cancelPayment()" class="flex-1 bg-gray-500 text-white py-1.5 rounded font-bold shadow text-[10px] md:text-sm">إلغاء</button>
+                        <button onclick="confirmPayment()" class="flex-1 bg-blue-700 text-white py-1.5 rounded font-bold shadow text-[10px] md:text-sm text-center">تأكيد ومنح</button>
+                        <button onclick="cancelPayment()" class="flex-1 bg-gray-500 text-white py-1.5 rounded font-bold shadow text-[10px] md:text-sm text-center">إلغاء</button>
                     </div>
                 </div>
             </div>
@@ -517,16 +559,15 @@
         </section>
 
         <!-- REPORTS TAB -->
-        <section id="reports" class="tab-content text-right">
+        <section id="reports" class="tab-content text-right relative z-[60]">
             <div class="glass-card border-t-4 border-gray-600 mb-4 relative z-[90]">
                 <h3 class="font-bold mb-1 text-gray-900 flex items-center gap-2 text-xs md:text-base">استعلام عن تقرير عضو</h3>
                 <div class="flex gap-1 mb-1 items-center h-[30px]">
-                    <!-- Custom Dropdown for Search Stage -->
                     <div class="w-1/4 relative h-full">
                         <svg class="dropdown-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         <input type="text" id="searchStageDisplay" readonly class="w-full text-[10px] font-bold bg-white rounded border border-gray-300 cursor-pointer h-full text-center" value="كل اللجان" onclick="toggleCustomDropdown(event, 'searchStageMenu')">
                         <input type="hidden" id="searchStage" value="all">
-                        <div id="searchStageMenu" class="dropdown-menu hide absolute top-full right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-xl z-[100] overflow-hidden w-[120px] text-center">
+                        <div id="searchStageMenu" class="dropdown-menu hide absolute top-full right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-xl overflow-hidden w-[120px] text-center z-50">
                             <div class="p-2 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold" onclick="selectCustomOption('searchStage', 'searchStageDisplay', 'all', 'كل اللجان')">كل اللجان</div>
                             <div class="p-2 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold" onclick="selectCustomOption('searchStage', 'searchStageDisplay', 'HR', 'HR')">HR</div>
                             <div class="p-2 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold" onclick="selectCustomOption('searchStage', 'searchStageDisplay', 'PR', 'PR')">PR</div>
@@ -537,9 +578,9 @@
 
                     <div class="input-wrapper flex-1 h-full">
                         <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                        <input type="text" id="reportStudentSearch" placeholder="ابحث بالاسم أو الكود" class="w-full text-xs md:text-sm h-full text-right pr-6 !important">
+                        <input type="text" id="reportStudentSearch" placeholder="ابحث بالاسم أو الكود" class="w-full text-xs md:text-sm h-full">
                     </div>
-                    <button id="btnSearchMember" onclick="generateStudentReport()" class="bg-gray-800 text-white px-3 rounded font-bold text-[10px] md:text-sm h-full transition-colors">بحث</button>
+                    <button id="btnSearchMember" onclick="generateStudentReport()" class="bg-gray-800 text-white px-3 rounded font-bold text-[10px] md:text-sm h-full transition-colors text-center">بحث</button>
                 </div>
                 <div id="studentReportResult" class="hidden bg-gray-50 p-2 rounded border border-gray-200 text-[10px] md:text-sm mt-2"></div>
             </div>
@@ -548,25 +589,23 @@
                 <h3 class="font-bold mb-1 text-blue-900 text-xs md:text-base">التقارير العامة والإحصائيات</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
                     
-                    <!-- Time Period -->
                     <div class="relative z-[80]">
                         <label class="text-[9px] text-gray-500 block mb-0.5 font-bold">المدة الزمنية</label>
                         <svg class="dropdown-arrow" style="top:70%" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         <input type="text" id="reportTypeDisplay" readonly class="w-full text-[10px] font-bold bg-white rounded border border-gray-300 cursor-pointer h-[30px] text-center" value="تقرير يومي" onclick="toggleCustomDropdown(event, 'reportTypeMenu')">
                         <input type="hidden" id="reportType" value="daily">
-                        <div id="reportTypeMenu" class="dropdown-menu hide absolute top-full left-0 right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-xl z-[100] overflow-hidden text-center">
+                        <div id="reportTypeMenu" class="dropdown-menu hide absolute top-full left-0 right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-xl overflow-hidden text-center z-50">
                             <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold" onclick="selectCustomOption('reportType', 'reportTypeDisplay', 'daily', 'تقرير يومي', 'toggleReportInputs')">تقرير يومي</div>
                             <div class="p-2 text-xs hover:bg-blue-50 cursor-pointer font-bold" onclick="selectCustomOption('reportType', 'reportTypeDisplay', 'monthly', 'تقرير شهري', 'toggleReportInputs')">تقرير شهري</div>
                         </div>
                     </div>
 
-                    <!-- Target Committee -->
                     <div class="relative z-[70]">
                         <label class="text-[9px] text-gray-500 block mb-0.5 font-bold">اللجنة المستهدفة</label>
                         <svg class="dropdown-arrow" style="top:70%" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         <input type="text" id="reportStageDisplay" readonly class="w-full text-[10px] font-bold bg-white rounded border border-gray-300 cursor-pointer h-[30px] text-center" value="كل اللجان" onclick="toggleCustomDropdown(event, 'reportStageMenu')">
                         <input type="hidden" id="reportStage" value="all">
-                        <div id="reportStageMenu" class="dropdown-menu hide absolute top-full left-0 right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-xl z-[100] overflow-hidden text-center">
+                        <div id="reportStageMenu" class="dropdown-menu hide absolute top-full left-0 right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-xl overflow-hidden text-center z-50">
                             <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold" onclick="selectCustomOption('reportStage', 'reportStageDisplay', 'all', 'كل اللجان')">كل اللجان</div>
                             <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold" onclick="selectCustomOption('reportStage', 'reportStageDisplay', 'HR', 'الموارد البشرية (HR)')">الموارد البشرية (HR)</div>
                             <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold" onclick="selectCustomOption('reportStage', 'reportStageDisplay', 'PR', 'العلاقات العامة (PR)')">العلاقات العامة (PR)</div>
@@ -579,24 +618,23 @@
                         <label class="text-[9px] text-gray-500 block mb-0.5 font-bold">تاريخ اليوم</label>
                         <div class="input-wrapper">
                             <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                            <input type="date" id="reportDate" class="w-full text-[10px] md:text-sm h-[30px] border-gray-300 rounded text-center pr-6 !important">
+                            <input type="date" id="reportDate" class="w-full text-[10px] md:text-sm h-[30px] border-gray-300 rounded text-center">
                         </div>
                     </div>
                     <div id="divMonthInput" class="hidden relative z-10">
                         <label class="text-[9px] text-gray-500 block mb-0.5 font-bold">الشهر</label>
                         <div class="input-wrapper">
                             <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                            <input type="month" id="reportMonth" class="w-full text-[10px] md:text-sm h-[30px] border-gray-300 rounded text-center pr-6 !important">
+                            <input type="month" id="reportMonth" class="w-full text-[10px] md:text-sm h-[30px] border-gray-300 rounded text-center">
                         </div>
                     </div>
 
-                    <!-- Category -->
                     <div class="col-span-1 md:col-span-2 relative z-[60]">
                         <label class="text-[9px] text-gray-500 block mb-0.5 font-bold">نوع التقرير المطلوب</label>
                         <svg class="dropdown-arrow" style="top:70%" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         <input type="text" id="reportCategoryDisplay" readonly class="w-full text-[10px] font-bold bg-white rounded border border-blue-400 cursor-pointer h-[30px] text-center text-blue-900" value="تقرير شامل (الحضور والنقاط)" onclick="toggleCustomDropdown(event, 'reportCategoryMenu')">
                         <input type="hidden" id="reportCategory" value="combined">
-                        <div id="reportCategoryMenu" class="dropdown-menu hide absolute top-full left-0 right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-xl z-[100] overflow-hidden text-center">
+                        <div id="reportCategoryMenu" class="dropdown-menu hide absolute top-full left-0 right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-xl overflow-hidden text-center z-50">
                             <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('reportCategory', 'reportCategoryDisplay', 'combined', 'تقرير شامل (الحضور والنقاط)', 'toggleReportView')">تقرير شامل (الحضور والنقاط)</div>
                             <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('reportCategory', 'reportCategoryDisplay', 'attendance', 'تقارير الحضور والغياب فقط', 'toggleReportView')">تقارير الحضور والغياب فقط</div>
                             <div class="p-2 text-xs hover:bg-blue-50 cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('reportCategory', 'reportCategoryDisplay', 'points', 'تقارير المهام والنقاط فقط', 'toggleReportView')">تقارير المهام والنقاط فقط</div>
@@ -622,24 +660,24 @@
 </div>
 
 <!-- MODALS -->
-<div id="studentModal" class="fixed inset-0 bg-black/80 hidden z-[150] flex items-center justify-center p-4 no-print">
+<div id="studentModal" class="fixed inset-0 bg-black/80 hidden z-[200000] flex items-center justify-center p-4 no-print">
     <div class="bg-transparent w-full max-w-sm p-2 text-center relative shadow-2xl">
         <div id="studentCardDisplay"></div>
         <div class="grid grid-cols-2 gap-2 mb-2 mt-2">
-            <button onclick="printStudentCard()" class="bg-gray-800 text-white py-2 rounded text-[11px] font-bold shadow">🖨️ طباعة بطاقة</button>
-            <button onclick="shareStudentPdf()" class="bg-red-700 text-white py-2 rounded text-[11px] font-bold shadow">📄 حفظ PDF</button>
+            <button onclick="printStudentCard()" class="bg-gray-800 text-white py-2 rounded text-[11px] font-bold shadow text-center">🖨️ طباعة بطاقة</button>
+            <button onclick="shareStudentPdf()" class="bg-red-700 text-white py-2 rounded text-[11px] font-bold shadow text-center">📄 حفظ PDF</button>
         </div>
-        <button onclick="closeModal('studentModal')" class="w-full bg-white text-gray-800 py-2 rounded font-bold text-[11px] hover:bg-gray-200 transition border border-gray-300 shadow-sm">إغلاق</button>
+        <button onclick="closeModal('studentModal')" class="w-full bg-white text-gray-800 py-2 rounded font-bold text-[11px] hover:bg-gray-200 transition border border-gray-300 shadow-sm text-center">إغلاق</button>
     </div>
 </div>
 
-<div id="detailsModal" class="fixed inset-0 bg-black/80 hidden z-[100] flex items-center justify-center p-4 no-print">
+<div id="detailsModal" class="fixed inset-0 bg-black/80 hidden z-[200000] flex items-center justify-center p-4 no-print">
     <div class="bg-white rounded-xl w-full max-w-xl p-0 h-[80vh] flex flex-col shadow-2xl overflow-hidden md:max-w-2xl relative text-right">
         <div class="flex justify-between items-center p-3 border-b bg-gray-50">
             <button onclick="closeModal('detailsModal')" class="close-btn-modern" style="position: static; margin-right: 0; margin-left: 5px;">&times;</button>
             <div class="flex items-center gap-2">
-                <button onclick="pdfContent('detailsTableArea', document.getElementById('detailsTitle').innerText)" class="bg-red-700 text-white px-2 py-1 rounded text-[10px] shadow">PDF</button>
-                <button onclick="printContent('detailsTableArea', document.getElementById('detailsTitle').innerText)" class="bg-gray-800 text-white px-2 py-1 rounded text-[10px] shadow">طباعة</button>
+                <button onclick="pdfContent('detailsTableArea', document.getElementById('detailsTitle').innerText)" class="bg-red-700 text-white px-2 py-1 rounded text-[10px] shadow text-center">PDF</button>
+                <button onclick="printContent('detailsTableArea', document.getElementById('detailsTitle').innerText)" class="bg-gray-800 text-white px-2 py-1 rounded text-[10px] shadow text-center">طباعة</button>
             </div>
             <h3 id="detailsTitle" class="font-bold text-sm text-gray-800 md:text-lg flex-1 text-right pr-2"></h3>
         </div>
@@ -649,18 +687,8 @@
     </div>
 </div>
 
-<!-- PWA Banner -->
-<div id="pwaInstallBanner" class="fixed bottom-4 left-4 z-[999999] translate-y-24 opacity-0 transition-all duration-500 ease-out hidden w-auto max-w-[280px]">
-    <div class="bg-blue-900/95 backdrop-blur-md border border-blue-700 rounded-2xl p-3 shadow-2xl flex items-center justify-between gap-3 text-right">
-        <button onclick="dismissInstallBanner()" class="absolute -top-2 -right-2 bg-gray-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] shadow-md">&times;</button>
-        <button id="pwaInstallBtn" class="bg-red-600 text-white px-3 py-1.5 rounded-lg font-bold text-[10px] shadow-lg hover:bg-red-500 transition transform active:scale-95 whitespace-nowrap">تثبيت</button>
-        <div><h4 class="text-white font-bold text-xs">تثبيت التطبيق</h4><p class="text-blue-200 text-[9px]">YLY System</p></div>
-        <div class="bg-blue-800 p-1.5 rounded-xl border border-blue-600"><span class="text-xl">📲</span></div>
-    </div>
-</div>
-
 <div id="pdf-generator-container" style="position: fixed; left: -5000px; top: 0; width: 210mm; min-height: 297mm; background: white; z-index: -100; visibility: hidden;"></div>
-<div id="toast" class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-full shadow-xl z-[200000] hidden font-bold text-[10px] max-w-[90%] w-auto text-center whitespace-nowrap"></div>
+<div id="toast" class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-full shadow-xl z-[250000] hidden font-bold text-[10px] max-w-[90%] w-auto text-center whitespace-nowrap"></div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -678,9 +706,7 @@
     };
 
     const app = initializeApp(firebaseConfig); 
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-
+    const db = getFirestore(app); const auth = getAuth(app);
     window.db = db; window.auth = auth; window.collection = collection; window.addDoc = addDoc; window.getDocs = getDocs; window.doc = doc; window.deleteDoc = deleteDoc; window.onSnapshot = onSnapshot; window.query = query; window.where = where; window.setDoc = setDoc; window.updateDoc = updateDoc;
     window.signInWithEmailAndPassword = signInWithEmailAndPassword; window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
 
@@ -691,35 +717,16 @@
         clearTimeout(failSafeTimer); 
         if (user) {
             if (user.uid === "Y3XYVlXxj7bJwEWas9Hx0DqfPi92") {
-                onSnapshot(collection(db, "members"), (snapshot) => { 
-                    window.members = []; snapshot.forEach(doc => window.members.push({ ...doc.data(), docId: doc.id })); 
-                    window.renderStudents(); window.updateCounters(); loading.style.opacity = '0'; setTimeout(()=>loading.style.display='none', 300); 
-                });
-                onSnapshot(collection(db, "attendance"), (snapshot) => { 
-                    window.attendance = []; snapshot.forEach(doc => window.attendance.push({ ...doc.data(), docId: doc.id })); window.updateCounters(); 
-                });
-                onSnapshot(collection(db, "accounting"), (snapshot) => { 
-                    window.accounting = []; snapshot.forEach(doc => window.accounting.push({ ...doc.data(), docId: doc.id })); window.updateFinance(); 
-                });
+                onSnapshot(collection(db, "members"), (snapshot) => { window.members = []; snapshot.forEach(doc => window.members.push({ ...doc.data(), docId: doc.id })); window.renderStudents(); window.updateCounters(); loading.style.opacity = '0'; setTimeout(()=>loading.style.display='none', 300); });
+                onSnapshot(collection(db, "attendance"), (snapshot) => { window.attendance = []; snapshot.forEach(doc => window.attendance.push({ ...doc.data(), docId: doc.id })); window.updateCounters(); });
+                onSnapshot(collection(db, "accounting"), (snapshot) => { window.accounting = []; snapshot.forEach(doc => window.accounting.push({ ...doc.data(), docId: doc.id })); window.updateFinance(); });
             } else {
                 const memberCode = user.email.split('@')[0];
-                onSnapshot(query(collection(db, "members"), where("id", "==", memberCode)), (snapshot) => { 
-                    window.members = []; snapshot.forEach(doc => window.members.push({ ...doc.data(), docId: doc.id })); 
-                    if(window.members.length > 0) { loadStudentDashboard(window.members[0]); document.getElementById('appContent').classList.remove('hidden'); }
-                    loading.style.opacity = '0'; setTimeout(()=>loading.style.display='none', 300); 
-                });
-                onSnapshot(query(collection(db, "attendance"), where("studentId", "in", [memberCode, "EVENT_MARKER"])), (snapshot) => { 
-                    window.attendance = []; snapshot.forEach(doc => window.attendance.push({ ...doc.data(), docId: doc.id })); 
-                    if(window.members.length > 0) loadStudentDashboard(window.members[0]);
-                });
-                onSnapshot(query(collection(db, "accounting"), where("stdId", "==", memberCode)), (snapshot) => { 
-                    window.accounting = []; snapshot.forEach(doc => window.accounting.push({ ...doc.data(), docId: doc.id })); 
-                    if(window.members.length > 0) loadStudentDashboard(window.members[0]);
-                });
+                onSnapshot(query(collection(db, "members"), where("id", "==", memberCode)), (snapshot) => { window.members = []; snapshot.forEach(doc => window.members.push({ ...doc.data(), docId: doc.id })); if(window.members.length > 0) { loadStudentDashboard(window.members[0]); document.getElementById('appContent').classList.remove('hidden'); } loading.style.opacity = '0'; setTimeout(()=>loading.style.display='none', 300); });
+                onSnapshot(query(collection(db, "attendance"), where("studentId", "in", [memberCode, "EVENT_MARKER"])), (snapshot) => { window.attendance = []; snapshot.forEach(doc => window.attendance.push({ ...doc.data(), docId: doc.id })); if(window.members.length > 0) loadStudentDashboard(window.members[0]); });
+                onSnapshot(query(collection(db, "accounting"), where("stdId", "==", memberCode)), (snapshot) => { window.accounting = []; snapshot.forEach(doc => window.accounting.push({ ...doc.data(), docId: doc.id })); if(window.members.length > 0) loadStudentDashboard(window.members[0]); });
             }
-        } else {
-            loading.style.opacity = '0'; setTimeout(()=>loading.style.display='none', 300); 
-        }
+        } else { loading.style.opacity = '0'; setTimeout(()=>loading.style.display='none', 300); }
     });
 </script>
 
@@ -727,37 +734,19 @@
     /* Security Rules */
     document.addEventListener('contextmenu', e => e.preventDefault());
     document.onkeydown = function(e) { if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) { return false; } };
-    setInterval(function() {
-        const before = new Date().getTime(); debugger; const after = new Date().getTime();
-        if (after - before > 100) { document.body.innerHTML = '<h1 style="color:red; text-align:center; margin-top:20%;">تنبيه أمني! تم إيقاف المتصفح.</h1>'; window.location.href = "about:blank"; }
-    }, 3000);
+    setInterval(function() { const before = new Date().getTime(); debugger; const after = new Date().getTime(); if (after - before > 100) { document.body.innerHTML = '<h1 style="color:red; text-align:center; margin-top:20%;">تنبيه أمني! تم إيقاف المتصفح.</h1>'; window.location.href = "about:blank"; } }, 3000);
 
     /* Dropdown Logic */
     window.toggleCustomDropdown = function(event, menuId) {
-        event.stopPropagation();
-        const menu = document.getElementById(menuId);
-        const isHidden = menu.classList.contains('hide');
-        closeAllDropdowns();
-        if (isHidden) { menu.classList.remove('hide'); menu.classList.add('show'); }
+        event.stopPropagation(); const menu = document.getElementById(menuId); const isHidden = menu.classList.contains('hide');
+        closeAllDropdowns(); if (isHidden) { menu.classList.remove('hide'); menu.classList.add('show'); }
     }
     window.selectCustomOption = function(inputId, displayId, value, text, callbackName) {
-        document.getElementById(inputId).value = value;
-        document.getElementById(displayId).value = text;
-        closeAllDropdowns();
-        if(callbackName && typeof window[callbackName] === 'function') { window[callbackName](); }
+        document.getElementById(inputId).value = value; document.getElementById(displayId).value = text;
+        closeAllDropdowns(); if(callbackName && typeof window[callbackName] === 'function') { window[callbackName](); }
     }
-    window.closeAllDropdowns = function(event) {
-        const menus = document.querySelectorAll('.dropdown-menu');
-        menus.forEach(menu => { menu.classList.remove('show'); menu.classList.add('hide'); });
-    }
+    window.closeAllDropdowns = function(event) { const menus = document.querySelectorAll('.dropdown-menu'); menus.forEach(menu => { menu.classList.remove('show'); menu.classList.add('hide'); }); }
 
-    let deferredPrompt;
-    const pwaBanner = document.getElementById('pwaInstallBanner');
-    const installBtn = document.getElementById('pwaInstallBtn');
-
-    window.dismissInstallBanner = function() { pwaBanner.classList.remove('translate-y-0', 'opacity-100'); pwaBanner.classList.add('translate-y-24', 'opacity-0'); setTimeout(() => { pwaBanner.classList.add('hidden'); }, 500); };
-    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; pwaBanner.classList.remove('hidden'); setTimeout(() => { pwaBanner.classList.remove('translate-y-24', 'opacity-0'); pwaBanner.classList.add('translate-y-0', 'opacity-100'); }, 100); setTimeout(() => { dismissInstallBanner(); }, 6000); });
-    installBtn.addEventListener('click', async () => { if (deferredPrompt) { deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt = null; dismissInstallBanner(); } });
     if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('./service-worker.js').catch(()=>{}); }); }
 
     const stageMap = { "HR": "الموارد البشرية (HR)", "PR": "العلاقات العامة (PR)", "OR": "التنظيم (OR)", "SM": "السوشيال ميديا (SM)" };
@@ -768,23 +757,18 @@
     function normalizeArabic(text) { return text.replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي'); }
 
     window.onload = () => {
-        today = getEgyptDate();
-        document.getElementById('headerDate').innerText = today; document.getElementById('attendanceDate').value = today; document.getElementById('reportDate').value = today;
+        today = getEgyptDate(); document.getElementById('headerDate').innerText = today; document.getElementById('attendanceDate').value = today; document.getElementById('reportDate').value = today;
         const savedLogin = localStorage.getItem('isLoggedIn'); const savedMode = localStorage.getItem('loginMode'); const savedTab = localStorage.getItem('activeTab');
         if (savedLogin === 'true') {
-            document.getElementById('appContent').classList.remove('hidden');
-            loginMode = savedMode;
-            if (loginMode === 'admin') { document.getElementById('navBar').classList.remove('hidden'); showTab(savedTab || 'students', document.getElementById(`nav-${savedTab || 'students'}`)); } 
-            else { document.getElementById('navBar').classList.add('hidden'); }
+            document.getElementById('appContent').classList.remove('hidden'); loginMode = savedMode;
+            if (loginMode === 'admin') { document.getElementById('navBar').classList.remove('hidden'); showTab(savedTab || 'students', document.getElementById(`nav-${savedTab || 'students'}`)); } else { document.getElementById('navBar').classList.add('hidden'); }
         } else { document.getElementById('loginOverlay').style.display = 'flex'; }
     };
 
     window.validatePhone = function(input) { let val = input.value.replace(/\D/g, ''); if (val.startsWith('0')) val = val.substring(1); if (val.length > 10) val = val.substring(0, 10); input.value = val; }
     
     window.setLoginMode = function(mode) { 
-        loginMode = mode; 
-        document.getElementById('tabAdmin').className = mode === 'admin' ? 'login-tab active' : 'login-tab'; 
-        document.getElementById('tabStudent').className = mode === 'student' ? 'login-tab active' : 'login-tab'; 
+        loginMode = mode; document.getElementById('tabAdmin').className = mode === 'admin' ? 'login-tab active' : 'login-tab'; document.getElementById('tabStudent').className = mode === 'student' ? 'login-tab active' : 'login-tab'; 
         document.getElementById('loginCode').placeholder = mode === 'admin' ? 'البريد الإلكتروني للقيادة (Email)' : 'كود العضو'; 
         document.getElementById('loginCode').value = ''; document.getElementById('loginPass').value = ''; document.getElementById('loginError').classList.add('hidden');
     }
@@ -810,10 +794,8 @@
 
     function proceedLogin(mode) {
         localStorage.setItem('isLoggedIn', 'true'); localStorage.setItem('loginMode', mode); document.getElementById('loginOverlay').style.display = 'none'; document.getElementById('appContent').classList.remove('hidden'); 
-        if (mode === 'admin') { document.getElementById('navBar').classList.remove('hidden'); showTab('students', document.getElementById('nav-students')); } 
-        else { document.getElementById('navBar').classList.add('hidden'); }
+        if (mode === 'admin') { document.getElementById('navBar').classList.remove('hidden'); showTab('students', document.getElementById('nav-students')); } else { document.getElementById('navBar').classList.add('hidden'); }
     }
-
     window.logout = function() { localStorage.clear(); location.reload(); }
 
     function getStudentStatusForDate(member, dateStr) {
@@ -821,8 +803,7 @@
         const eventRec = window.attendance.find(r => r.studentId === "EVENT_MARKER" && r.date === dateStr);
         const isExpectedToAttend = eventRec && (!eventRec.levels || eventRec.levels.includes('all') || eventRec.levels.includes(member.level));
         if (attendanceRecord) { return { status: 'present', time: attendanceRecord.time }; }
-        if (isExpectedToAttend) { return { status: 'absent' }; }
-        return { status: 'none' };
+        if (isExpectedToAttend) { return { status: 'absent' }; } return { status: 'none' };
     }
 
     function getDatesInRange(startDate, endDate) {
@@ -833,26 +814,22 @@
     }
 
     function calculateStudentStats(member) {
-        let present = 0; let absent = 0; let history = [];
-        const joinDate = member.date || '2020-01-01'; const allDatesForStats = getDatesInRange(joinDate, today);
+        let present = 0; let absent = 0; let history = []; const joinDate = member.date || '2020-01-01'; const allDatesForStats = getDatesInRange(joinDate, today);
         allDatesForStats.forEach(dateStr => {
             const statusObj = getStudentStatusForDate(member, dateStr);
             if (statusObj.status === 'present') present++; else if (statusObj.status === 'absent') absent++;
             const dayAr = new Date(dateStr + "T12:00:00").toLocaleDateString('ar-EG', {weekday: 'long'});
             if (statusObj.status === 'present' || (statusObj.status === 'absent' && dateStr <= today)) { history.push({ date: dateStr, day: dayAr, status: statusObj.status }); }
         });
-        history.sort((a, b) => new Date(b.date) - new Date(a.date));
-        return { present, absent, history };
+        history.sort((a, b) => new Date(b.date) - new Date(a.date)); return { present, absent, history };
     }
 
     function loadStudentDashboard(member) {
-        if(!member) return;
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active')); document.getElementById('studentDashboard').classList.add('active');
+        if(!member) return; document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active')); document.getElementById('studentDashboard').classList.add('active');
         document.getElementById('dashName').innerText = member.name; document.getElementById('dashCode').innerText = member.id; document.getElementById('dashLevel').innerText = stageMap[member.level] || member.level; document.getElementById('dashJoinDate').innerText = member.date;
         const join = new Date(member.date); const now = new Date(); const diffDays = Math.ceil(Math.abs(now - join) / (1000 * 60 * 60 * 24));
         document.getElementById('dashDuration').innerText = `${diffDays} يوم`; document.getElementById('dashQr').innerHTML = ''; new QRCode(document.getElementById("dashQr"), { text: member.id, width: 80, height: 80 });
-        const stats = calculateStudentStats(member);
-        document.getElementById('dashPresent').innerText = stats.present; document.getElementById('dashAbsent').innerText = stats.absent;
+        const stats = calculateStudentStats(member); document.getElementById('dashPresent').innerText = stats.present; document.getElementById('dashAbsent').innerText = stats.absent;
         const points = window.accounting.filter(r => r.category === 'points' && r.stdId === member.id); const totalPoints = points.reduce((sum, p) => sum + p.amount, 0); document.getElementById('dashPaymentsTotal').innerText = `${totalPoints} نقطة`;
         const payTable = document.getElementById('dashPaymentsTable');
         if(points.length > 0) { payTable.innerHTML = points.map(p => `<tr><td class="text-center">${p.date}</td><td class="text-right pr-2">${p.type}</td><td class="text-blue-600 font-bold text-center">${p.amount}</td></tr>`).join(''); } else { payTable.innerHTML = '<tr><td colspan="3" class="text-center text-gray-400">لا توجد نقاط</td></tr>'; }
@@ -861,40 +838,17 @@
         document.getElementById('dashOwnPhone').innerText = member.ownPhone || member.phone || 'غير مسجل';
     }
 
-    function generateQRBase64(text) {
-        return new Promise((resolve) => {
-            const holder = document.createElement('div');
-            new QRCode(holder, { text: text, width: 120, height: 120, correctLevel : QRCode.CorrectLevel.H });
-            setTimeout(() => {
-                const img = holder.querySelector('img'); const canvas = holder.querySelector('canvas');
-                if (img && img.src) { resolve(`<img src="${img.src}" style="width:100px; height:100px; margin:0 auto;" />`); } else if (canvas) { resolve(`<img src="${canvas.toDataURL()}" style="width:100px; height:100px; margin:0 auto;" />`); } else { resolve(''); }
-            }, 300);
-        });
-    }
-
     async function getMemberCardHTML(member) {
-        const qrImageHtml = await generateQRBase64(member.id);
-        const levelName = stageMap[member.level] || member.level;
+        const qrImageHtml = await generateQRBase64(member.id); const levelName = stageMap[member.level] || member.level;
         return `
             <div class="screen-id-card text-right">
-                <div class="screen-card-header">
-                    <h3>بطاقة عضوية</h3>
-                    <img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" alt="Logo">
-                </div>
-                <div class="screen-card-body">
-                    <div class="screen-card-qr">${qrImageHtml}</div>
-                    <div class="screen-card-info text-right">
-                        <div class="screen-card-name">${member.name}</div>
-                        <div class="screen-card-row"><span>الكود:</span> <span class="font-mono text-gray-800">${member.id}</span></div>
-                        <div class="screen-card-row"><span>الباسورد:</span> <span class="font-mono text-red-600">${member.password || '----'}</span></div>
-                        <div class="screen-card-row"><span>اللجنة:</span> <span>${levelName}</span></div>
-                        <div class="screen-card-row border-none"><span>الهاتف:</span> <span class="font-mono">${member.ownPhone || member.phone || 'غير مسجل'}</span></div>
-                    </div>
-                </div>
-                <div class="screen-card-footer">تاريخ الانضمام: ${member.date} &nbsp;|&nbsp; YLY System</div>
-            </div>
-        `;
+                <div class="screen-card-header"><h3>بطاقة عضوية</h3><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" alt="Logo"></div>
+                <div class="screen-card-body"><div class="screen-card-qr">${qrImageHtml}</div><div class="screen-card-info text-right"><div class="screen-card-name">${member.name}</div><div class="screen-card-row"><span>الكود:</span> <span class="font-mono text-gray-800">${member.id}</span></div><div class="screen-card-row"><span>الباسورد:</span> <span class="font-mono text-red-600">${member.password || '----'}</span></div><div class="screen-card-row"><span>اللجنة:</span> <span>${levelName}</span></div><div class="screen-card-row border-none"><span>الهاتف:</span> <span class="font-mono">${member.ownPhone || member.phone || 'غير مسجل'}</span></div></div></div>
+                <div class="screen-card-footer">تاريخ الانضمام: ${member.date} | YLY System</div>
+            </div>`;
     }
+
+    function generateQRBase64(text) { return new Promise((resolve) => { const holder = document.createElement('div'); new QRCode(holder, { text: text, width: 120, height: 120, correctLevel : QRCode.CorrectLevel.H }); setTimeout(() => { const img = holder.querySelector('img'); const canvas = holder.querySelector('canvas'); if (img && img.src) { resolve(`<img src="${img.src}" style="width:100px; height:100px; margin:0 auto;" />`); } else if (canvas) { resolve(`<img src="${canvas.toDataURL()}" style="width:100px; height:100px; margin:0 auto;" />`); } else { resolve(''); } }, 300); }); }
 
     function getPrintTemplate(title, content) {
         const date = new Date().toLocaleDateString('ar-EG');
@@ -904,38 +858,25 @@
                 body { font-family: 'Cairo', sans-serif; direction: rtl; }
                 .print-page { width: 100%; max-width: 100%; margin: 0 auto; padding: 20px; background: white; color: #000; }
                 .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #1e3a8a; padding-bottom: 15px; margin-bottom: 20px; }
-                .print-meta-area { text-align: left; font-size: 10pt; }
-                .print-title-area { text-align: center; flex: 1; }
-                .print-title-area h1 { font-size: 24pt; font-weight: 900; margin: 0; color: #1e3a8a; }
-                .print-title-area h2 { font-size: 16pt; font-weight: bold; margin: 5px 0 0 0; color: #333; }
+                .print-meta-area { text-align: left; font-size: 10pt; } .print-title-area { text-align: center; flex: 1; }
+                .print-title-area h1 { font-size: 24pt; font-weight: 900; margin: 0; color: #1e3a8a; } .print-title-area h2 { font-size: 16pt; font-weight: bold; margin: 5px 0 0 0; color: #333; }
                 table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 11pt; table-layout: fixed; page-break-inside: auto; }
-                tr { page-break-inside: avoid; page-break-after: auto; }
-                thead { display: table-header-group; }
+                tr { page-break-inside: avoid; page-break-after: auto; } thead { display: table-header-group; }
                 th { background-color: #1e3a8a !important; color: #fff !important; font-weight: 900; border: 1px solid #000; padding: 8px; text-align: center; -webkit-print-color-adjust: exact; }
                 td { border: 1px solid #000; padding: 8px; text-align: center; vertical-align: middle; }
                 .print-stats-table { width: 100%; margin-bottom: 20px; border-collapse: separate; border-spacing: 10px 0; page-break-inside: avoid; }
                 .print-stats-cell { border: 1px solid #1e3a8a; padding: 10px; text-align: center; border-radius: 8px; width: 33%; vertical-align: middle; }
-                .print-box-title { font-size: 12pt; font-weight: bold; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 5px; }
-                .print-box-val { font-size: 16pt; font-weight: 900; }
+                .print-box-title { font-size: 12pt; font-weight: bold; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 5px; } .print-box-val { font-size: 16pt; font-weight: 900; }
                 .print-student-card { border: 2px solid #1e3a8a; border-radius: 10px; width: 450px; margin: 20px auto; overflow: hidden; page-break-inside: avoid; background: #fff; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
                 .print-card-header { background-color: #1e3a8a; color: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; -webkit-print-color-adjust: exact; }
-                .print-card-header h3 { margin: 0; font-size: 18pt; font-weight: 900; }
-                .print-card-header img { height: 40px; }
-                .print-card-body { padding: 20px; display: flex; flex-direction: row-reverse; align-items: center; gap: 20px; }
-                .print-card-info { flex: 1; text-align: right; }
+                .print-card-header h3 { margin: 0; font-size: 18pt; font-weight: 900; } .print-card-header img { height: 40px; }
+                .print-card-body { padding: 20px; display: flex; flex-direction: row-reverse; align-items: center; gap: 20px; } .print-card-info { flex: 1; text-align: right; }
                 .print-card-name { font-size: 20pt; font-weight: 900; margin-bottom: 15px; color: #dc2626; border-bottom: 2px solid #eee; padding-bottom: 5px; line-height:1.2; }
                 .print-card-row { font-size: 14pt; font-weight: bold; margin: 8px 0; color: #333; display: flex; justify-content: space-between; border-bottom: 1px dashed #eee; padding-bottom: 3px; }
                 .print-card-row:last-child { border: none; }
                 .print-card-footer { background-color: #f3f4f6; color: #666; text-align: center; padding: 10px; font-size: 11pt; font-weight: bold; border-top: 1px solid #eee; -webkit-print-color-adjust: exact; }
             </style>
-            <div class="print-page">
-                <div class="print-header">
-                    <div class="print-meta-area"><div>التاريخ: ${date}</div><div>YLY System</div></div>
-                    <div class="print-title-area"><h1>YLY Leaders</h1><h2>${title}</h2></div>
-                    <div class="print-logo-area"><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" style="width:50px; height:50px; object-fit:contain;"></div>
-                </div>
-                <div class="print-body">${content}</div>
-            </div>`;
+            <div class="print-page"><div class="print-header"><div class="print-meta-area"><div>التاريخ: ${date}</div><div>YLY System</div></div><div class="print-title-area"><h1>YLY Leaders</h1><h2>${title}</h2></div><div class="print-logo-area"><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" style="width:50px; height:50px; object-fit:contain;"></div></div><div class="print-body">${content}</div></div>`;
     }
 
     window.printHTML = async function(title, content) {
@@ -948,11 +889,7 @@
         const pdfContainer = document.getElementById('pdf-generator-container');
         try {
             pdfContainer.style.direction = 'ltr'; pdfContainer.innerHTML = `<div style="direction: rtl; width: 100%; margin: 0 auto;">${getPrintTemplate(title, content)}</div>`; pdfContainer.style.visibility = 'visible';
-            setTimeout(() => {
-                const element = pdfContainer.firstElementChild;
-                const opt = { margin: [10, 10, 10, 10], filename: `${title}_${new Date().toLocaleDateString('en-CA')}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, logging: false }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-                html2pdf().set(opt).from(element).save().then(() => { pdfContainer.style.visibility = 'hidden'; pdfContainer.innerHTML = ''; isPrinting = false; }).catch(err => { showToast('فشل الحفظ', 'error'); isPrinting = false; });
-            }, 500);
+            setTimeout(() => { const element = pdfContainer.firstElementChild; const opt = { margin: [10, 10, 10, 10], filename: `${title}_${new Date().toLocaleDateString('en-CA')}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, logging: false }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }; html2pdf().set(opt).from(element).save().then(() => { pdfContainer.style.visibility = 'hidden'; pdfContainer.innerHTML = ''; isPrinting = false; }).catch(err => { showToast('فشل الحفظ', 'error'); isPrinting = false; }); }, 500);
         } catch (e) { isPrinting = false; }
     }
 
@@ -974,7 +911,7 @@
         historyDivs.forEach(div => { const spans = div.querySelectorAll('span'); if(spans.length >= 2) { historyTableRows += `<tr><td class="text-center">${spans[1].innerText}</td><td class="text-center">${spans[0].innerText}</td></tr>`; } });
         const qrImageHtml = await generateQRBase64(member.id); const levelName = stageMap[member.level] || member.level;
         const cardHTML = `<div class="print-student-card"><div class="print-card-header"><h3>بطاقة عضوية</h3><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" alt="Logo"></div><div class="print-card-body"><div style="flex-shrink:0;">${qrImageHtml}</div><div class="print-card-info"><div class="print-card-name">${member.name}</div><div class="print-card-row"><span>الكود:</span> <span style="font-family:monospace;">${member.id}</span></div><div class="print-card-row"><span>اللجنة:</span> <span>${levelName}</span></div><div class="print-card-row"><span>الهاتف:</span> <span style="font-family:monospace;">${member.ownPhone || member.phone || 'غير مسجل'}</span></div></div></div><div class="print-card-footer">تاريخ الانضمام: ${member.date} | YLY - Youth Leaders of Youth</div></div>`;
-        const content = `${cardHTML}<table class="print-stats-table"><tr><td class="print-stats-cell"><div class="print-box-title">أيام الحضور</div><div class="print-box-val" style="color:green;">${present}</div></td><td class="print-stats-cell"><div class="print-box-title">أيام الغياب</div><div class="print-box-val" style="color:red;">${absent}</div></td><td class="print-stats-cell"><div class="print-box-title">إجمالي النقاط</div><div class="print-box-val" style="color:#1e3a8a;">${totalPaid}</div></td></tr></table><h3 style="border-bottom: 2px solid #1e3a8a; margin-top: 20px;">سجل النقاط والمهام</h3><table class="print-table"><thead><tr><th class="text-center">التاريخ</th><th class="text-right">المهمة/التقييم</th><th class="text-center">النقاط</th></tr></thead><tbody>${paymentsHTML}</tbody></table><h3 style="border-bottom: 2px solid #1e3a8a; margin-top: 20px;">سجل الحضور والغياب</h3><table class="print-table"><thead><tr><th class="text-center">التاريخ</th><th class="text-center">الحالة</th></tr></thead><tbody>${historyTableRows || '<tr><td colspan="2">لا يوجد سجل</td></tr>'}</tbody></table>`;
+        const content = `${cardHTML}<table class="print-stats-table"><tr><td class="print-stats-cell"><div class="print-box-title">أيام الحضور</div><div class="print-box-val" style="color:green;">${present}</div></td><td class="print-stats-cell"><div class="print-box-title">أيام الغياب</div><div class="print-box-val" style="color:red;">${absent}</div></td><td class="print-stats-cell"><div class="print-box-title">النقاط</div><div class="print-box-val">${totalPaid}</div></td></tr></table><h3>سجل النقاط</h3><table class="print-table"><thead><tr><th class="text-center">التاريخ</th><th class="text-right">المهمة/التقييم</th><th class="text-center">النقاط</th></tr></thead><tbody>${paymentsHTML}</tbody></table><h3>سجل الحضور</h3><table class="print-table"><thead><tr><th class="text-center">التاريخ</th><th class="text-center">الحالة</th></tr></thead><tbody>${historyTableRows}</tbody></table>`;
         savePDF(`تقرير_${member.name}`, content);
     }
 
@@ -1079,11 +1016,12 @@
     window.handleCheckScan = function(id) {
         if(html5QrCode) html5QrCode.pause(); const member = window.members.find(s => s.id === id);
         if(member) {
-            document.getElementById('checkResName').innerText = member.name; document.getElementById('checkResCode').innerText = member.id; document.getElementById('checkResLevel').innerText = stageMap[member.level] || member.level; document.getElementById('checkResDate').innerText = member.date; document.getElementById('checkResPass').innerText = member.password || '---'; document.getElementById('checkResultQr').innerHTML = ''; new QRCode(document.getElementById("checkResultQr"), { text: member.id, width: 60, height: 60 });
+            document.getElementById('checkResName').innerText = member.name; document.getElementById('checkResCode').innerText = member.id; document.getElementById('checkResLevel').innerText = stageMap[member.level] || member.level;
+            document.getElementById('checkResultQr').innerHTML = ''; new QRCode(document.getElementById("checkResultQr"), { text: member.id, width: 60, height: 60 });
             const points = window.accounting.filter(a => a.stdId === id && a.category === 'points').sort((a,b) => new Date(b.date) - new Date(a.date)); const totalPoints = points.reduce((sum, p) => sum + p.amount, 0); document.getElementById('checkResTotalPay').innerText = totalPoints + ' نقطة'; document.getElementById('checkResPayTable').innerHTML = points.length ? points.map(p => `<tr><td class="text-center">${p.date}</td><td class="text-right pr-2">${p.type}</td><td class="text-blue-600 font-bold text-center">${p.amount}</td></tr>`).join('') : '<tr><td colspan="3" class="text-center">لا يوجد</td></tr>';
             const stats = calculateStudentStats(member); const presentList = stats.history.filter(h => h.status === 'present'); const absentList = stats.history.filter(h => h.status === 'absent');
-            document.getElementById('checkResPresentCount').innerText = presentList.length; document.getElementById('checkResPresentTable').innerHTML = presentList.length ? presentList.map(a => `<tr><td class="text-center">${a.date}</td><td class="text-center">${a.day}</td></tr>`).join('') : '<tr><td colspan="2" class="text-center">لا يوجد</td></tr>';
-            document.getElementById('checkResAbsentCount').innerText = absentList.length; document.getElementById('checkResAbsentTable').innerHTML = absentList.length ? absentList.map(a => `<tr><td class="text-center">${a.date}</td><td class="text-center">${a.day}</td></tr>`).join('') : '<tr><td colspan="2" class="text-center">لا يوجد</td></tr>';
+            document.getElementById('checkResPresentCount').innerText = presentList.length; document.getElementById('checkResPresentTable').innerHTML = presentList.length ? presentList.map(a => `<div>${a.date} (${a.day})</div>`).join('') : '<div class="text-center">لا يوجد</div>';
+            document.getElementById('checkResAbsentCount').innerText = absentList.length; document.getElementById('checkResAbsentTable').innerHTML = absentList.length ? absentList.map(a => `<div>${a.date} (${a.day})</div>`).join('') : '<div class="text-center">لا يوجد</div>';
             document.getElementById('checkResultModal').classList.remove('hidden'); document.body.classList.add('modal-open'); playSound('success');
         } else { showToast('عضو غير موجود', 'error'); if(html5QrCode) html5QrCode.resume(); }
     }
@@ -1164,7 +1102,7 @@
                 <div class="border rounded p-1"><h5 class="font-bold text-[10px] text-green-700 mb-1 border-b text-center">سجل الحضور</h5><div class="max-h-24 overflow-y-auto text-[9px] text-green-700 px-1 font-mono text-center">${presentDatesList}</div></div>
                 <div class="border rounded p-1"><h5 class="font-bold text-[10px] text-red-700 mb-1 border-b text-center">سجل الغياب</h5><div class="max-h-24 overflow-y-auto text-[9px] text-red-700 px-1 font-mono text-center">${absentDatesList}</div></div>
             </div>
-            <div class="mb-4"><h5 class="font-bold text-xs mb-1 text-blue-900 border-b pb-1 text-center">النقاط المكتسبة (${totalPoints} نقطة)</h5><div class="max-h-32 overflow-y-auto text-xs border rounded p-1 bg-white">${points.length ? points.map(p => `<div class="flex justify-between border-b p-1"><span>${p.type}</span><span class="font-bold text-blue-700">${p.amount} نقطة <span class="text-[9px] text-gray-400">(${p.date})</span></span></div>`).join('') : '<p class="text-center text-gray-400">لا يوجد نقاط</p>'}</div></div>
+            <div class="mb-4"><h5 class="font-bold text-xs mb-1 text-blue-900 border-b pb-1 text-center">النقاط المكتسبة (${totalPoints} نقطة)</h5><div class="max-h-32 overflow-y-auto text-xs border rounded p-1 bg-white">${points.length ? points.map(p => `<div class="flex justify-between border-b p-1"><span>${p.amount} نقطة <span class="text-[9px] text-gray-400">(${p.date})</span></span><span>${p.type}</span></div>`).join('') : '<p class="text-center text-gray-400">لا يوجد نقاط</p>'}</div></div>
             <div class="flex gap-2">
                 <button onclick="pdfDetailedStudentReport('${member.id}')" class="flex-1 bg-red-700 text-white py-1.5 rounded text-[11px] font-bold shadow">📄 حفظ PDF</button>
                 <button onclick="printDetailedStudentReport('${member.id}')" class="flex-1 bg-gray-800 text-white py-1.5 rounded text-[11px] font-bold shadow">🖨️ طباعة</button>
@@ -1181,7 +1119,7 @@
         const content = `
             ${cardHTML}
             <table class="print-stats-table"><tr><td class="print-stats-cell"><div class="print-box-title">أيام الحضور</div><div class="print-box-val" style="color:green;">${stats.present}</div></td><td class="print-stats-cell"><div class="print-box-title">أيام الغياب</div><div class="print-box-val" style="color:red;">${stats.absent}</div></td><td class="print-stats-cell"><div class="print-box-title">إجمالي النقاط</div><div class="print-box-val" style="color:blue;">${totalPoints}</div></td></tr></table>
-            <h3 style="border-bottom: 2px solid #1e3a8a; margin-top: 15px;">سجل النقاط والتقييمات</h3><table class="print-table"><thead><tr><th class="text-center">التاريخ</th><th class="text-right pr-2">المهمة/التقييم</th><th class="text-center">النقاط</th></tr></thead><tbody>${points.map(p => `<tr><td class="text-center">${p.date}</td><td class="text-right pr-2">${p.type}</td><td class="text-center">${p.amount}</td></tr>`).join('') || '<tr><td colspan="3" class="text-center">لا يوجد</td></tr>'}</tbody></table>
+            <h3 style="border-bottom: 2px solid #1e3a8a; margin-top: 15px;">النقاط والتقييمات</h3><table class="print-table"><thead><tr><th class="text-center">التاريخ</th><th class="text-right pr-2">المهمة/التقييم</th><th class="text-center">النقاط</th></tr></thead><tbody>${points.map(p => `<tr><td class="text-center">${p.date}</td><td class="text-right pr-2">${p.type}</td><td class="text-center">${p.amount}</td></tr>`).join('') || '<tr><td colspan="3" class="text-center">لا يوجد</td></tr>'}</tbody></table>
             <h3 style="border-bottom: 2px solid #1e3a8a; margin-top: 15px;">سجل الحضور والغياب التفصيلي</h3><table class="print-table"><thead><tr><th class="text-center">تواريخ الحضور</th><th class="text-center">تواريخ الغياب</th></tr></thead><tbody><tr><td class="text-center" style="vertical-align:top; color:green; direction:ltr;">${presentRows}</td><td class="text-center" style="vertical-align:top; color:red; direction:ltr;">${absentRows}</td></tr></tbody></table>
         `;
         printHTML('تقرير تفصيلي لعضو', content);
@@ -1239,7 +1177,7 @@
     window.updateFinance = function() { 
         const points = window.accounting.filter(a => a.category === 'points'); const todayPoints = points.filter(r => r.date === today); 
         const totalPointsToday = todayPoints.reduce((sum, r) => sum + r.amount, 0); document.getElementById('totalRev').innerText = totalPointsToday; 
-        document.getElementById('todayRevList').innerHTML = todayPoints.map(r => `<div class="flex justify-between border-b border-white/10 pb-1"><span>${r.name} <span class="text-[9px] opacity-70">(${r.type})</span></span><span class="font-bold text-blue-300">${r.amount} نقطة</span></div>`).join('') || '<div class="text-center opacity-50">لا يوجد نقاط اليوم</div>'; 
+        document.getElementById('todayRevList').innerHTML = todayPoints.map(r => `<div class="flex justify-between border-b border-white/10 pb-1"><span><span class="font-bold text-blue-300">${r.amount} نقطة</span></span><span>${r.name} <span class="text-[9px] opacity-70">(${r.type})</span></span></div>`).join('') || '<div class="text-center opacity-50">لا يوجد نقاط اليوم</div>'; 
     }
 
     window.toggleReportInputs = function() { 
@@ -1270,7 +1208,6 @@
             });
             const memberPoints = pointsForPeriod.filter(p => p.stdId === member.id).reduce((sum, p) => sum + p.amount, 0);
             
-            // إضافة العضو للتقرير المجمع دائماً لتسهيل الفرز
             currentReportData.combined.push({ 
                 ...member, presentCount, absentCount, totalPoints: memberPoints,
                 presentDatesList: presentDatesArr.join(' | '), absentDatesList: absentDatesArr.join(' | ')
@@ -1285,7 +1222,7 @@
         if (category === 'combined') {
             html += `
                 <div class="overflow-x-auto" id="reportTableArea">
-                    <table class="w-full text-[10px] border custom-table mb-2">
+                    <table class="w-full text-[10px] border custom-table mb-2 text-right">
                         <thead class="bg-blue-900 text-white"><tr><th class="text-center">م</th><th class="text-center">الكود</th><th class="text-right pr-2">الاسم</th><th class="text-center">اللجنة</th><th class="text-center">النقاط</th><th class="text-center">حضور</th><th class="text-center">غياب</th></tr></thead>
                         <tbody>${currentReportData.combined.map((c, i) => `<tr class="hover:bg-gray-50"><td class="text-center">${i+1}</td><td class="text-center font-mono">${c.id}</td><td class="text-right font-bold pr-2">${c.name}</td><td class="text-center">${stageMap[c.level]||c.level}</td><td class="text-center text-blue-700 font-bold">${c.totalPoints}</td><td class="text-center text-green-600 font-bold">${c.presentCount}</td><td class="text-center text-red-600 font-bold">${c.absentCount}</td></tr>`).join('')}</tbody>
                     </table>
@@ -1296,13 +1233,12 @@
                 </div>`;
         }
         else if (category === 'attendance') {
-            // التعديل: تقرير الحضور والغياب صار جدول واحد مدمج
             let attData = currentReportData.combined.filter(c => c.presentCount > 0 || c.absentCount > 0);
             html += `
                 <div class="overflow-x-auto" id="reportTableArea">
-                    <table class="w-full text-[10px] border custom-table mb-2">
-                        <thead class="bg-blue-900 text-white"><tr><th class="text-center">م</th><th class="text-center">الكود</th><th class="text-right pr-2">الاسم</th><th class="text-center">اللجنة</th><th class="text-center">حضور (يوم)</th><th class="text-center">غياب (يوم)</th><th class="text-right pr-1">تواريخ الحضور</th><th class="text-right pr-1">تواريخ الغياب</th></tr></thead>
-                        <tbody>${attData.map((c, i) => `<tr class="hover:bg-gray-50"><td class="text-center">${i+1}</td><td class="text-center font-mono">${c.id}</td><td class="text-right font-bold pr-2">${c.name}</td><td class="text-center">${stageMap[c.level]||c.level}</td><td class="text-center text-green-600 font-bold">${c.presentCount}</td><td class="text-center text-red-600 font-bold">${c.absentCount}</td><td class="text-right text-[8px] text-green-700 pr-1" dir="ltr">${c.presentDatesList.replace(/ \| /g, '<br>')}</td><td class="text-right text-[8px] text-red-700 pr-1" dir="ltr">${c.absentDatesList.replace(/ \| /g, '<br>')}</td></tr>`).join('') || '<tr><td colspan="8" class="text-center">لا توجد بيانات</td></tr>'}</tbody>
+                    <table class="w-full text-[10px] border custom-table mb-2 text-right">
+                        <thead class="bg-blue-900 text-white"><tr><th class="text-center">م</th><th class="text-center">الكود</th><th class="text-right pr-2">الاسم</th><th class="text-center">اللجنة</th><th class="text-center">حضور</th><th class="text-center">غياب</th><th class="text-center pr-1">تواريخ الحضور</th><th class="text-center pr-1">تواريخ الغياب</th></tr></thead>
+                        <tbody>${attData.map((c, i) => `<tr class="hover:bg-gray-50"><td class="text-center">${i+1}</td><td class="text-center font-mono">${c.id}</td><td class="text-right font-bold pr-2">${c.name}</td><td class="text-center">${stageMap[c.level]||c.level}</td><td class="text-center text-green-600 font-bold">${c.presentCount}</td><td class="text-center text-red-600 font-bold">${c.absentCount}</td><td class="text-center text-[8px] text-green-700 pr-1" dir="ltr">${c.presentDatesList.replace(/ \| /g, '<br>')}</td><td class="text-center text-[8px] text-red-700 pr-1" dir="ltr">${c.absentDatesList.replace(/ \| /g, '<br>')}</td></tr>`).join('') || '<tr><td colspan="8" class="text-center">لا توجد بيانات</td></tr>'}</tbody>
                     </table>
                 </div>
                 <div class="flex gap-2">
@@ -1313,7 +1249,7 @@
         else {
             html += `
                 <div class="overflow-x-auto" id="reportTableArea">
-                    <table class="w-full text-[10px] border custom-table mb-2">
+                    <table class="w-full text-[10px] border custom-table mb-2 text-right">
                         <thead class="bg-blue-900 text-white"><tr><th class="text-center">م</th><th class="text-center">الكود</th><th class="text-right pr-2">الاسم</th><th class="text-right pr-2">المهمة/التقييم</th><th class="text-center">النقاط</th><th class="text-center">التاريخ</th></tr></thead>
                         <tbody>${currentReportData.points.map((p, i) => `<tr class="hover:bg-gray-50"><td class="text-center">${i+1}</td><td class="text-center font-mono">${p.stdId}</td><td class="text-right font-bold pr-2">${p.name}</td><td class="text-right pr-2">${p.type}</td><td class="text-center text-blue-700 font-bold">${p.amount}</td><td class="text-center text-gray-500">${p.date}</td></tr>`).join('') || '<tr><td colspan="6" class="text-center">لا توجد بيانات</td></tr>'}</tbody>
                     </table>
@@ -1325,6 +1261,8 @@
         }
         resDiv.innerHTML = html; resDiv.classList.remove('hidden');
     }
+
+    window.toggleReportView = function() { if (!document.getElementById('reportResult').classList.contains('hidden')) { generateAdvancedReport(); } }
 
     window.exportCombinedExcel = function() {
         if(!currentReportData.combined || currentReportData.combined.length === 0) return showToast('لا توجد بيانات', 'error');

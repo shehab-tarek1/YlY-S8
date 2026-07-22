@@ -144,6 +144,30 @@
         .dropdown-menu { transform-origin: top center; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
         .dropdown-menu.show { opacity: 1; transform: scaleY(1); visibility: visible; }
         .dropdown-menu.hide { opacity: 0; transform: scaleY(0); visibility: hidden; }
+
+
+        /* --- تخصيص أيقونات التاريخ (Calendar Icon) --- */
+        input[type="date"]::-webkit-calendar-picker-indicator,
+        input[type="month"]::-webkit-calendar-picker-indicator {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%231e3a8a"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>');
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator:hover,
+        input[type="month"]::-webkit-calendar-picker-indicator:hover {
+            opacity: 1;
+        }
+
+
+        /* --- سهم القوائم المنسدلة لجميع الحقول (Custom Dropdowns) --- */
+        input[readonly][onclick*="toggleCustomDropdown"] {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%234b5563"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>');
+            background-repeat: no-repeat;
+            background-position: left 8px center;
+            background-size: 14px;
+            padding-left: 25px !important; 
+        }
     </style>
 </head>
 <body class="text-gray-800" onclick="closeAllDropdowns(event)">
@@ -468,11 +492,11 @@
                                 <input type="text" id="attendanceStageDisplay" readonly value="كل اللجان" class="w-full p-1 text-center font-bold text-gray-900 text-xs bg-white cursor-pointer border rounded" onclick="toggleCustomDropdown(event, 'attendanceStageMenu')">
                                 <input type="hidden" id="attendanceStage" value="all">
                                 <div id="attendanceStageMenu" class="dropdown-menu hide absolute top-full left-0 right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] overflow-hidden text-right">
-                                    <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('attendanceStage', 'attendanceStageDisplay', 'attendanceStageMenu', 'all', 'كل اللجان', updateCounters)">كل اللجان</div>
-                                    <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('attendanceStage', 'attendanceStageDisplay', 'attendanceStageMenu', 'HR', 'الموارد البشرية (HR)', updateCounters)">الموارد البشرية (HR)</div>
-                                    <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('attendanceStage', 'attendanceStageDisplay', 'attendanceStageMenu', 'PR', 'العلاقات العامة (PR)', updateCounters)">العلاقات العامة (PR)</div>
-                                    <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('attendanceStage', 'attendanceStageDisplay', 'attendanceStageMenu', 'OR', 'التنظيم (OR)', updateCounters)">التنظيم (OR)</div>
-                                    <div class="p-2 text-xs hover:bg-blue-50 cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('attendanceStage', 'attendanceStageDisplay', 'attendanceStageMenu', 'SM', 'السوشيال ميديا (SM)', updateCounters)">السوشيال ميديا (SM)</div>
+                                    <div class="p-2 text-[11px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('attendanceStage', 'attendanceStageDisplay', 'attendanceStageMenu', 'all', 'كل اللجان', updateCounters)">كل اللجان</div>
+                                    <div class="p-2 text-[11px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('attendanceStage', 'attendanceStageDisplay', 'attendanceStageMenu', 'HR', 'الموارد البشرية (HR)', updateCounters)">الموارد البشرية (HR)</div>
+                                    <div class="p-2 text-[11px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('attendanceStage', 'attendanceStageDisplay', 'attendanceStageMenu', 'PR', 'العلاقات العامة (PR)', updateCounters)">العلاقات العامة (PR)</div>
+                                    <div class="p-2 text-[11px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('attendanceStage', 'attendanceStageDisplay', 'attendanceStageMenu', 'OR', 'التنظيم (OR)', updateCounters)">التنظيم (OR)</div>
+                                    <div class="p-2 text-[11px] hover:bg-blue-50 cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('attendanceStage', 'attendanceStageDisplay', 'attendanceStageMenu', 'SM', 'السوشيال ميديا (SM)', updateCounters)">السوشيال ميديا (SM)</div>
                                 </div>
                             </div>
                         </div>

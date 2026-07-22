@@ -24,6 +24,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- مكتبة SheetJS لإنشاء ملفات إكسيل حقيقية -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
@@ -106,7 +108,6 @@
         .close-btn-modern { width: 28px; height: 28px; background-color: #ef4444; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.1s; flex-shrink: 0; cursor: pointer; }
         .close-btn-modern:active { transform: scale(0.9); }
 
-        #print-container { position: fixed; top: 0; left: 0; width: 100%; height: 0px; overflow: hidden; z-index: -1; background: white; visibility: hidden; }
         @media print {
             body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background: white !important; width: 100% !important; height: 100% !important; }
             body > *:not(#print-container):not(#appContent):not(.fixed) { display: none !important; }
@@ -366,9 +367,8 @@
                             <svg class="input-icon" style="width:14px; height:14px; left:6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                             <input type="text" id="searchStd" onkeyup="resetPaginationAndRender()" placeholder="بحث باسم أو كود..." class="text-[10px] px-2 w-full h-8 transition-all md:text-sm">
                         </div>
-                        <!-- استعادة أزرار الطباعة والـ PDF هنا -->
-                        <button onclick="printStudentsList()" class="bg-blue-900 text-white px-2 h-8 rounded text-[10px] flex items-center justify-center gap-1 shrink-0">🖨️</button>
-                        <button onclick="pdfStudentsList()" class="bg-red-700 text-white px-2 h-8 rounded text-[10px] flex items-center justify-center gap-1 shrink-0">PDF</button>
+                        <button onclick="printStudentsList()" class="bg-gray-800 text-white px-2 h-8 rounded text-[10px] flex items-center justify-center gap-1 shrink-0 shadow">🖨️</button>
+                        <button onclick="pdfStudentsList()" class="bg-red-700 text-white px-2 h-8 rounded text-[10px] flex items-center justify-center gap-1 shrink-0 shadow">PDF</button>
                     </div>
                 </div>
                 
@@ -379,12 +379,12 @@
                     </table>
                 </div>
                 
-                <!-- أزرار التنقل وتصدير الإكسيل (أقصى اليسار) -->
+                <!-- أزرار التنقل وتصدير الإكسيل -->
                 <div class="flex justify-between items-center mt-3 no-print">
                     <div class="flex gap-2 items-center">
-                        <button onclick="prevPage()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded text-xs">➡️ السابق</button>
-                        <span id="pageIndicator" class="text-xs font-bold"></span>
-                        <button onclick="nextPage()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded text-xs"> التالي ⬅️</button>
+                        <button onclick="prevPage()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded text-xs shadow-sm">➡️ السابق</button>
+                        <span id="pageIndicator" class="text-xs font-bold text-gray-600"></span>
+                        <button onclick="nextPage()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded text-xs shadow-sm"> التالي ⬅️</button>
                     </div>
                     <div>
                         <button onclick="exportMembersExcel()" class="bg-green-700 hover:bg-green-800 text-white py-1 px-3 rounded text-xs font-bold shadow transition flex items-center gap-1">📥 تصدير Excel</button>
@@ -665,8 +665,6 @@
     </div>
 </div>
 
-<!-- حاوية إنشاء الـ PDF المخفية (مهمة جداً لحل مشاكل الخطوط والقص) -->
-<div id="pdf-generator-container" style="position: absolute; left: -9999px; top: 0; width: 1000px; background: white; z-index: -100; visibility: hidden; font-family: Arial, Tahoma, sans-serif !important; direction: rtl;"></div>
 <div id="toast" class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-full shadow-xl z-[200] hidden font-bold text-[10px] max-w-[90%] w-auto text-center whitespace-nowrap"></div>
 
 <script type="module">
@@ -945,36 +943,29 @@
         document.getElementById('dashOwnPhone').innerText = member.ownPhone || member.phone || 'غير مسجل';
     }
 
-    // دالة مساعدة لإنشاء ملف Excel بصيغة HTML (يدعم التنسيقات العربية والدمج والألوان)
-    window.exportToExcelHTML = function(tableHtml, title, filename) {
-        const htmlTemplate = `
-            <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-            <head>
-                <meta charset="utf-8">
-                <style>
-                    body { font-family: 'Arial', sans-serif; direction: rtl; text-align: center; }
-                    table { border-collapse: collapse; width: 100%; }
-                    th { background-color: #1e3a8a; color: white; font-weight: bold; border: 1px solid #000; padding: 10px; font-size: 14px; }
-                    td { border: 1px solid #000; padding: 8px; font-size: 12px; }
-                    .title-row { background-color: #f3f4f6; color: #1e3a8a; font-size: 18px; font-weight: bold; padding: 15px; }
-                </style>
-            </head>
-            <body>
-                <table>
-                    <tr><td class="title-row" colspan="10">${title}</td></tr>
-                    ${tableHtml}
-                </table>
-            </body>
-            </html>
-        `;
-        const blob = new Blob([htmlTemplate], { type: 'application/vnd.ms-excel;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${filename}.xls`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    // دالة إنشاء ملف Excel حقيقي باستخدام SheetJS
+    window.exportToExcelReal = function(dataRows, title, filename) {
+        try {
+            const wb = XLSX.utils.book_new();
+            wb.Workbook = { Views: [{ RTL: true }] }; // تفعيل اتجاه اليمين لليسار في الإكسيل
+            
+            const wsData = [];
+            wsData.push([title]); // الصف الأول: العنوان
+            wsData.push([]);      // الصف الثاني: فارغ للمساحة
+            wsData.push(...dataRows); // الصفوف المتبقية: البيانات
+
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+            // دمج خلايا العنوان لتكون في المنتصف
+            if(!ws['!merges']) ws['!merges'] = [];
+            ws['!merges'].push({ s: {r:0, c:0}, e: {r:0, c: dataRows[0].length - 1} });
+
+            XLSX.utils.book_append_sheet(wb, ws, "التقرير");
+            XLSX.writeFile(wb, `${filename}.xlsx`);
+            showToast('تم تصدير الإكسيل بنجاح', 'success');
+        } catch (e) {
+            showToast('حدث خطأ أثناء التصدير', 'error');
+        }
     }
 
     function getPrintTemplate(title, content) {
@@ -1030,33 +1021,41 @@
         if(isPrinting) return;
         isPrinting = true;
         showToast('جاري إنشاء PDF...', 'success');
-        const pdfContainer = document.getElementById('pdf-generator-container');
-        try {
-            // إجبار الخطوط الأساسية والاتجاه وحجم الحاوية لمنع القص وتقطع الحروف
-            pdfContainer.innerHTML = getPrintTemplate(title, content);
-            pdfContainer.style.visibility = 'visible';
+        
+        // إنشاء حاوية مؤقتة داخل الشاشة ولكن خلف المحتوى لضمان تحميلها بالكامل وعدم قصها
+        const tempContainer = document.createElement('div');
+        tempContainer.style.position = 'absolute';
+        tempContainer.style.top = '0';
+        tempContainer.style.right = '0';
+        tempContainer.style.width = '1000px'; // عرض ثابت لمنع قص الجداول
+        tempContainer.style.zIndex = '-9999'; // خلف الموقع
+        tempContainer.style.background = '#ffffff';
+        tempContainer.style.color = '#000000';
+        tempContainer.style.direction = 'rtl';
+        tempContainer.style.fontFamily = 'Arial, Tahoma, sans-serif'; // خطوط أساسية لمنع تقطع الحروف
+        
+        tempContainer.innerHTML = getPrintTemplate(title, content);
+        document.body.appendChild(tempContainer);
+
+        setTimeout(() => {
+            const opt = { 
+                margin: [10, 10, 10, 10], 
+                filename: `${title}_${new Date().toLocaleDateString('en-CA')}.pdf`, 
+                image: { type: 'jpeg', quality: 1 }, 
+                html2canvas: { scale: 2, useCORS: true, windowWidth: 1000, letterRendering: true, logging: false }, 
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak: { mode: 'avoid-all' }
+            };
             
-            setTimeout(() => {
-                const element = pdfContainer;
-                const opt = { 
-                    margin: [10, 10, 10, 10], 
-                    filename: `${title}_${new Date().toLocaleDateString('en-CA')}.pdf`, 
-                    image: { type: 'jpeg', quality: 0.98 }, 
-                    html2canvas: { scale: 2, useCORS: true, windowWidth: 1000, letterRendering: true, logging: false }, 
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                    pagebreak: { mode: 'avoid-all' }
-                };
-                
-                html2pdf().set(opt).from(element).save().then(() => { 
-                    pdfContainer.style.visibility = 'hidden'; 
-                    pdfContainer.innerHTML = ''; 
-                    isPrinting = false; 
-                }).catch(err => { 
-                    showToast('فشل الحفظ', 'error'); 
-                    isPrinting = false; 
-                });
-            }, 500);
-        } catch (e) { isPrinting = false; }
+            html2pdf().set(opt).from(tempContainer).save().then(() => { 
+                document.body.removeChild(tempContainer);
+                isPrinting = false; 
+            }).catch(err => { 
+                document.body.removeChild(tempContainer);
+                showToast('فشل الحفظ', 'error'); 
+                isPrinting = false; 
+            });
+        }, 500); // الانتظار نصف ثانية لضمان تحميل الخطوط ورسم الجداول
     }
 
     function generateQRBase64(text) {
@@ -1123,7 +1122,7 @@
                 <div class="print-card-row"><span>اللجنة:</span> <span>${level}</span></div>
                 <div class="print-card-row"><span>تاريخ الانضمام:</span> <span>${joinDate}</span></div>
             </div>
-            <table class="print-stats-table" style="width:100%; text-align:center; margin-bottom:20px;"><tr><td style="border:1px solid #000; padding:10px;"><div style="font-weight:bold;">أيام الحضور</div><div style="color:green; font-size:16pt; font-weight:bold;">${present}</div></td><td style="border:1px solid #000; padding:10px;"><div style="font-weight:bold;">أيام الغياب</div><div style="color:red; font-size:16pt; font-weight:bold;">${absent}</div></td><td style="border:1px solid #000; padding:10px;"><div style="font-weight:bold;">إجمالي النقاط</div><div style="color:#1e3a8a; font-size:16pt; font-weight:bold;">${totalPaid}</div></td></tr></table>
+            <table class="print-stats-table" style="width:100%; text-align:center; margin-bottom:20px;"><tr><td style="border:1px solid #000; padding:10px;"><div style="font-weight:bold;">أيام الحضور</div><div style="color:green; font-size:16pt; font-weight:bold;">${present}</div></td><td style="border:1px solid #000; padding:10px;"><div style="font-weight:bold;">أيام الغياب</div><div style="color:red; font-size:16pt; font-weight:bold;">${absent}</div></td><td style="border:1px solid #000; padding:10px;"><div style="font-weight:bold;">النقاط</div><div style="color:#1e3a8a; font-size:16pt; font-weight:bold;">${totalPaid}</div></td></tr></table>
             <h3>سجل النقاط</h3><table><thead><tr><th>التاريخ</th><th>المهمة/التقييم</th><th>النقاط</th></tr></thead><tbody>${paymentsHTML}</tbody></table>
             <h3>سجل الحضور</h3><table><thead><tr><th>التاريخ</th><th>الحالة</th></tr></thead><tbody>${historyTableRows}</tbody></table>`;
         savePDF(`تقرير_${name}`, content);
@@ -1135,7 +1134,7 @@
         const query = normalizeArabic(document.getElementById('searchStd').value.toLowerCase());
         let filtered = window.members;
         if(filterStage !== 'all') { filtered = filtered.filter(s => s.level === filterStage); }
-        if(query !== '') { filtered = filtered.filter(s => normalizeArabic(s.name.toLowerCase()).includes(query) || s.id.includes(query)); }
+        if(query !== '') { filtered = filtered.filter(s => normalizeArabic(s.name ? s.name.toLowerCase() : '').includes(query) || (s.id && s.id.includes(query))); }
         filtered.forEach((s, i) => { rows += `<tr><td style="width:30px;">${i+1}</td><td style="width:60px;">${s.id}</td><td>${s.name}</td><td style="width:50px;">${stageMap[s.level] || s.level}</td><td style="width:80px;">${s.date}</td></tr>`; });
         const content = `<table><thead><tr><th style="width: 30px;">م</th><th style="width: 60px;">الكود</th><th>الاسم</th><th style="width:50px;">اللجنة</th><th style="width:80px;">التاريخ</th></tr></thead><tbody>${rows}</tbody></table>`;
         printHTML('قائمة الأعضاء المسجلين', content);
@@ -1147,7 +1146,7 @@
         const query = normalizeArabic(document.getElementById('searchStd').value.toLowerCase());
         let filtered = window.members;
         if(filterStage !== 'all') { filtered = filtered.filter(s => s.level === filterStage); }
-        if(query !== '') { filtered = filtered.filter(s => normalizeArabic(s.name.toLowerCase()).includes(query) || s.id.includes(query)); }
+        if(query !== '') { filtered = filtered.filter(s => normalizeArabic(s.name ? s.name.toLowerCase() : '').includes(query) || (s.id && s.id.includes(query))); }
         filtered.forEach((s, i) => { rows += `<tr><td style="width:30px;">${i+1}</td><td style="width:60px;">${s.id}</td><td>${s.name}</td><td style="width:50px;">${stageMap[s.level] || s.level}</td><td style="width:80px;">${s.date}</td></tr>`; });
         const content = `<table><thead><tr><th style="width: 30px;">م</th><th style="width: 60px;">الكود</th><th>الاسم</th><th style="width:50px;">اللجنة</th><th style="width:80px;">التاريخ</th></tr></thead><tbody>${rows}</tbody></table>`;
         savePDF('قائمة_الأعضاء', content);
@@ -1158,22 +1157,18 @@
         const query = normalizeArabic(document.getElementById('searchStd').value.toLowerCase());
         let filtered = window.members;
         if(filterStage !== 'all') { filtered = filtered.filter(s => s.level === filterStage); }
-        if(query !== '') { filtered = filtered.filter(s => normalizeArabic(s.name.toLowerCase()).includes(query) || s.id.includes(query)); }
+        if(query !== '') { filtered = filtered.filter(s => normalizeArabic(s.name ? s.name.toLowerCase() : '').includes(query) || (s.id && s.id.includes(query))); }
         
         if(filtered.length === 0) return showToast('لا توجد بيانات', 'error');
         
-        let tableHtml = `
-            <thead>
-                <tr><th>الكود</th><th>الاسم</th><th>اللجنة</th><th>رقم الهاتف</th><th>تاريخ الانضمام</th></tr>
-            </thead>
-            <tbody>
-        `;
-        filtered.forEach(s => {
-            tableHtml += `<tr><td>${s.id}</td><td>${s.name}</td><td>${stageMap[s.level]||s.level}</td><td>${s.ownPhone||s.phone}</td><td>${s.date}</td></tr>`;
-        });
-        tableHtml += `</tbody>`;
+        const headers = ['الكود', 'الاسم', 'اللجنة', 'رقم الهاتف', 'تاريخ الانضمام'];
+        const dataRows = [headers];
         
-        exportToExcelHTML(tableHtml, 'قائمة الأعضاء المسجلين', 'قائمة_الأعضاء');
+        filtered.forEach(s => {
+            dataRows.push([s.id, s.name, stageMap[s.level]||s.level, s.ownPhone||s.phone, s.date]);
+        });
+        
+        exportToExcelReal(dataRows, 'قائمة الأعضاء المسجلين', 'قائمة_الأعضاء');
     }
 
     async function showTab(id, btn) { 
@@ -1215,7 +1210,6 @@
         } 
     }
 
-    // دالة مساعدة لتصفير الترقيم عند البحث
     window.resetPaginationAndRender = function() {
         currentPage = 1;
         renderStudents();
@@ -1882,34 +1876,32 @@
         if(!currentReportData.combined || currentReportData.combined.length === 0) return showToast('لا توجد بيانات للتصدير', 'error');
         
         const title = document.getElementById('reportResult').querySelector('h4').innerText;
-        let tableHtml = '';
+        let dataRows = [];
         
         if (category === 'combined') {
-            tableHtml += `<thead><tr><th>الكود</th><th>الاسم</th><th>اللجنة</th><th>رقم الهاتف</th><th>أيام الحضور</th><th>أيام الغياب</th><th>إجمالي النقاط</th><th>تواريخ الحضور</th><th>تواريخ الغياب</th></tr></thead><tbody>`;
+            dataRows.push(['الكود', 'الاسم', 'اللجنة', 'رقم الهاتف', 'أيام الحضور', 'أيام الغياب', 'إجمالي النقاط', 'تواريخ الحضور', 'تواريخ الغياب']);
             currentReportData.combined.forEach(c => {
-                tableHtml += `<tr><td>${c.id}</td><td>${c.name}</td><td>${stageMap[c.level]||c.level}</td><td>${c.ownPhone||c.phone}</td><td>${c.presentCount}</td><td>${c.absentCount}</td><td>${c.totalPoints}</td><td>${c.presentDatesStr}</td><td>${c.absentDatesStr}</td></tr>`;
+                dataRows.push([c.id, c.name, stageMap[c.level]||c.level, c.ownPhone||c.phone, c.presentCount, c.absentCount, c.totalPoints, c.presentDatesStr, c.absentDatesStr]);
             });
         } else if (category === 'attendance') {
-            tableHtml += `<thead><tr><th>الكود</th><th>الاسم</th><th>اللجنة</th><th>عدد الحضور</th><th>تواريخ الحضور</th><th>عدد الغياب</th><th>تواريخ الغياب</th></tr></thead><tbody>`;
+            dataRows.push(['الكود', 'الاسم', 'اللجنة', 'عدد الحضور', 'تواريخ الحضور', 'عدد الغياب', 'تواريخ الغياب']);
             currentReportData.combined.forEach(c => {
-                tableHtml += `<tr><td>${c.id}</td><td>${c.name}</td><td>${stageMap[c.level]||c.level}</td><td>${c.presentCount}</td><td>${c.presentDatesStr}</td><td>${c.absentCount}</td><td>${c.absentDatesStr}</td></tr>`;
+                dataRows.push([c.id, c.name, stageMap[c.level]||c.level, c.presentCount, c.presentDatesStr, c.absentCount, c.absentDatesStr]);
             });
         } else if (category === 'points') {
-            tableHtml += `<thead><tr><th>الكود</th><th>الاسم</th><th>اللجنة</th><th>إجمالي النقاط</th></tr></thead><tbody>`;
+            dataRows.push(['الكود', 'الاسم', 'اللجنة', 'إجمالي النقاط']);
             currentReportData.combined.forEach(c => {
-                tableHtml += `<tr><td>${c.id}</td><td>${c.name}</td><td>${stageMap[c.level]||c.level}</td><td>${c.totalPoints}</td></tr>`;
+                dataRows.push([c.id, c.name, stageMap[c.level]||c.level, c.totalPoints]);
             });
         }
-        tableHtml += `</tbody>`;
-        
-        exportToExcelHTML(tableHtml, title, `تقرير_YLY_${category}`);
+
+        exportToExcelReal(dataRows, title, `تقرير_YLY_${category}`);
     }
 
     window.exportReportPDF = function(category) {
         const reportResultHtml = document.getElementById('reportResult').innerHTML;
         const title = document.getElementById('reportResult').querySelector('h4').innerText;
-        // إزالة أزرار التصدير من الـ PDF
-        const cleanHtml = reportResultHtml.replace(/<div class="flex gap-2">[\s\S]*?<\/div>/, '');
+        const cleanHtml = reportResultHtml.replace(/<div class="flex gap-2">[\s\S]*?<\/div>/, '').replace(/<h4.*<\/h4>/, '');
         savePDF(title, cleanHtml);
     }
 

@@ -403,7 +403,7 @@
                         
                         <!-- الطلب الثاني: Custom Dropdown تصفية لجنة الأعضاء -->
                         <div class="relative shrink-0" id="studentListFilterContainer">
-                            <input type="text" id="studentListFilterDisplay" readonly value="الكل" class="text-[10px] px-2 h-8 w-auto min-w-[75px] text-center font-bold text-gray-800 bg-white border border-gray-400 rounded cursor-pointer" onclick="toggleCustomDropdown(event, 'studentListFilterMenu')">
+                            <input type="text" id="studentListFilterDisplay" readonly value="الكل" class="text-[10px] px-2 h-8 w-16 md:w-20 text-center font-bold text-gray-800 bg-white border border-gray-400 rounded cursor-pointer" onclick="toggleCustomDropdown(event, 'studentListFilterMenu')">
                             <input type="hidden" id="studentListFilter" value="all">
                             <div id="studentListFilterMenu" class="dropdown-menu hide absolute top-full right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] min-w-[100px] overflow-hidden text-right">
                                 <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('studentListFilter', 'studentListFilterDisplay', 'studentListFilterMenu', 'all', 'الكل', renderStudents)">الكل</div>
@@ -415,7 +415,7 @@
                         </div>
 
 
-                        <div class="input-wrapper flex-1 min-w-0 max-w-[150px] md:max-w-[200px]">
+                        <div class="input-wrapper flex-1 min-w-0">
                             <svg class="input-icon" style="width:14px; height:14px; left:6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                             <input type="text" id="searchStd" onkeyup="renderStudents()" placeholder="بحث باسم أو كود..." class="text-[10px] px-2 w-full h-8 transition-all md:text-sm">
                         </div>

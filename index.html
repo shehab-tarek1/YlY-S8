@@ -107,7 +107,6 @@
         .close-btn-modern { width: 28px; height: 28px; background-color: #ef4444; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.1s; flex-shrink: 0; cursor: pointer; }
         .close-btn-modern:active { transform: scale(0.9); }
 
-        /* حاوية الطباعة - لا تتأثر بخصائص الموقع وتعمل بشكل مثالي مع الطباعة */
         #print-container { position: fixed; top: 0; left: 0; width: 100%; height: 0px; overflow: hidden; z-index: -1; background: white; visibility: hidden; }
         @media print {
             body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background: white !important; width: 100% !important; height: 100% !important; }
@@ -643,11 +642,11 @@
 
 <div id="detailsModal" class="fixed inset-0 bg-black/80 hidden z-[100] flex items-center justify-center p-4 no-print">
     <div class="bg-white rounded-xl w-full max-w-2xl p-0 h-[80vh] flex flex-col shadow-2xl overflow-hidden relative">
-        <div class="flex justify-between items-center p-3 border-b bg-gray-50">
-            <h3 id="detailsTitle" class="font-bold text-sm text-gray-800 md:text-lg"></h3>
-            <div class="flex items-center gap-2">
-                <button onclick="printContent('detailsTableArea', document.getElementById('detailsTitle').innerText)" class="bg-gray-800 text-white px-3 py-1.5 rounded text-[10px] md:text-sm border border-gray-900 shadow">🖨️ طباعة</button>
-                <button onclick="pdfContent('detailsTableArea', document.getElementById('detailsTitle').innerText)" class="bg-red-700 text-white px-3 py-1.5 rounded text-[10px] md:text-sm border border-red-900 shadow">📄 PDF</button>
+        <div class="flex justify-between items-center p-2 border-b bg-gray-50">
+            <h3 id="detailsTitle" class="font-bold text-xs text-gray-800 md:text-base"></h3>
+            <div class="flex items-center gap-1.5">
+                <button onclick="printContent('detailsTableArea', document.getElementById('detailsTitle').innerText)" class="bg-gray-800 text-white px-2 py-1 rounded text-[9px] border border-gray-900 shadow hover:bg-gray-900">🖨️ طباعة</button>
+                <button onclick="pdfContent('detailsTableArea', document.getElementById('detailsTitle').innerText)" class="bg-red-700 text-white px-2 py-1 rounded text-[9px] border border-red-900 shadow hover:bg-red-800">📄 PDF</button>
                 <button onclick="closeModal('detailsModal')" class="close-btn-modern">&times;</button>
             </div>
         </div>
@@ -945,29 +944,29 @@
         document.getElementById('dashOwnPhone').innerText = member.ownPhone || member.phone || 'غير مسجل';
     }
 
-    // دالة إنشاء ملف Excel حقيقي باستخدام SheetJS
+    // محرك تصدير الإكسيل الحقيقي المطور
     window.exportToExcelReal = function(dataRows, title, filename) {
         try {
             const wb = XLSX.utils.book_new();
             wb.Workbook = { Views: [{ RTL: true }] }; 
             
-            const headerStyle = { font: { bold: true, color: { rgb: "FFFFFF" }, sz: 11 }, fill: { fgColor: { rgb: "1E3A8A" } }, alignment: { horizontal: "center", vertical: "center" }, border: { top: {style: "thin"}, bottom: {style: "thin"}, left: {style: "thin"}, right: {style: "thin"} } };
-            const dataStyle = { font: { sz: 10 }, alignment: { horizontal: "center", vertical: "center" }, border: { top: {style: "thin"}, bottom: {style: "thin"}, left: {style: "thin"}, right: {style: "thin"} } };
-            const titleStyle = { font: { bold: true, color: { rgb: "DC2626" }, sz: 14 }, alignment: { horizontal: "center", vertical: "center" } };
+            const headerStyle = { font: { bold: true, color: { rgb: "FFFFFF" }, sz: 11, name: "Arial" }, fill: { fgColor: { rgb: "1E3A8A" } }, alignment: { horizontal: "center", vertical: "center", wrapText: true }, border: { top: {style: "thin"}, bottom: {style: "thin"}, left: {style: "thin"}, right: {style: "thin"} } };
+            const dataStyle = { font: { sz: 10, name: "Arial" }, alignment: { horizontal: "center", vertical: "center", wrapText: true }, border: { top: {style: "thin"}, bottom: {style: "thin"}, left: {style: "thin"}, right: {style: "thin"} } };
+            const titleStyle = { font: { bold: true, color: { rgb: "DC2626" }, sz: 14, name: "Arial" }, alignment: { horizontal: "center", vertical: "center" } };
 
             const wsData = [];
             wsData.push([{ v: title, t: 's', s: titleStyle }]);
             wsData.push([]); 
 
             dataRows.forEach((row, rowIndex) => {
-                const styledRow = row.map(cellValue => ({ v: cellValue, t: typeof cellValue === 'number' ? 'n' : 's', s: rowIndex === 0 ? headerStyle : dataStyle }));
+                const styledRow = row.map(cellValue => ({ v: cellValue !== undefined && cellValue !== null ? cellValue : '', t: typeof cellValue === 'number' ? 'n' : 's', s: rowIndex === 0 ? headerStyle : dataStyle }));
                 wsData.push(styledRow);
             });
 
             const ws = XLSX.utils.aoa_to_sheet(wsData);
             if(!ws['!merges']) ws['!merges'] = [];
-            ws['!merges'].push({ s: {r:0, c:0}, e: {r:0, c: dataRows[0].length - 1} });
-            ws['!cols'] = dataRows[0].map(() => ({ wch: 15 })); 
+            ws['!merges'].push({ s: {r:0, c:0}, e: {r:0, c: Math.max(0, dataRows[0].length - 1)} });
+            ws['!cols'] = dataRows[0].map(() => ({ wch: 18 })); 
 
             XLSX.utils.book_append_sheet(wb, ws, "التقرير");
             XLSX.writeFile(wb, `${filename}.xlsx`);
@@ -978,37 +977,37 @@
         }
     }
 
-    // القالب الموحد للطباعة والـ PDF مع الخطوط الأساسية
+    // القالب القياسي الموحد للطباعة والـ PDF A4
     function getPrintTemplate(title, content) {
-        const date = new Date().toLocaleDateString('ar-EG');
+        const date = new Date().toLocaleDateString('ar-EG', { timeZone: 'Africa/Cairo' });
         return `
             <style>
-                body { font-family: Arial, Tahoma, sans-serif !important; direction: rtl; }
-                .print-page { width: 100%; max-width: 100%; margin: 0 auto; padding: 20px; background: white; color: #000; }
-                .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #1e3a8a; padding-bottom: 15px; margin-bottom: 20px; }
-                .print-meta-area { text-align: right; font-size: 12pt; font-weight: bold; width: 33%; }
+                body { font-family: 'Arial', 'Tahoma', sans-serif !important; direction: rtl; }
+                .print-page { width: 100%; max-width: 100%; margin: 0 auto; padding: 15pt; background: white; color: #000; direction: rtl; }
+                .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2pt solid #1e3a8a; padding-bottom: 10pt; margin-bottom: 15pt; }
+                .print-meta-area { text-align: right; font-size: 10pt; font-weight: bold; width: 33%; }
                 .print-title-area { text-align: center; width: 33%; }
-                .print-title-area h1 { font-size: 22pt; font-weight: 900; margin: 0; color: #1e3a8a; }
-                .print-title-area h2 { font-size: 16pt; font-weight: bold; margin: 5px 0 0 0; color: #333; }
+                .print-title-area h1 { font-size: 18pt; font-weight: 900; margin: 0; color: #1e3a8a; }
+                .print-title-area h2 { font-size: 13pt; font-weight: bold; margin: 4pt 0 0 0; color: #333; }
                 .print-logo-area { text-align: left; width: 33%; }
-                table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 11pt; table-layout: fixed; }
-                tr { page-break-inside: avoid; }
+                table { width: 100%; border-collapse: collapse; margin-top: 12pt; font-size: 10pt; table-layout: fixed; }
+                tr { page-break-inside: avoid !important; }
                 thead { display: table-header-group; }
-                th { background-color: #1e3a8a !important; color: #fff !important; font-weight: bold; border: 1px solid #000; padding: 8px 4px; text-align: center; -webkit-print-color-adjust: exact; }
-                td { border: 1px solid #000; padding: 8px 4px; text-align: center; vertical-align: middle; word-wrap: break-word; }
+                th { background-color: #1e3a8a !important; color: #fff !important; font-weight: bold; border: 1px solid #000; padding: 6pt 4pt; text-align: center; -webkit-print-color-adjust: exact; }
+                td { border: 1px solid #000; padding: 6pt 4pt; text-align: center; vertical-align: middle; word-wrap: break-word; }
                 
-                .print-student-card { border: 2px solid #1e3a8a !important; border-radius: 15px; padding: 20px; width: 100%; max-width: 500px; margin: 20px auto; text-align: center; background: #f8fafc; page-break-inside: avoid; position: relative; }
-                .print-student-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 10px; background: #dc2626; border-top-left-radius: 13px; border-top-right-radius: 13px; }
-                .print-card-title { font-size: 16pt; font-weight: bold; margin-bottom: 10px; color: #dc2626; display: flex; justify-content: center; align-items: center; gap: 10px; }
-                .print-card-name { font-size: 20pt; font-weight: bold; margin: 10px 0; border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; color: #000; }
-                .print-card-row { font-size: 12pt; font-weight: bold; margin: 6px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding: 4px 0; color: #000; }
-                .print-card-footer { margin-top: 15px; font-size: 11pt; color: #555; font-weight: bold; border-top: 1px solid #1e3a8a; padding-top: 5px; }
+                .print-student-card { border: 2pt solid #1e3a8a !important; border-radius: 12pt; padding: 15pt; width: 100%; max-width: 420pt; margin: 15pt auto; text-align: center; background: #f8fafc; page-break-inside: avoid !important; position: relative; }
+                .print-student-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 8pt; background: #dc2626; border-top-left-radius: 10pt; border-top-right-radius: 10pt; }
+                .print-card-title { font-size: 14pt; font-weight: bold; margin-bottom: 8pt; color: #dc2626; display: flex; justify-content: center; align-items: center; gap: 8pt; }
+                .print-card-name { font-size: 18pt; font-weight: bold; margin: 8pt 0; border-bottom: 2pt solid #1e3a8a; padding-bottom: 8pt; color: #000; }
+                .print-card-row { font-size: 11pt; font-weight: bold; margin: 5pt 0; display: flex; justify-content: space-between; border-bottom: 1pt dashed #ccc; padding: 3pt 0; color: #000; }
+                .print-card-footer { margin-top: 12pt; font-size: 10pt; color: #555; font-weight: bold; border-top: 1pt solid #1e3a8a; padding-top: 4pt; }
             </style>
             <div class="print-page">
                 <div class="print-header">
-                    <div class="print-meta-area"><div>التاريخ: ${date}</div><div>YLY System</div></div>
+                    <div class="print-meta-area"><div>التاريخ: ${date}</div><div>YLY System Pro</div></div>
                     <div class="print-title-area"><h1>YLY Leaders</h1><h2>${title}</h2></div>
-                    <div class="print-logo-area"><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" style="width:60px; height:60px; object-fit:contain; float:left;"></div>
+                    <div class="print-logo-area"><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" style="width:50px; height:50px; object-fit:contain; float:left;"></div>
                 </div>
                 <div class="print-body">${content}</div>
             </div>`;
@@ -1027,47 +1026,41 @@
         } catch (e) { showToast('حدث خطأ أثناء الطباعة', 'error'); } finally { isPrinting = false; }
     };
 
-    // محرك الـ PDF الجديد كلياً والمستقر
+    // محرك الـ PDF المستقر والمعتمد
     window.savePDF = async function(title, elementIdOrHtml, isHtml = true) {
         if(isPrinting) return;
         isPrinting = true;
         
         const loading = document.getElementById('loadingOverlay');
         const loadingText = document.getElementById('loadingText');
-        const oldText = loadingText.innerText;
-        loadingText.innerText = 'جاري معالجة وتصدير الـ PDF...';
-        loading.style.display = 'flex';
-        loading.style.opacity = '1';
+        const oldText = loadingText ? loadingText.innerText : '';
+        if(loadingText) loadingText.innerText = 'جاري معالجة وتصدير الـ PDF...';
+        if(loading) { loading.style.display = 'flex'; loading.style.opacity = '1'; }
 
         try {
             let contentStr = isHtml ? elementIdOrHtml : document.getElementById(elementIdOrHtml).innerHTML;
             
-            // إنشاء حاوية مخفية خارج الشاشة
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = getPrintTemplate(title, contentStr);
             tempDiv.style.position = 'absolute';
             tempDiv.style.left = '-9999px';
             tempDiv.style.top = '0';
+            tempDiv.style.width = '210mm';
+            tempDiv.style.minHeight = '297mm';
             tempDiv.style.background = '#ffffff';
             tempDiv.style.color = '#000000';
             tempDiv.style.direction = 'rtl';
             tempDiv.style.fontFamily = 'Arial, Tahoma, sans-serif';
             
-            // حساب العرض المناسب لتحديد اتجاه الصفحة (Landscape/Portrait)
             document.body.appendChild(tempDiv);
-            const contentWidth = tempDiv.offsetWidth;
-            const orientation = contentWidth > 800 ? 'landscape' : 'portrait';
-            // إجبار العرض ليكون 1000 بكسل لمنع قص الجداول العريضة
-            tempDiv.style.width = '1000px'; 
-
-            await new Promise(resolve => setTimeout(resolve, 500));
+            await new Promise(resolve => setTimeout(resolve, 400));
 
             const opt = { 
                 margin: [10, 10, 10, 10], 
                 filename: `${title}_${new Date().toLocaleDateString('en-CA')}.pdf`, 
-                image: { type: 'jpeg', quality: 1 }, 
-                html2canvas: { scale: 2, useCORS: true, letterRendering: true, windowWidth: 1000, logging: false }, 
-                jsPDF: { unit: 'mm', format: 'a4', orientation: orientation },
+                image: { type: 'jpeg', quality: 0.98 }, 
+                html2canvas: { scale: 2, useCORS: true, logging: false, scrollX: 0, scrollY: 0, windowWidth: document.body.scrollWidth }, 
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
                 pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
             };
             
@@ -1080,13 +1073,18 @@
             showToast('حدث خطأ أثناء حفظ الـ PDF', 'error');
         } finally {
             isPrinting = false;
-            loading.style.opacity = '0';
-            setTimeout(() => {
-                loading.style.display = 'none';
-                loadingText.innerText = oldText;
-            }, 300);
+            if(loading) {
+                loading.style.opacity = '0';
+                setTimeout(() => { loading.style.display = 'none'; if(loadingText) loadingText.innerText = oldText; }, 300);
+            }
         }
     };
+
+    window.pdfContent = function(elementId, title) {
+        const el = document.getElementById(elementId);
+        if(!el) return;
+        savePDF(title, el.innerHTML, true);
+    }
 
     function generateQRBase64(text) {
         return new Promise((resolve) => {

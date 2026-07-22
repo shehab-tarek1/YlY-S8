@@ -108,6 +108,8 @@
         .close-btn-modern { width: 28px; height: 28px; background-color: #ef4444; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.1s; flex-shrink: 0; cursor: pointer; }
         .close-btn-modern:active { transform: scale(0.9); }
 
+        /* حاوية الطباعة - لا تتأثر بخصائص الموقع */
+        #print-container { position: fixed; top: 0; left: 0; width: 100%; height: 0px; overflow: hidden; z-index: -1; background: white; visibility: hidden; }
         @media print {
             body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background: white !important; width: 100% !important; height: 100% !important; }
             body > *:not(#print-container):not(#appContent):not(.fixed) { display: none !important; }
@@ -231,7 +233,6 @@
     </div>
 </div>
 
-<!-- حاوية الطباعة (تعمل بشكل سليم مع @media print) -->
 <div id="print-container"></div>
 
 <div id="appContent" class="hidden">
@@ -666,8 +667,6 @@
     </div>
 </div>
 
-<!-- حاوية إنشاء الـ PDF المخفية بشكل احترافي لمنع التشوه البصري -->
-<div id="pdf-generator-container" style="position: fixed; left: -9999px; top: 0; width: 1000px; z-index: -9999; opacity: 0; pointer-events: none; font-family: Arial, Tahoma, sans-serif !important; direction: rtl; background: white;"></div>
 <div id="toast" class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-full shadow-xl z-[200] hidden font-bold text-[10px] max-w-[90%] w-auto text-center whitespace-nowrap"></div>
 
 <script type="module">
@@ -883,8 +882,8 @@
 
     function getDatesInRange(startDate, endDate) {
         const dates = [];
-        let [sY, sM, sD] = startDate.split('-').map(Number);
-        let [eY, eM, eD] = endDate.split('-').map(Number);
+        let [sY, sM, sD] = splitDate(startDate);
+        let [eY, eM, eD] = splitDate(endDate);
         let curr = new Date(sY, sM - 1, sD, 12, 0, 0);
         let last = new Date(eY, eM - 1, eD, 12, 0, 0);
         while (curr <= last) {
@@ -896,6 +895,7 @@
         }
         return dates;
     }
+    function splitDate(d) { return d ? d.split('-').map(Number) : [2020,1,1]; }
 
     function calculateStudentStats(member) {
         let present = 0; let absent = 0; let history = [];
@@ -946,51 +946,27 @@
         document.getElementById('dashOwnPhone').innerText = member.ownPhone || member.phone || 'غير مسجل';
     }
 
-    // دالة إنشاء ملف Excel حقيقي باستخدام SheetJS
     window.exportToExcelReal = function(dataRows, title, filename) {
         try {
             const wb = XLSX.utils.book_new();
-            wb.Workbook = { Views: [{ RTL: true }] }; // تفعيل اتجاه اليمين لليسار في الإكسيل
+            wb.Workbook = { Views: [{ RTL: true }] }; 
             
-            // تعريف التنسيقات
-            const headerStyle = {
-                font: { bold: true, color: { rgb: "FFFFFF" }, sz: 11 },
-                fill: { fgColor: { rgb: "1E3A8A" } },
-                alignment: { horizontal: "center", vertical: "center" },
-                border: { top: {style: "thin"}, bottom: {style: "thin"}, left: {style: "thin"}, right: {style: "thin"} }
-            };
-
-            const dataStyle = {
-                font: { sz: 10 },
-                alignment: { horizontal: "center", vertical: "center" },
-                border: { top: {style: "thin"}, bottom: {style: "thin"}, left: {style: "thin"}, right: {style: "thin"} }
-            };
-
-            const titleStyle = {
-                font: { bold: true, color: { rgb: "DC2626" }, sz: 14 },
-                alignment: { horizontal: "center", vertical: "center" }
-            };
+            const headerStyle = { font: { bold: true, color: { rgb: "FFFFFF" }, sz: 11 }, fill: { fgColor: { rgb: "1E3A8A" } }, alignment: { horizontal: "center", vertical: "center" }, border: { top: {style: "thin"}, bottom: {style: "thin"}, left: {style: "thin"}, right: {style: "thin"} } };
+            const dataStyle = { font: { sz: 10 }, alignment: { horizontal: "center", vertical: "center" }, border: { top: {style: "thin"}, bottom: {style: "thin"}, left: {style: "thin"}, right: {style: "thin"} } };
+            const titleStyle = { font: { bold: true, color: { rgb: "DC2626" }, sz: 14 }, alignment: { horizontal: "center", vertical: "center" } };
 
             const wsData = [];
             wsData.push([{ v: title, t: 's', s: titleStyle }]);
             wsData.push([]); 
 
             dataRows.forEach((row, rowIndex) => {
-                const styledRow = row.map(cellValue => ({
-                    v: cellValue,
-                    t: typeof cellValue === 'number' ? 'n' : 's',
-                    s: rowIndex === 0 ? headerStyle : dataStyle
-                }));
+                const styledRow = row.map(cellValue => ({ v: cellValue, t: typeof cellValue === 'number' ? 'n' : 's', s: rowIndex === 0 ? headerStyle : dataStyle }));
                 wsData.push(styledRow);
             });
 
             const ws = XLSX.utils.aoa_to_sheet(wsData);
-
-            // دمج خلايا العنوان لتكون في المنتصف
             if(!ws['!merges']) ws['!merges'] = [];
             ws['!merges'].push({ s: {r:0, c:0}, e: {r:0, c: dataRows[0].length - 1} });
-
-            // ضبط عرض الأعمدة
             ws['!cols'] = dataRows[0].map(() => ({ wch: 15 })); 
 
             XLSX.utils.book_append_sheet(wb, ws, "التقرير");
@@ -1009,11 +985,11 @@
                 body { font-family: Arial, Tahoma, sans-serif !important; direction: rtl; }
                 .print-page { width: 100%; max-width: 100%; margin: 0 auto; padding: 20px; background: white; color: #000; }
                 .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #1e3a8a; padding-bottom: 15px; margin-bottom: 20px; }
-                .print-meta-area { text-align: left; font-size: 12pt; font-weight: bold; }
-                .print-title-area { text-align: center; flex: 1; }
+                .print-meta-area { text-align: right; font-size: 12pt; font-weight: bold; width: 33%; }
+                .print-title-area { text-align: center; width: 33%; }
                 .print-title-area h1 { font-size: 22pt; font-weight: 900; margin: 0; color: #1e3a8a; }
                 .print-title-area h2 { font-size: 16pt; font-weight: bold; margin: 5px 0 0 0; color: #333; }
-                .print-logo-area { font-size: 40px; }
+                .print-logo-area { text-align: left; width: 33%; }
                 table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 11pt; table-layout: fixed; }
                 tr { page-break-inside: avoid; }
                 thead { display: table-header-group; }
@@ -1031,7 +1007,7 @@
                 <div class="print-header">
                     <div class="print-meta-area"><div>التاريخ: ${date}</div><div>YLY System</div></div>
                     <div class="print-title-area"><h1>YLY Leaders</h1><h2>${title}</h2></div>
-                    <div class="print-logo-area"><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" style="width:60px; height:60px; object-fit:contain;"></div>
+                    <div class="print-logo-area"><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" style="width:60px; height:60px; object-fit:contain; float:left;"></div>
                 </div>
                 <div class="print-body">${content}</div>
             </div>`;
@@ -1043,7 +1019,6 @@
         showToast('جاري تحضير الطباعة...', 'success');
         try {
             const printContainer = document.getElementById('print-container');
-            printContainer.innerHTML = '';
             printContainer.innerHTML = getPrintTemplate(title, content);
             await new Promise(resolve => setTimeout(resolve, 300));
             window.print();
@@ -1056,8 +1031,17 @@
         isPrinting = true;
         showToast('جاري إنشاء PDF...', 'success');
         
-        const pdfContainer = document.getElementById('pdf-generator-container');
-        pdfContainer.innerHTML = getPrintTemplate(title, content);
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = getPrintTemplate(title, content);
+        // وضع الحاوية خلف الموقع لتعمل بدون تشويه بصري
+        tempDiv.style.position = 'absolute';
+        tempDiv.style.top = '0';
+        tempDiv.style.left = '0';
+        tempDiv.style.width = '1000px';
+        tempDiv.style.background = '#ffffff';
+        tempDiv.style.zIndex = '-9999'; 
+        
+        document.body.appendChild(tempDiv);
 
         setTimeout(() => {
             const opt = { 
@@ -1066,19 +1050,19 @@
                 image: { type: 'jpeg', quality: 1 }, 
                 html2canvas: { scale: 2, useCORS: true, logging: false }, 
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                pagebreak: { mode: 'avoid-all' }
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
             };
             
-            html2pdf().set(opt).from(pdfContainer).save().then(() => { 
-                pdfContainer.innerHTML = ''; 
+            html2pdf().set(opt).from(tempDiv).save().then(() => { 
+                document.body.removeChild(tempDiv);
                 isPrinting = false; 
             }).catch(err => { 
                 console.error(err);
-                pdfContainer.innerHTML = ''; 
+                if(document.body.contains(tempDiv)) document.body.removeChild(tempDiv);
                 showToast('فشل الحفظ', 'error'); 
                 isPrinting = false; 
             });
-        }, 500); 
+        }, 800); 
     }
 
     function generateQRBase64(text) {
@@ -1353,7 +1337,6 @@
     async function stopScanner() { 
         if(html5QrCode) { 
             try { 
-                // إجبار إغلاق الكاميرا لتنظيف الذاكرة
                 const tracks = html5QrCode._localMediaStream?.getTracks() || [];
                 tracks.forEach(track => track.stop());
                 await html5QrCode.stop(); 

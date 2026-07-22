@@ -869,7 +869,9 @@
                 });
             }
         } else {
-            loading.style.opacity = '0'; setTimeout(()=>loading.style.display='none', 300); 
+            if (!window.isLoggingOut) { // إخفاء الشاشة فقط إذا لم نكن في عملية خروج
+                loading.style.opacity = '0'; setTimeout(()=>loading.style.display='none', 300); 
+            }
         }
     });
 </script>
@@ -1202,6 +1204,7 @@ window.handleLogin = async function() {
 
     window.logout = async function() { 
         try {
+            window.isLoggingOut = true; // أمر يمنع النظام من إخفاء شاشة التحميل لاحقاً
             const loading = document.getElementById('loadingOverlay');
             if(loading) {
                 loading.style.display = 'flex';

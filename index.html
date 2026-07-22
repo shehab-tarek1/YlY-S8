@@ -23,6 +23,7 @@
 
     <title>YLY Management | Pro System</title>
 
+
     <!-- المكتبات -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -145,10 +146,18 @@
         .dropdown-menu.hide { opacity: 0; transform: scaleY(0); visibility: hidden; }
 
 
-        /* --- تخصيص أيقونات التاريخ (Calendar Icon) --- */
+        /* --- تخصيص حقول التاريخ (محاذاة لليمين واستبدال السهم بنتيجة) --- */
+        input[type="date"], input[type="month"] {
+            text-align: right !important; /* إجبار التاريخ ليكون محاذي لليمين */
+            padding-left: 25px !important; /* ترك مساحة كافية لأيقونة النتيجة */
+        }
         input[type="date"]::-webkit-calendar-picker-indicator,
         input[type="month"]::-webkit-calendar-picker-indicator {
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%231e3a8a"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 15px; /* حجم أيقونة النتيجة */
+            color: transparent; /* إخفاء سهم المتصفح الافتراضي المزعج */
             cursor: pointer;
             opacity: 0.8;
             transition: opacity 0.2s;
@@ -159,13 +168,13 @@
         }
 
 
-        /* --- سهم القوائم المنسدلة لجميع الحقول (Custom Dropdowns) --- */
-        input[readonly][onclick*="toggleCustomDropdown"] {
+        /* --- سهم القوائم المنسدلة (تصغير الحجم واستثناء حقل العضو) --- */
+        input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%234b5563"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>');
             background-repeat: no-repeat;
             background-position: left 8px center;
-            background-size: 14px;
-            padding-left: 25px !important; 
+            background-size: 10px; /* تم تصغير السهم ليكون أنيقاً */
+            padding-left: 20px !important; 
         }
     </style>
 </head>
@@ -480,7 +489,7 @@
                     <div class="grid grid-cols-2 gap-2">
                         <div class="input-wrapper">
                             <label class="text-[9px] text-gray-600 font-bold block mb-1">تاريخ اليوم</label>
-                            <div class="relative"><input type="date" id="attendanceDate" onchange="changeAttendanceDate()" class="w-full p-1 text-center font-bold text-gray-900 text-xs bg-white"></div>
+                            <div class="relative"><input type="date" id="attendanceDate" onchange="changeAttendanceDate()" class="w-full p-1 text-right font-bold text-gray-900 text-xs bg-white"></div>
                         </div>
 
 

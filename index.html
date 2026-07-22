@@ -25,6 +25,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- مكتبة Excel الاحترافية لتطبيق التنسيقات Style -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
@@ -383,10 +385,15 @@
                         <tbody id="studentsTable"></tbody>
                     </table>
                 </div>
-                <div class="flex justify-center items-center gap-4 mt-3 no-print">
-                    <button onclick="prevPage()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded text-xs">➡️ السابق</button>
-                    <span id="pageIndicator" class="text-xs font-bold"></span>
-                    <button onclick="nextPage()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded text-xs"> التالي ⬅️</button>
+                
+                <!-- الطلب الثاني: إضافة زر تصدير اكسيل في السطر مع التالي والسابق (أقصى اليسار والتالي/السابق أقصى اليمين) -->
+                <div class="flex justify-between items-center mt-3 no-print">
+                    <div class="flex items-center gap-2">
+                        <button onclick="prevPage()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded text-xs">➡️ السابق</button>
+                        <span id="pageIndicator" class="text-xs font-bold"></span>
+                        <button onclick="nextPage()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded text-xs"> التالي ⬅️</button>
+                    </div>
+                    <button onclick="exportStudentsListExcel()" class="bg-green-700 hover:bg-green-800 text-white font-bold py-1 px-3 rounded text-xs flex items-center gap-1 shadow">📊 تصدير Excel</button>
                 </div>
             </div>
         </section>
@@ -515,6 +522,7 @@
                 </div>
             </div>
 
+            <!-- الطلب الخامس: تحويل جزء أحدث تقييمات اليوم لجدول رسمي -->
             <div class="bg-gray-900 text-white p-3 rounded-xl shadow-lg mt-4 md:p-5 border-2 border-gray-800">
                 <div class="text-center mb-2">
                     <p class="text-[10px] opacity-70">إجمالي النقاط الممنوحة اليوم</p>
@@ -522,7 +530,19 @@
                 </div>
                 <div class="bg-white/10 p-2 rounded md:p-3">
                     <h4 class="text-[10px] font-bold text-blue-300 mb-2 border-b border-white/20 pb-1 md:text-sm">أحدث تقييمات اليوم</h4>
-                    <div id="todayRevList" class="h-32 overflow-y-auto text-[10px] space-y-1.5 md:text-xs"></div>
+                    <div class="overflow-x-auto max-h-48 overflow-y-auto">
+                        <table class="custom-table text-[10px] md:text-xs">
+                            <thead>
+                                <tr class="bg-blue-900 text-white">
+                                    <th>الاسم</th>
+                                    <th class="col-code">الكود</th>
+                                    <th>النقاط المكتسبة اليوم</th>
+                                    <th>إجمالي النقاط للعضو</th>
+                                </tr>
+                            </thead>
+                            <tbody id="todayRevListBody" class="bg-gray-800 text-white"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </section>
@@ -542,7 +562,8 @@
                     <div class="input-wrapper flex-1">
                         <input type="text" id="reportStudentSearch" placeholder="ابحث بالاسم أو الكود" class="w-full p-1 text-xs md:text-sm md:p-2">
                     </div>
-                    <button onclick="generateStudentReport()" class="bg-gray-800 text-white px-3 rounded font-bold text-[10px] md:text-sm">بحث</button>
+                    <!-- الطلب الثالث: زر يتحول لإلغاء وتفريغ عند الضغط -->
+                    <button id="btnSearchStudentReport" onclick="toggleStudentReportSearch()" class="bg-gray-800 text-white px-3 rounded font-bold text-[10px] md:text-sm transition-all">بحث</button>
                 </div>
                 <div id="studentReportResult" class="hidden bg-gray-50 p-2 rounded border border-gray-200 text-[10px] md:text-sm"></div>
             </div>
@@ -584,7 +605,8 @@
                         </select>
                     </div>
                 </div>
-                <button onclick="generateAdvancedReport()" class="w-full bg-blue-900 text-white py-1.5 rounded font-bold shadow hover:bg-blue-950 text-[10px] md:text-sm md:py-2">توليد التقرير</button>
+                <!-- الطلب الثالث: تحول زر توليد التقرير إلى إلغاء التقرير -->
+                <button id="btnGenerateReport" onclick="toggleAdvancedReport()" class="w-full bg-blue-900 text-white py-1.5 rounded font-bold shadow hover:bg-blue-950 text-[10px] md:text-sm md:py-2 transition-all">توليد التقرير</button>
                 <div id="reportResult" class="mt-2 hidden bg-gray-50 p-2 rounded border border-gray-200 text-[10px] md:text-sm"></div>
             </div>
             
@@ -611,7 +633,6 @@
             <button onclick="printStudentCard()" class="bg-gray-800 text-white py-1 rounded text-[10px] font-bold md:text-sm md:py-2">🖨️ طباعة الكارنيه</button>
             <button onclick="shareStudentPdf()" class="bg-red-700 text-white py-1 rounded text-[10px] font-bold md:text-sm md:py-2">📄 PDF</button>
         </div>
-        <!-- زر إغلاق صريح إضافي لراحة المستخدم -->
         <button onclick="closeModal('studentModal')" class="w-full bg-gray-200 text-gray-800 py-1.5 rounded font-bold text-[11px] hover:bg-gray-300 transition border border-gray-300">إغلاق النافذة</button>
     </div>
 </div>
@@ -668,7 +689,6 @@
 
     const loading = document.getElementById('loadingOverlay');
     
-    // Fail-Safe لتأكيد اختفاء اللودينج مهما كانت حالة النت (مهم جداً)
     const failSafeTimer = setTimeout(() => {
         if(loading && loading.style.display !== 'none') {
             loading.style.opacity = '0';
@@ -727,7 +747,6 @@
         const after = new Date().getTime();
         if (after - before > 100) { document.body.innerHTML = '<h1 style="color:red; text-align:center; margin-top:20%;">محاولة اختراق النظام! تم إيقاف المتصفح.</h1>'; window.location.href = "about:blank"; }
     }, 3000);
-    /* ------------------------------------------ */
 
     /* --- دوال القائمة المنسدلة المخصصة (Custom Dropdown) --- */
     function toggleCustomDropdown(event, menuId) {
@@ -756,7 +775,117 @@
             menu.classList.add('hide');
         });
     }
-    /* ------------------------------------------ */
+
+    /* =========================================================================
+       الطلب الأول: دالة تصدير بيانات إلى ملف Excel بأسلوب xlsx-js-style المتقدم
+       ========================================================================= */
+    function exportToExcelStyle(headers, rows, reportTitle, fileName) {
+        if (typeof XLSX === 'undefined') {
+            showToast('مكتبة Excel غير محملة', 'error');
+            return;
+        }
+
+        // إنشاء كتاب عمل جديد
+        const wb = XLSX.utils.book_new();
+        // تفعيل اتجاه اللغة العربية من اليمين إلى اليسار
+        wb.Workbook = { Views: [{ RTL: true }] };
+
+        // بناء مصفوفة البيانات
+        const wsData = [
+            [reportTitle], // الصف الأول: عنوان التقرير
+            headers,       // الصف الثاني: رأس الجدول
+            ...rows        // صفوف البيانات
+        ];
+
+        // تحويل البيانات لورقة عمل
+        const ws = XLSX.utils.aoa_to_sheet(wsData);
+        const colCount = headers.length;
+
+        // دمج ورقة التقرير في الصف الأول بعرض كل الأعمدة
+        ws['!merges'] = [
+            { s: { r: 0, c: 0 }, e: { r: 0, c: colCount - 1 } }
+        ];
+
+        // حدود الخلايا الخفيفة
+        const borderStyle = {
+            top: { style: "thin", color: { rgb: "D1D5DB" } },
+            bottom: { style: "thin", color: { rgb: "D1D5DB" } },
+            left: { style: "thin", color: { rgb: "D1D5DB" } },
+            right: { style: "thin", color: { rgb: "D1D5DB" } }
+        };
+
+        const headerBorderStyle = {
+            top: { style: "thin", color: { rgb: "000000" } },
+            bottom: { style: "thin", color: { rgb: "000000" } },
+            left: { style: "thin", color: { rgb: "000000" } },
+            right: { style: "thin", color: { rgb: "000000" } }
+        };
+
+        // 1. تنسيق الصف الأول (عنوان التقرير)
+        if (ws['A1']) {
+            ws['A1'].s = {
+                font: { name: 'Cairo', sz: 15, bold: true, color: { rgb: "DC2626" } },
+                alignment: { horizontal: "center", vertical: "center" },
+                fill: { fgColor: { rgb: "F9FAFB" } }
+            };
+        }
+
+        // 2. تنسيق الصف الثاني (Headers)
+        for (let col = 0; col < colCount; col++) {
+            const cellRef = XLSX.utils.encode_cell({ r: 1, c: col });
+            if (ws[cellRef]) {
+                ws[cellRef].s = {
+                    font: { name: 'Cairo', sz: 12, bold: true, color: { rgb: "FFFFFF" } },
+                    fill: { fgColor: { rgb: "1E3A8A" } },
+                    alignment: { horizontal: "center", vertical: "center", wrapText: true },
+                    border: headerBorderStyle
+                };
+            }
+        }
+
+        // 3. تنسيق صفوف البيانات (Data Rows)
+        const totalRows = wsData.length;
+        for (let r = 2; r < totalRows; r++) {
+            for (let c = 0; c < colCount; c++) {
+                const cellRef = XLSX.utils.encode_cell({ r: r, c: c });
+                if (ws[cellRef]) {
+                    const val = ws[cellRef].v;
+                    // تحديد نوع الخلية تلقائياً (رقم 'n' أو نص 's')
+                    if (typeof val === 'number') {
+                        ws[cellRef].t = 'n';
+                    } else {
+                        ws[cellRef].t = 's';
+                    }
+
+                    ws[cellRef].s = {
+                        font: { name: 'Cairo', sz: 11 },
+                        alignment: { horizontal: "center", vertical: "center" },
+                        border: borderStyle
+                    };
+                }
+            }
+        }
+
+        // 4. الحساب الديناميكي لعرض الأعمدة مع مسافة أمان وحد أدنى 16
+        const colWidths = headers.map((h, colIndex) => {
+            let maxLen = h ? h.toString().length : 10;
+            for (let r = 2; r < totalRows; r++) {
+                const val = wsData[r][colIndex];
+                if (val !== undefined && val !== null) {
+                    const len = val.toString().length;
+                    if (len > maxLen) maxLen = len;
+                }
+            }
+            return { wch: Math.max(maxLen + 5, 16) };
+        });
+
+        ws['!cols'] = colWidths;
+        ws['!rows'] = [{ hpt: 35 }, { hpt: 26 }]; // ارتفاع صف العنوان ورأس الجدول
+
+        // إخراج ورقة العمل وملف Excel
+        XLSX.utils.book_append_sheet(wb, ws, "التقرير");
+        XLSX.writeFile(wb, `${fileName}.xlsx`);
+    }
 
     let deferredPrompt;
     const pwaBanner = document.getElementById('pwaInstallBanner');
@@ -860,7 +989,6 @@
                 proceedLogin('student');
             } catch (error) {
                 if (error.code === 'auth/user-not-found') {
-                    // هنا الذكاء: إنشاء حساب العضو تلقائياً في أول مرة يسجل فيها الدخول، وليس أثناء إنشائه بواسطة الـ HR
                     const isMemberExist = window.members.find(m => m.id === code);
                     if (isMemberExist && isMemberExist.password === pass) {
                         try {
@@ -1090,6 +1218,27 @@
         savePDF(`تقرير_${name}`, content);
     }
 
+    /* --- التصدير المباشر لقائمة الأعضاء Excel (الطلب الثاني) --- */
+    window.exportStudentsListExcel = function() {
+        const filterStage = document.getElementById('studentListFilter').value;
+        const queryVal = normalizeArabic(document.getElementById('searchStd').value.toLowerCase());
+        let filtered = window.members;
+        if(filterStage !== 'all') { filtered = filtered.filter(s => s.level === filterStage); }
+        if(queryVal !== '') { filtered = filtered.filter(s => normalizeArabic(s.name.toLowerCase()).includes(queryVal) || s.id.includes(queryVal)); }
+
+        const headers = ["م", "الكود", "الاسم", "اللجنة", "رقم الهاتف", "تاريخ الانضمام"];
+        const rows = filtered.map((s, index) => [
+            index + 1,
+            s.id,
+            s.name,
+            stageMap[s.level] || s.level,
+            s.ownPhone || s.phone || 'غير مسجل',
+            s.date || '-'
+        ]);
+
+        exportToExcelStyle(headers, rows, "قائمة الأعضاء المسجلين YLY", "قائمة_الأعضاء_YLY");
+    }
+
     window.printStudentsList = function() {
         let rows = '';
         const filterStage = document.getElementById('studentListFilter').value;
@@ -1139,11 +1288,9 @@
         const createdAt = new Date().toISOString(); 
 
         try { 
-            // الإضافة تتم لقاعدة البيانات فقط، ليتمكن الـ HR من الاستمرار بالتسجيل دون الخروج
             await window.addDoc(window.collection(window.db, "members"), { id, name, level, phone: ownPhone, ownPhone, date: today, password, createdAt }); 
             openStudentModal(id); 
             
-            // تفريغ الحقول بعد الحفظ
             document.getElementById('stdName').value = ''; 
             document.getElementById('stdOwnPhone').value = ''; 
             document.getElementById('stdLevel').value = ''; 
@@ -1206,7 +1353,6 @@
     let html5QrCode = null; let isScannerRunning = false; let isPaused = false;
     window.changeAttendanceDate = function() { selectedAttendanceDate = document.getElementById('attendanceDate').value; window.updateCounters(); }
     
-    // تفعيل اليوم
     window.confirmEventDay = async function() {
         const date = document.getElementById('attendanceDate').value;
         const selectedLevel = document.getElementById('attendanceStage').value;
@@ -1226,7 +1372,6 @@
         showToast(`تم تفعيل يوم الحضور بنجاح`, 'success'); window.updateCounters();
     }
     
-    // الغاء تفعيل اليوم
     window.cancelEventDay = async function() {
         const date = document.getElementById('attendanceDate').value;
         document.getElementById('exceptionalStatusIndicator').classList.add('hidden');
@@ -1249,7 +1394,6 @@
     async function startScanner(elemId, mode) { 
         if(isScannerRunning && html5QrCode) { return; }
         html5QrCode = new Html5Qrcode(elemId); 
-        // تسريع قارئ الباركود لتجاهل ما عدا QR Code
         const config = { 
             fps: 15, 
             qrbox: { width: 250, height: 250 }, 
@@ -1436,6 +1580,28 @@
         document.getElementById('absentCount').innerText = absentCount;
     }
 
+    /* =========================================================================
+       الطلب الثالث: زر البحث في تقرير عضو يتحول لإلغاء وإعادة الضغط تفرغه وترجعه
+       ========================================================================= */
+    window.toggleStudentReportSearch = function() {
+        const btn = document.getElementById('btnSearchStudentReport');
+        const input = document.getElementById('reportStudentSearch');
+        const resDiv = document.getElementById('studentReportResult');
+
+        if (btn.innerText === 'بحث') {
+            if (!input.value.trim()) return showToast('ادخل الاسم أو الكود للبحث', 'error');
+            generateStudentReport();
+            btn.innerText = '❌ إلغاء';
+            btn.className = 'bg-red-600 text-white px-3 rounded font-bold text-[10px] md:text-sm transition-all';
+        } else {
+            input.value = '';
+            resDiv.innerHTML = '';
+            resDiv.classList.add('hidden');
+            btn.innerText = 'بحث';
+            btn.className = 'bg-gray-800 text-white px-3 rounded font-bold text-[10px] md:text-sm transition-all';
+        }
+    }
+
     function generateStudentReport() {
         const query = normalizeArabic(document.getElementById('reportStudentSearch').value.toLowerCase());
         const stage = document.getElementById('searchStage').value;
@@ -1445,6 +1611,7 @@
         if(matches.length > 1) { let listHtml = `<div class="text-xs font-bold text-gray-900 mb-2">تم العثور على ${matches.length} عضو:</div><div class="max-h-40 overflow-y-auto border rounded">`; matches.forEach(s => { listHtml += `<div onclick="showSingleReport('${s.id}')" class="p-2 border-b hover:bg-gray-50 cursor-pointer flex justify-between"><span>${s.name}</span><span class="text-gray-500 font-mono">${s.id} (${stageMap[s.level] || s.level})</span></div>`; }); listHtml += `</div>`; resDiv.innerHTML = listHtml; resDiv.classList.remove('hidden'); } else { showSingleReport(matches[0].id); }
     }
 
+    /* الطلب الثاني: أزرار تصدير Excel لاستعلام تقارير عضو */
     window.showSingleReport = function(studentId) {
         const member = window.members.find(s => s.id === studentId);
         if (!member) return;
@@ -1467,11 +1634,33 @@
                 <div class="bg-red-100 p-2 rounded"><div class="text-xs">الغياب</div><div class="font-bold text-red-700">${stats.absent}</div></div>
             </div>
             <div class="mb-4"><h5 class="font-bold text-xs mb-1 text-blue-900">سجل النقاط (${totalPoints} نقطة)</h5><div class="max-h-32 overflow-y-auto text-xs border rounded p-1">${points.length ? points.map(p => `<div class="flex justify-between border-b p-1"><span>${p.type}</span><span class="font-bold text-blue-700">${p.amount} (${p.date})</span></div>`).join('') : '<p class="text-center">لا يوجد</p>'}</div></div>
-            <div class="flex gap-2">
-                <button onclick="pdfDetailedStudentReport('${member.id}')" class="flex-1 bg-red-700 text-white py-1.5 rounded text-xs font-bold flex items-center justify-center gap-2"><span>📄</span> حفظ PDF</button>
-                <button onclick="printDetailedStudentReport('${member.id}')" class="flex-1 bg-gray-800 text-white py-1.5 rounded text-xs font-bold flex items-center justify-center gap-2"><span>🖨️</span> طباعة</button>
+            <div class="grid grid-cols-3 gap-2">
+                <button onclick="excelDetailedStudentReport('${member.id}')" class="bg-green-700 text-white py-1.5 rounded text-xs font-bold flex items-center justify-center gap-1 shadow">📊 Excel</button>
+                <button onclick="pdfDetailedStudentReport('${member.id}')" class="bg-red-700 text-white py-1.5 rounded text-xs font-bold flex items-center justify-center gap-1">📄 PDF</button>
+                <button onclick="printDetailedStudentReport('${member.id}')" class="bg-gray-800 text-white py-1.5 rounded text-xs font-bold flex items-center justify-center gap-1">🖨️ طباعة</button>
             </div>`;
         resDiv.classList.remove('hidden');
+    }
+
+    window.excelDetailedStudentReport = function(studentId) {
+        const s = window.members.find(st => st.id === studentId); if(!s) return;
+        const stats = calculateStudentStats(s);
+        const points = window.accounting.filter(r => r.category === 'points' && r.stdId === s.id);
+        
+        const headers = ["نوع السجل", "التاريخ / اليوم", "التقييم / الحالة", "النقاط المكتسبة"];
+        const rows = [];
+
+        // سجل النقاط
+        points.forEach(p => {
+            rows.push(["نقاط وتقييمات", p.date, p.type, p.amount]);
+        });
+
+        // سجل الحضور والغياب
+        stats.history.forEach(h => {
+            rows.push(["حضور وغياب", `${h.date} (${h.day})`, h.status === 'present' ? 'حضور' : 'غياب', '-']);
+        });
+
+        exportToExcelStyle(headers, rows, `تقرير متابعة عضو - ${s.name} (${s.id})`, `تقرير_العضو_${s.name}`);
     }
 
     window.printDetailedStudentReport = async function(studentId) {
@@ -1580,6 +1769,9 @@
         isPaused = false; 
     }
 
+    /* =========================================================================
+       الطلب الخامس: تحويل أحدث التقييمات في صفحة التقييمات إلى جدول رسمي
+       ========================================================================= */
     window.updateFinance = function() { 
         const points = window.accounting.filter(a => a.category === 'points'); 
         const todayPoints = points.filter(r => r.date === today); 
@@ -1587,11 +1779,50 @@
         const totalPointsToday = todayPoints.reduce((sum, r) => sum + r.amount, 0); 
         document.getElementById('totalRev').innerText = totalPointsToday; 
 
-        document.getElementById('todayRevList').innerHTML = todayPoints.map(r => `<div class="flex justify-between border-b border-white/10 pb-1"><span>${r.name} <span class="text-[9px] opacity-70">(${r.type})</span></span><span class="font-bold text-blue-300">${r.amount} نقطة</span></div>`).join('') || '<div class="text-center opacity-50">لا يوجد نقاط اليوم</div>'; 
+        const todayRevBody = document.getElementById('todayRevListBody');
+        if (todayRevBody) {
+            if (todayPoints.length === 0) {
+                todayRevBody.innerHTML = '<tr><td colspan="4" class="text-center text-gray-400 py-3">لا توجد تقييمات اليوم</td></tr>';
+            } else {
+                todayRevBody.innerHTML = todayPoints.map(r => {
+                    const memberTotalPoints = points.filter(p => p.stdId === r.stdId).reduce((s, p) => s + p.amount, 0);
+                    return `<tr>
+                        <td class="font-bold text-gray-100">${r.name}</td>
+                        <td class="col-code font-mono text-gray-300">${r.stdId}</td>
+                        <td class="font-bold text-green-400">+${r.amount} <span class="text-[9px] opacity-75">(${r.type})</span></td>
+                        <td class="font-bold text-blue-300">${memberTotalPoints} نقطة</td>
+                    </tr>`;
+                }).join('');
+            }
+        }
     }
 
     function toggleReportInputs() { const type = document.getElementById('reportType').value; if(type === 'daily') { document.getElementById('divDateInput').classList.remove('hidden'); document.getElementById('divMonthInput').classList.add('hidden'); } else { document.getElementById('divDateInput').classList.add('hidden'); document.getElementById('divMonthInput').classList.remove('hidden'); } }
 
+    /* =========================================================================
+       الطلب الثالث: زر توليد التقرير يتحول إلى إلغاء التقرير عند توليده
+       ========================================================================= */
+    window.toggleAdvancedReport = function() {
+        const btn = document.getElementById('btnGenerateReport');
+        const resDiv = document.getElementById('reportResult');
+
+        if (btn.innerText === 'توليد التقرير') {
+            generateAdvancedReport();
+            if(!resDiv.classList.contains('hidden')) {
+                btn.innerText = '❌ إلغاء التقرير';
+                btn.className = 'w-full bg-red-600 text-white py-1.5 rounded font-bold shadow hover:bg-red-700 text-[10px] md:text-sm md:py-2 transition-all';
+            }
+        } else {
+            resDiv.innerHTML = '';
+            resDiv.classList.add('hidden');
+            btn.innerText = 'توليد التقرير';
+            btn.className = 'w-full bg-blue-900 text-white py-1.5 rounded font-bold shadow hover:bg-blue-950 text-[10px] md:text-sm md:py-2 transition-all';
+        }
+    }
+
+    /* =========================================================================
+       الطلب الرابع: إضافة تواريخ الغياب والحضور التفصيلية لكل عضو في التقارير
+       ========================================================================= */
     function generateAdvancedReport() {
         const type = document.getElementById('reportType').value;
         const stage = document.getElementById('reportStage').value;
@@ -1626,18 +1857,35 @@
 
         targetMembers.forEach(member => {
             let presentCount = 0; let absentCount = 0;
+            let presentDates = [];
+            let absentDates = [];
+
             datesArray.forEach(d => {
                 if (d >= member.date && d <= today) {
                     const statusObj = getStudentStatusForDate(member, d);
-                    if (statusObj.status === 'present') presentCount++;
-                    else if (statusObj.status === 'absent') absentCount++;
+                    if (statusObj.status === 'present') {
+                        presentCount++;
+                        presentDates.push(d);
+                    } else if (statusObj.status === 'absent') {
+                        absentCount++;
+                        absentDates.push(d);
+                    }
                 }
             });
+
             const memberPoints = pointsForPeriod.filter(p => p.stdId === member.id).reduce((sum, p) => sum + p.amount, 0);
+            const memberObj = {
+                ...member,
+                presentCount,
+                absentCount,
+                presentDates,
+                absentDates,
+                totalPoints: memberPoints
+            };
             
-            if (presentCount > 0) currentReportData.present.push({ ...member, count: presentCount });
-            if (absentCount > 0) currentReportData.absent.push({ ...member, count: absentCount });
-            currentReportData.combined.push({ ...member, presentCount, absentCount, totalPoints: memberPoints });
+            if (presentCount > 0) currentReportData.present.push(memberObj);
+            if (absentCount > 0) currentReportData.absent.push(memberObj);
+            currentReportData.combined.push(memberObj);
             
             totalPointsForPeriod += memberPoints;
         });
@@ -1650,18 +1898,57 @@
             html += `
                 <div class="overflow-x-auto">
                     <table class="w-full text-[10px] text-center border custom-table mb-2">
-                        <thead class="bg-blue-900 text-white"><tr><th>م</th><th>الاسم</th><th>اللجنة</th><th>النقاط</th><th>حضور</th><th>غياب</th></tr></thead>
-                        <tbody>${currentReportData.combined.map((c, i) => `<tr><td>${i+1}</td><td class="font-bold">${c.name}</td><td>${stageMap[c.level]||c.level}</td><td class="text-blue-700 font-bold">${c.totalPoints}</td><td class="text-green-600">${c.presentCount}</td><td class="text-red-600">${c.absentCount}</td></tr>`).join('')}</tbody>
+                        <thead class="bg-blue-900 text-white">
+                            <tr>
+                                <th>م</th>
+                                <th>الاسم</th>
+                                <th>اللجنة</th>
+                                <th>النقاط</th>
+                                <th>حضور</th>
+                                <th>غياب</th>
+                                <th>تواريخ الحضور</th>
+                                <th>تواريخ الغياب</th>
+                            </tr>
+                        </thead>
+                        <tbody>${currentReportData.combined.map((c, i) => `
+                            <tr>
+                                <td>${i+1}</td>
+                                <td class="font-bold">${c.name}</td>
+                                <td>${stageMap[c.level]||c.level}</td>
+                                <td class="text-blue-700 font-bold">${c.totalPoints}</td>
+                                <td class="text-green-600 font-bold">${c.presentCount}</td>
+                                <td class="text-red-600 font-bold">${c.absentCount}</td>
+                                <td class="text-[9px] text-green-700 max-w-[120px] truncate">${c.presentDates.join(', ') || 'لا يوجد'}</td>
+                                <td class="text-[9px] text-red-700 max-w-[120px] truncate">${c.absentDates.join(', ') || 'لا يوجد'}</td>
+                            </tr>`).join('')}
+                        </tbody>
                     </table>
                 </div>
                 <button onclick="exportCombinedExcel()" class="w-full bg-green-700 text-white py-1.5 rounded font-bold shadow text-[10px] md:text-sm">📥 تصدير التقرير الشامل (Excel)</button>
             `;
         }
         else if (category === 'attendance') {
-            html += `<div class="grid grid-cols-2 gap-2 text-center"><div onclick='openReportDetails("present")' class="bg-green-100 p-2 rounded cursor-pointer hover:bg-green-200"><div class="text-xs">حضور</div><div class="font-bold text-green-700">${currentReportData.present.length} عضو</div></div><div onclick='openReportDetails("absent")' class="bg-red-100 p-2 rounded cursor-pointer hover:bg-red-200"><div class="text-xs">غياب</div><div class="font-bold text-red-700">${currentReportData.absent.length} عضو</div></div></div>`;
+            html += `
+                <div class="grid grid-cols-2 gap-2 text-center mb-2">
+                    <div onclick='openReportDetails("present")' class="bg-green-100 p-2 rounded cursor-pointer hover:bg-green-200">
+                        <div class="text-xs font-bold">الحضور (${currentReportData.present.length} عضو)</div>
+                    </div>
+                    <div onclick='openReportDetails("absent")' class="bg-red-100 p-2 rounded cursor-pointer hover:bg-red-200">
+                        <div class="text-xs font-bold">الغياب (${currentReportData.absent.length} عضو)</div>
+                    </div>
+                </div>
+                <button onclick="exportAttendanceReportExcel()" class="w-full bg-green-700 text-white py-1.5 rounded font-bold shadow text-[10px] md:text-sm">📥 تصدير تقرير الحضور والغياب (Excel)</button>
+            `;
         } 
         else {
-            html += `<div onclick='openReportDetails("points")' class="bg-blue-50 p-3 rounded border border-blue-200 cursor-pointer hover:bg-blue-100 text-center"><span class="text-xs text-gray-500 block">إجمالي النقاط الممنوحة</span><span class="font-bold text-blue-700 text-xl">${totalPointsForPeriod} نقطة</span><br><span class="text-[9px] text-gray-400">اضغط للتفاصيل</span></div>`;
+            html += `
+                <div onclick='openReportDetails("points")' class="bg-blue-50 p-3 rounded border border-blue-200 cursor-pointer hover:bg-blue-100 text-center mb-2">
+                    <span class="text-xs text-gray-500 block">إجمالي النقاط الممنوحة</span>
+                    <span class="font-bold text-blue-700 text-xl">${totalPointsForPeriod} نقطة</span>
+                    <br><span class="text-[9px] text-gray-400">اضغط للتفاصيل</span>
+                </div>
+                <button onclick="exportPointsReportExcel()" class="w-full bg-green-700 text-white py-1.5 rounded font-bold shadow text-[10px] md:text-sm">📥 تصدير تقرير النقاط والمهام (Excel)</button>
+            `;
         }
 
         resDiv.innerHTML = html; resDiv.classList.remove('hidden');
@@ -1669,13 +1956,61 @@
 
     window.toggleReportView = function() { if (!document.getElementById('reportResult').classList.contains('hidden')) { generateAdvancedReport(); } }
 
+    /* --- تصدير الأكسيل للتقارير الشاملة والحضور والغياب والنقاط (الطلب الثاني والرابع) --- */
     window.exportCombinedExcel = function() {
-        if(!currentReportData.combined || currentReportData.combined.length === 0) return showToast('لا توجد بيانات', 'error');
-        let csvContent = "\uFEFFالكود,الاسم,اللجنة,رقم الهاتف,أيام الحضور,أيام الغياب,إجمالي النقاط\n";
-        currentReportData.combined.forEach(c => {
-            csvContent += `${c.id},"${c.name}",${stageMap[c.level]||c.level},'${c.ownPhone||c.phone},${c.presentCount},${c.absentCount},${c.totalPoints}\n`;
-        });
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' }); const url = URL.createObjectURL(blob); const link = document.createElement("a"); link.setAttribute("href", url); link.setAttribute("download", `تقرير_YLY_شامل.csv`); document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        if(!currentReportData.combined || currentReportData.combined.length === 0) return showToast('لا توجد بيانات للتصدير', 'error');
+        
+        const headers = ["م", "الكود", "الاسم", "اللجنة", "رقم الهاتف", "النقاط المكتسبة", "أيام الحضور", "أيام الغياب", "تواريخ الحضور", "تواريخ الغياب"];
+        const rows = currentReportData.combined.map((c, i) => [
+            i + 1,
+            c.id,
+            c.name,
+            stageMap[c.level] || c.level,
+            c.ownPhone || c.phone || 'غير مسجل',
+            c.totalPoints,
+            c.presentCount,
+            c.absentCount,
+            c.presentDates.join(', ') || 'لا يوجد',
+            c.absentDates.join(', ') || 'لا يوجد'
+        ]);
+
+        exportToExcelStyle(headers, rows, "التقرير الشامل YLY (الحضور والغياب والنقاط)", "تقرير_شامل_YLY");
+    }
+
+    window.exportAttendanceReportExcel = function() {
+        if(!currentReportData.combined || currentReportData.combined.length === 0) return showToast('لا توجد بيانات للتصدير', 'error');
+
+        const headers = ["م", "الكود", "الاسم", "اللجنة", "رقم الهاتف", "أيام الحضور", "أيام الغياب", "تواريخ الحضور التفصيلية", "تواريخ الغياب التفصيلية"];
+        const rows = currentReportData.combined.map((c, i) => [
+            i + 1,
+            c.id,
+            c.name,
+            stageMap[c.level] || c.level,
+            c.ownPhone || c.phone || 'غير مسجل',
+            c.presentCount,
+            c.absentCount,
+            c.presentDates.join(', ') || 'لا يوجد',
+            c.absentDates.join(', ') || 'لا يوجد'
+        ]);
+
+        exportToExcelStyle(headers, rows, "تقرير الحضور والغياب التفصيلي YLY", "تقرير_الحضور_والغياب_YLY");
+    }
+
+    window.exportPointsReportExcel = function() {
+        if(!currentReportData.points || currentReportData.points.length === 0) return showToast('لا توجد بيانات للتصدير', 'error');
+
+        const headers = ["م", "كود العضو", "اسم العضو", "المهمة / التقييم", "النقاط المكتسبة", "التاريخ", "الوقت"];
+        const rows = currentReportData.points.map((p, i) => [
+            i + 1,
+            p.stdId,
+            p.name,
+            p.type,
+            p.amount,
+            p.date,
+            p.time || '-'
+        ]);
+
+        exportToExcelStyle(headers, rows, "تقرير النقاط والمهام YLY", "تقرير_النقاط_والمهام_YLY");
     }
 
     function openReportDetails(key) { 
@@ -1690,9 +2025,9 @@
         const tbody = document.getElementById('detailsTableBody'); 
 
         if(key === 'present' || key === 'absent') { 
-            thead.innerHTML = `<tr><th class="col-index">م</th><th>الاسم</th><th>اللجنة</th><th>العدد</th></tr>`; 
-            if(!list || list.length === 0) tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4">لا توجد بيانات</td></tr>`; 
-            else tbody.innerHTML = list.map((s, i) => `<tr class="hover:bg-gray-50"><td class="text-gray-500">${i + 1}</td><td class="font-bold">${s.name}</td><td>${stageMap[s.level] || s.level}</td><td class="font-bold ${key === 'absent' ? 'text-red-600' : 'text-green-600'}">${s.count} يوم</td></tr>`).join('');
+            thead.innerHTML = `<tr><th class="col-index">م</th><th>الاسم</th><th>اللجنة</th><th>العدد</th><th>التواريخ</th></tr>`; 
+            if(!list || list.length === 0) tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4">لا توجد بيانات</td></tr>`; 
+            else tbody.innerHTML = list.map((s, i) => `<tr class="hover:bg-gray-50"><td class="text-gray-500">${i + 1}</td><td class="font-bold">${s.name}</td><td>${stageMap[s.level] || s.level}</td><td class="font-bold ${key === 'absent' ? 'text-red-600' : 'text-green-600'}">${s[key + 'Count']} يوم</td><td class="text-[9px] text-gray-600 max-w-[150px] truncate">${(s[key + 'Dates'] || []).join(', ') || 'لا يوجد'}</td></tr>`).join('');
         } else if (key === 'points') {
             thead.innerHTML = `<tr><th class="col-index">م</th><th>الاسم</th><th>النقاط</th><th>المهمة</th><th>التاريخ</th></tr>`; 
             if(!list || list.length === 0) tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4">لا توجد بيانات</td></tr>`; 
@@ -1711,6 +2046,9 @@
     function printContent(elementId, title) { const content = `<table class="print-table"><thead>${document.getElementById('detailsTableHead').innerHTML}</thead><tbody>${document.getElementById('detailsTableBody').innerHTML}</tbody></table>`; printHTML(title, content); }
     function pdfContent(elementId, title) { const content = `<table class="print-table"><thead>${document.getElementById('detailsTableHead').innerHTML}</thead><tbody>${document.getElementById('detailsTableBody').innerHTML}</tbody></table>`; savePDF(title, content); }
     
+    /* =========================================================================
+       الطلب السادس: جعل كود طباعة بطاقة العضو نفس كود حفظ البطاقة كـ PDF
+       ========================================================================= */
     window.printStudentCard = async function() { 
         const s = window.members.find(st => st.id === currentModalStudentId); if(!s) return; 
         showToast('جاري تجهيز الكارنيه...', 'success');
@@ -1718,16 +2056,15 @@
         const stdPhone = s.ownPhone ? (s.ownPhone.startsWith('0') ? s.ownPhone : '0' + s.ownPhone) : (s.phone ? (s.phone.startsWith('0') ? s.phone : '0'+s.phone) : 'غير مسجل');
 
         const content = `
-            <div class="id-card-print-wrapper">
-                <div class="id-card-qr">${qrImageHtml}</div>
-                <div class="id-card-info">
-                    <div class="id-card-title">YLY System</div>
-                    <div class="id-card-name">${s.name}</div>
-                    <div class="id-card-row"><span>الكود:</span> <span>${s.id}</span></div>
-                    <div class="id-card-row"><span>اللجنة:</span> <span>${stageMap[s.level] || s.level}</span></div>
-                    <div class="id-card-row"><span>رقم الهاتف:</span> <span>${stdPhone}</span></div>
-                    <div class="id-card-footer">بطاقة هوية عضو</div>
-                </div>
+            <div class="print-student-card">
+                <div class="print-card-title">بطاقة عضو YLY</div>
+                <div class="print-card-name">${s.name}</div>
+                <div style="display:flex; justify-content:center; margin:10px 0;">${qrImageHtml}</div>
+                <div class="print-card-row"><span>كود العضو:</span> <span>${s.id}</span></div>
+                <div class="print-card-row"><span>كلمة السر:</span> <span>${s.password || '----'}</span></div>
+                <div class="print-card-row"><span>اللجنة:</span> <span>${stageMap[s.level] || s.level}</span></div>
+                <div class="print-card-row"><span>رقم الهاتف:</span> <span>${stdPhone}</span></div>
+                <div class="print-card-row"><span>تاريخ الاشتراك:</span> <span>${s.date}</span></div>
             </div>`;
         printHTML('بطاقة عضو', content);
     }

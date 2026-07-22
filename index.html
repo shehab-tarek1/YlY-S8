@@ -8,7 +8,6 @@
     <meta property="og:title" content="YLY Management | Pro System">
     <meta property="og:description" content="نظام إدارة اللجان والأعضاء لمبادرة شباب يدير شباب YLY">
     <meta property="og:image" content="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657868/etyefoyw9madba5a5u1z.png">
-    <meta name="twitter:card" content="summary_large_image">
 
     <!-- إعدادات PWA -->
     <meta name="mobile-web-app-capable" content="yes">
@@ -19,11 +18,13 @@
 
     <title>YLY Management | Pro System</title>
 
-    <!-- المكتبات الأساسية فقط -->
+    <!-- المكتبات الأساسية -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+    <!-- مكتبة الـ PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
@@ -128,7 +129,7 @@
         <img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" class="w-14 h-14 object-contain z-10 drop-shadow-xl" alt="YLY Logo">
     </div>
     <div class="text-2xl font-black tracking-wider text-white mb-2">YLY <span class="text-red-500">System</span></div>
-    <div class="text-[10px] text-gray-400 font-mono">جاري تأمين النظام وتهيئته...</div>
+    <div class="text-[10px] text-gray-400 font-mono" id="loadingText">جاري تأمين النظام وتهيئته...</div>
 </div>
 
 <!-- واجهة تسجيل الدخول -->
@@ -268,7 +269,8 @@
         <!-- MEMBER DASHBOARD -->
         <section id="studentDashboard" class="tab-content">
             <div class="flex justify-end mb-2 no-print gap-2">
-                <button onclick="printStudentDashboard()" class="w-full bg-blue-900 text-white px-3 py-2 rounded text-xs font-bold md:text-sm shadow">🖨️ طباعة أو حفظ كـ PDF</button>
+                <button onclick="printStudentDashboard()" class="bg-blue-900 text-white px-3 py-1.5 rounded text-xs font-bold md:text-sm shadow">🖨️ طباعة</button>
+                <button onclick="pdfStudentDashboard()" class="bg-red-700 text-white px-3 py-1.5 rounded text-xs font-bold md:text-sm shadow">📄 حفظ PDF</button>
             </div>
             <div class="grid md:grid-cols-3 gap-4" id="stdDashContainer">
                 <div class="std-dash-card text-center md:col-span-1 border-t-4 border-blue-600">
@@ -366,12 +368,13 @@
                             <svg class="input-icon" style="width:14px; height:14px; left:6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                             <input type="text" id="searchStd" onkeyup="resetPaginationAndRender()" placeholder="بحث باسم أو كود..." class="text-[10px] px-2 w-full h-8 transition-all md:text-sm">
                         </div>
-                        <button onclick="printStudentsList()" class="bg-gray-800 text-white px-3 h-8 rounded text-[10px] flex items-center justify-center gap-1 shrink-0 shadow font-bold">🖨️ طباعة</button>
+                        <button onclick="printStudentsList()" class="bg-gray-800 text-white px-2 h-8 rounded text-[10px] flex items-center justify-center gap-1 shrink-0 shadow">🖨️</button>
+                        <button onclick="pdfStudentsList()" class="bg-red-700 text-white px-2 h-8 rounded text-[10px] flex items-center justify-center gap-1 shrink-0 shadow">PDF</button>
                     </div>
                 </div>
                 
                 <div id="studentsListArea">
-                    <table class="custom-table">
+                    <table class="custom-table" id="attendance-table">
                         <thead><tr><th class="col-index">م</th><th class="col-code">الكود</th><th>الاسم</th><th class="col-stage">اللجنة</th><th class="col-date">التاريخ</th><th class="no-print col-action">حذف</th></tr></thead>
                         <tbody id="studentsTable"></tbody>
                     </table>
@@ -385,7 +388,7 @@
                         <button onclick="nextPage()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded text-xs shadow-sm"> التالي ⬅️</button>
                     </div>
                     <div>
-                        <button onclick="exportMembersExcel()" class="bg-green-700 hover:bg-green-800 text-white py-1 px-3 rounded text-xs font-bold shadow transition flex items-center gap-1">📥 تصدير Excel</button>
+                        <button onclick="exportMembersExcel()" class="bg-green-700 hover:bg-green-800 text-white py-1.5 px-3 rounded text-xs font-bold shadow transition flex items-center gap-1">📥 تصدير Excel</button>
                     </div>
                 </div>
             </div>
@@ -612,10 +615,10 @@
             <div class="glass-card border-t-4 border-yellow-500">
                 <h3 class="font-bold mb-1 flex items-center gap-2 text-yellow-800 text-xs md:text-base"><span>💾</span> النسخ الاحتياطي</h3>
                 <div class="flex gap-2">
-                    <button onclick="exportData()" class="flex-1 bg-yellow-100 text-yellow-800 py-1 rounded font-bold text-[10px] border border-yellow-300 md:text-sm md:py-2">تحميل نسخة</button>
+                    <button onclick="exportData()" class="flex-1 bg-yellow-100 text-yellow-800 py-1.5 rounded font-bold text-[10px] border border-yellow-300 md:text-sm shadow-sm">تحميل نسخة</button>
                     <div class="relative flex-1">
                         <input type="file" id="importFile" onchange="importData(this)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                        <button class="w-full bg-gray-100 text-gray-700 py-1 rounded font-bold text-[10px] border border-gray-300 md:text-sm md:py-2">استعادة</button>
+                        <button class="w-full bg-gray-100 text-gray-700 py-1.5 rounded font-bold text-[10px] border border-gray-300 md:text-sm shadow-sm">استعادة</button>
                     </div>
                 </div>
             </div>
@@ -631,8 +634,9 @@
             <button onclick="closeModal('studentModal')" class="close-btn-modern">&times;</button>
         </div>
         <div id="studentCardDisplay" class="unified-card"></div>
-        <div class="grid grid-cols-1 mt-3">
-            <button onclick="printStudentCard()" class="bg-gray-800 text-white py-2 rounded text-[11px] font-bold md:text-sm shadow">🖨️ طباعة أو حفظ كـ PDF</button>
+        <div class="grid grid-cols-2 gap-2 mt-3">
+            <button onclick="printStudentCard()" class="bg-gray-800 text-white py-1.5 rounded text-[11px] font-bold md:text-sm shadow">🖨️ طباعة</button>
+            <button onclick="shareStudentPdf()" class="bg-red-700 text-white py-1.5 rounded text-[11px] font-bold md:text-sm shadow">📄 حفظ PDF</button>
         </div>
     </div>
 </div>
@@ -642,7 +646,8 @@
         <div class="flex justify-between items-center p-3 border-b bg-gray-50">
             <h3 id="detailsTitle" class="font-bold text-sm text-gray-800 md:text-lg"></h3>
             <div class="flex items-center gap-2">
-                <button onclick="printContent('detailsTableArea', document.getElementById('detailsTitle').innerText)" class="bg-gray-800 text-white px-3 py-1.5 rounded text-[10px] md:text-sm border border-gray-900 shadow">🖨️ طباعة / PDF</button>
+                <button onclick="printContent('detailsTableArea', document.getElementById('detailsTitle').innerText)" class="bg-gray-800 text-white px-3 py-1.5 rounded text-[10px] md:text-sm border border-gray-900 shadow">🖨️ طباعة</button>
+                <button onclick="pdfContent('detailsTableArea', document.getElementById('detailsTitle').innerText)" class="bg-red-700 text-white px-3 py-1.5 rounded text-[10px] md:text-sm border border-red-900 shadow">📄 PDF</button>
                 <button onclick="closeModal('detailsModal')" class="close-btn-modern">&times;</button>
             </div>
         </div>
@@ -940,6 +945,7 @@
         document.getElementById('dashOwnPhone').innerText = member.ownPhone || member.phone || 'غير مسجل';
     }
 
+    // دالة إنشاء ملف Excel حقيقي باستخدام SheetJS
     window.exportToExcelReal = function(dataRows, title, filename) {
         try {
             const wb = XLSX.utils.book_new();
@@ -972,6 +978,7 @@
         }
     }
 
+    // القالب الموحد للطباعة والـ PDF مع الخطوط الأساسية
     function getPrintTemplate(title, content) {
         const date = new Date().toLocaleDateString('ar-EG');
         return `
@@ -1020,6 +1027,67 @@
         } catch (e) { showToast('حدث خطأ أثناء الطباعة', 'error'); } finally { isPrinting = false; }
     };
 
+    // محرك الـ PDF الجديد كلياً والمستقر
+    window.savePDF = async function(title, elementIdOrHtml, isHtml = true) {
+        if(isPrinting) return;
+        isPrinting = true;
+        
+        const loading = document.getElementById('loadingOverlay');
+        const loadingText = document.getElementById('loadingText');
+        const oldText = loadingText.innerText;
+        loadingText.innerText = 'جاري معالجة وتصدير الـ PDF...';
+        loading.style.display = 'flex';
+        loading.style.opacity = '1';
+
+        try {
+            let contentStr = isHtml ? elementIdOrHtml : document.getElementById(elementIdOrHtml).innerHTML;
+            
+            // إنشاء حاوية مخفية خارج الشاشة
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = getPrintTemplate(title, contentStr);
+            tempDiv.style.position = 'absolute';
+            tempDiv.style.left = '-9999px';
+            tempDiv.style.top = '0';
+            tempDiv.style.background = '#ffffff';
+            tempDiv.style.color = '#000000';
+            tempDiv.style.direction = 'rtl';
+            tempDiv.style.fontFamily = 'Arial, Tahoma, sans-serif';
+            
+            // حساب العرض المناسب لتحديد اتجاه الصفحة (Landscape/Portrait)
+            document.body.appendChild(tempDiv);
+            const contentWidth = tempDiv.offsetWidth;
+            const orientation = contentWidth > 800 ? 'landscape' : 'portrait';
+            // إجبار العرض ليكون 1000 بكسل لمنع قص الجداول العريضة
+            tempDiv.style.width = '1000px'; 
+
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            const opt = { 
+                margin: [10, 10, 10, 10], 
+                filename: `${title}_${new Date().toLocaleDateString('en-CA')}.pdf`, 
+                image: { type: 'jpeg', quality: 1 }, 
+                html2canvas: { scale: 2, useCORS: true, letterRendering: true, windowWidth: 1000, logging: false }, 
+                jsPDF: { unit: 'mm', format: 'a4', orientation: orientation },
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+            };
+            
+            await html2pdf().set(opt).from(tempDiv).save();
+            document.body.removeChild(tempDiv);
+            showToast('تم حفظ الملف بنجاح', 'success');
+
+        } catch (e) {
+            console.error(e);
+            showToast('حدث خطأ أثناء حفظ الـ PDF', 'error');
+        } finally {
+            isPrinting = false;
+            loading.style.opacity = '0';
+            setTimeout(() => {
+                loading.style.display = 'none';
+                loadingText.innerText = oldText;
+            }, 300);
+        }
+    };
+
     function generateQRBase64(text) {
         return new Promise((resolve) => {
             const holder = document.createElement('div');
@@ -1061,6 +1129,35 @@
         printHTML('تقرير متابعة عضو', content);
     }
 
+    window.pdfStudentDashboard = async function() {
+        const name = document.getElementById('dashName').innerText;
+        const code = document.getElementById('dashCode').innerText;
+        if(!name || !code) return;
+        const level = document.getElementById('dashLevel').innerText;
+        const joinDate = document.getElementById('dashJoinDate').innerText;
+        const present = document.getElementById('dashPresent').innerText;
+        const absent = document.getElementById('dashAbsent').innerText;
+        const totalPaid = document.getElementById('dashPaymentsTotal').innerText;
+        const paymentsHTML = document.getElementById('dashPaymentsTable').innerHTML;
+        const qrImageHtml = await generateQRBase64(code);
+        let historyTableRows = '';
+        const historyDivs = document.getElementById('dashHistory').querySelectorAll('div');
+        historyDivs.forEach(div => { const spans = div.querySelectorAll('span'); if(spans.length >= 2) { historyTableRows += `<tr><td>${spans[0].innerText}</td><td>${spans[1].innerText}</td></tr>`; } });
+        const content = `
+            <div class="print-student-card">
+                <div class="print-card-title"><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" style="width:30px;"> بطاقة عضو YLY</div>
+                <div class="print-card-name">${name}</div>
+                <div style="display:flex; justify-content:center; margin:10px 0;">${qrImageHtml}</div>
+                <div class="print-card-row"><span>كود العضو:</span> <span>${code}</span></div>
+                <div class="print-card-row"><span>اللجنة:</span> <span>${level}</span></div>
+                <div class="print-card-row"><span>تاريخ الانضمام:</span> <span>${joinDate}</span></div>
+            </div>
+            <table class="print-stats-table" style="width:100%; text-align:center; margin-bottom:20px;"><tr><td style="border:1px solid #000; padding:10px;"><div style="font-weight:bold;">أيام الحضور</div><div style="color:green; font-size:16pt; font-weight:bold;">${present}</div></td><td style="border:1px solid #000; padding:10px;"><div style="font-weight:bold;">أيام الغياب</div><div style="color:red; font-size:16pt; font-weight:bold;">${absent}</div></td><td style="border:1px solid #000; padding:10px;"><div style="font-weight:bold;">النقاط</div><div style="color:#1e3a8a; font-size:16pt; font-weight:bold;">${totalPaid}</div></td></tr></table>
+            <h3>سجل النقاط</h3><table><thead><tr><th>التاريخ</th><th>المهمة/التقييم</th><th>النقاط</th></tr></thead><tbody>${paymentsHTML}</tbody></table>
+            <h3>سجل الحضور</h3><table><thead><tr><th>التاريخ</th><th>الحالة</th></tr></thead><tbody>${historyTableRows}</tbody></table>`;
+        savePDF(`تقرير_${name}`, content, true);
+    }
+
     window.printStudentsList = function() {
         let rows = '';
         const filterStage = document.getElementById('studentListFilter').value;
@@ -1071,6 +1168,18 @@
         filtered.forEach((s, i) => { rows += `<tr><td style="width:30px;">${i+1}</td><td style="width:60px;">${s.id}</td><td>${s.name}</td><td style="width:50px;">${stageMap[s.level] || s.level}</td><td style="width:80px;">${s.date}</td></tr>`; });
         const content = `<table><thead><tr><th style="width: 30px;">م</th><th style="width: 60px;">الكود</th><th>الاسم</th><th style="width:50px;">اللجنة</th><th style="width:80px;">التاريخ</th></tr></thead><tbody>${rows}</tbody></table>`;
         printHTML('قائمة الأعضاء المسجلين', content);
+    }
+
+    window.pdfStudentsList = function() {
+        let rows = '';
+        const filterStage = document.getElementById('studentListFilter').value;
+        const query = normalizeArabic(document.getElementById('searchStd').value.toLowerCase());
+        let filtered = window.members;
+        if(filterStage !== 'all') { filtered = filtered.filter(s => s.level === filterStage); }
+        if(query !== '') { filtered = filtered.filter(s => normalizeArabic(s.name ? s.name.toLowerCase() : '').includes(query) || (s.id && s.id.includes(query))); }
+        filtered.forEach((s, i) => { rows += `<tr><td style="width:30px;">${i+1}</td><td style="width:60px;">${s.id}</td><td>${s.name}</td><td style="width:50px;">${stageMap[s.level] || s.level}</td><td style="width:80px;">${s.date}</td></tr>`; });
+        const content = `<table><thead><tr><th style="width: 30px;">م</th><th style="width: 60px;">الكود</th><th>الاسم</th><th style="width:50px;">اللجنة</th><th style="width:80px;">التاريخ</th></tr></thead><tbody>${rows}</tbody></table>`;
+        savePDF('قائمة_الأعضاء', content, true);
     }
 
     window.exportMembersExcel = function() {
@@ -1691,7 +1800,7 @@
 
         if (category === 'combined') {
             html += `
-                <div class="overflow-x-auto mb-2">
+                <div class="overflow-x-auto mb-2" id="reportTableContainer">
                     <table class="w-full text-[9px] text-center border custom-table">
                         <thead class="bg-blue-900 text-white">
                             <tr>
@@ -1710,12 +1819,13 @@
                 </div>
                 <div class="flex gap-2">
                     <button onclick="exportReportExcel('combined')" class="flex-1 bg-green-700 text-white py-1.5 rounded font-bold shadow text-[10px]">📥 تصدير Excel</button>
+                    <button onclick="printContent('reportTableContainer', document.querySelector('#reportResult h4').innerText)" class="flex-1 bg-gray-800 text-white py-1.5 rounded font-bold shadow text-[10px]">🖨️ طباعة أو PDF</button>
                 </div>
             `;
         }
         else if (category === 'attendance') {
             html += `
-                <div class="overflow-x-auto mb-2">
+                <div class="overflow-x-auto mb-2" id="reportTableContainer">
                     <table class="w-full text-[9px] text-center border custom-table">
                         <thead class="bg-blue-900 text-white">
                             <tr>
@@ -1733,12 +1843,13 @@
                 </div>
                 <div class="flex gap-2">
                     <button onclick="exportReportExcel('attendance')" class="flex-1 bg-green-700 text-white py-1.5 rounded font-bold shadow text-[10px]">📥 تصدير Excel</button>
+                    <button onclick="printContent('reportTableContainer', document.querySelector('#reportResult h4').innerText)" class="flex-1 bg-gray-800 text-white py-1.5 rounded font-bold shadow text-[10px]">🖨️ طباعة أو PDF</button>
                 </div>
             `;
         } 
         else {
             html += `
-                <div class="overflow-x-auto mb-2">
+                <div class="overflow-x-auto mb-2" id="reportTableContainer">
                     <table class="w-full text-[9px] text-center border custom-table">
                         <thead class="bg-blue-900 text-white">
                             <tr>
@@ -1757,6 +1868,7 @@
                 </div>
                 <div class="flex gap-2">
                     <button onclick="exportReportExcel('points')" class="flex-1 bg-green-700 text-white py-1.5 rounded font-bold shadow text-[10px]">📥 تصدير Excel</button>
+                    <button onclick="printContent('reportTableContainer', document.querySelector('#reportResult h4').innerText)" class="flex-1 bg-gray-800 text-white py-1.5 rounded font-bold shadow text-[10px]">🖨️ طباعة أو PDF</button>
                 </div>
             `;
         }
@@ -1799,11 +1911,35 @@
     function showToast(msg, type) { const t = document.getElementById('toast'); t.innerText = msg; t.className = `fixed top-5 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-full shadow-xl z-[200] font-bold text-xs md:text-sm md:px-8 md:py-4 max-w-[90%] w-auto text-center whitespace-nowrap text-white ${type === 'success' ? 'bg-green-600' : 'bg-red-600'}`; t.classList.remove('hidden'); setTimeout(() => t.classList.add('hidden'), 3000); }
     function playSound(type) { const ctx = new (window.AudioContext || window.webkitAudioContext)(); const osc = ctx.createOscillator(); osc.connect(ctx.destination); if(type === 'success') { osc.frequency.setValueAtTime(800, ctx.currentTime); osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.1); } else { osc.frequency.setValueAtTime(300, ctx.currentTime); osc.frequency.linearRampToValueAtTime(100, ctx.currentTime + 0.2); } osc.start(); osc.stop(ctx.currentTime + 0.2); }
     
-    function printContent(elementId, title) { const content = `<table><thead>${document.getElementById('detailsTableHead').innerHTML}</thead><tbody>${document.getElementById('detailsTableBody').innerHTML}</tbody></table>`; printHTML(title, content); }
+    window.printContent = function(elementId, title) { 
+        const el = document.getElementById(elementId);
+        if(!el) return;
+        const content = el.innerHTML;
+        printHTML(title, content); 
+    }
     
     window.printStudentCard = async function() { 
         const s = window.members.find(st => st.id === currentModalStudentId); if(!s) return; 
         showToast('جاري تجهيز الكارنيه...', 'success');
+        const qrImageHtml = await generateQRBase64(s.id);
+        const stdPhone = s.ownPhone ? (s.ownPhone.startsWith('0') ? s.ownPhone : '0' + s.ownPhone) : (s.phone ? (s.phone.startsWith('0') ? s.phone : '0'+s.phone) : 'غير مسجل');
+
+        const content = `
+            <div class="print-student-card">
+                <div class="print-card-title"><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" style="width:30px;"> YLY System Pro</div>
+                <div class="print-card-name">${s.name}</div>
+                <div style="display:flex; justify-content:center; margin:10px 0;">${qrImageHtml}</div>
+                <div class="print-card-row"><span>كود العضو:</span> <span>${s.id}</span></div>
+                <div class="print-card-row"><span>اللجنة:</span> <span>${stageMap[s.level] || s.level}</span></div>
+                <div class="print-card-row"><span>رقم الهاتف:</span> <span>${stdPhone}</span></div>
+                <div class="print-card-footer">بطاقة هوية عضو مبادرة YLY</div>
+            </div>`;
+        printHTML('بطاقة عضو', content);
+    }
+
+    window.shareStudentPdf = async function() { 
+        const s = window.members.find(st => st.id === currentModalStudentId); if(!s) return; 
+        showToast('جاري إنشاء PDF...', 'success');
         const qrImageHtml = await generateQRBase64(s.id);
         const stdPhone = s.ownPhone ? (s.ownPhone.startsWith('0') ? s.ownPhone : '0' + s.ownPhone) : (s.phone ? (s.phone.startsWith('0') ? s.phone : '0'+s.phone) : 'غير مسجل');
 
@@ -1818,7 +1954,7 @@
                 <div class="print-card-row"><span>رقم الهاتف:</span> <span>${stdPhone}</span></div>
                 <div class="print-card-row"><span>تاريخ الاشتراك:</span> <span>${s.date}</span></div>
             </div>`;
-        printHTML('بطاقة عضو', content);
+        savePDF(`بطاقة_${s.name}`, content);
     }
     
     async function delStudent(docId, studentId) { 

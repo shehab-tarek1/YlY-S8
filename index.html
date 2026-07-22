@@ -24,8 +24,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <!-- مكتبة SheetJS لإنشاء ملفات إكسيل حقيقية -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- مكتبة xlsx-js-style لإنشاء إكسيل حقيقي مع دعم الألوان والتنسيقات -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
@@ -112,7 +112,7 @@
             body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background: white !important; width: 100% !important; height: 100% !important; }
             body > *:not(#print-container):not(#appContent):not(.fixed) { display: none !important; }
             body:has(#print-container:not(:empty)) > #appContent, body:has(#print-container:not(:empty)) > .fixed { display: none !important; }
-            body:has(#print-container:not(:empty)) #print-container { display: block !important; position: absolute; top: 0; left: 0; width: 100%; height: auto !important; overflow: visible !important; z-index: 9999999; visibility: visible !important; }
+            body:has(#print-container:not(:empty)) #print-container { display: block !important; position: absolute; top: 0; left: 0; width: 100%; height: auto !important; overflow: visible !important; z-index: 9999999; visibility: visible !important; opacity: 1 !important; }
             body:not(:has(#print-container:not(:empty))):has(.fixed:not(.hidden)) #appContent { display: none !important; }
             @page { size: A4; margin: 10mm; }
             .no-print { display: none !important; }
@@ -231,6 +231,7 @@
     </div>
 </div>
 
+<!-- حاوية الطباعة (تعمل بشكل سليم مع @media print) -->
 <div id="print-container"></div>
 
 <div id="appContent" class="hidden">
@@ -665,6 +666,8 @@
     </div>
 </div>
 
+<!-- حاوية إنشاء الـ PDF المخفية بشكل احترافي لمنع التشوه البصري -->
+<div id="pdf-generator-container" style="position: fixed; left: -9999px; top: 0; width: 1000px; z-index: -9999; opacity: 0; pointer-events: none; font-family: Arial, Tahoma, sans-serif !important; direction: rtl; background: white;"></div>
 <div id="toast" class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-full shadow-xl z-[200] hidden font-bold text-[10px] max-w-[90%] w-auto text-center whitespace-nowrap"></div>
 
 <script type="module">
@@ -949,10 +952,37 @@
             const wb = XLSX.utils.book_new();
             wb.Workbook = { Views: [{ RTL: true }] }; // تفعيل اتجاه اليمين لليسار في الإكسيل
             
+            // تعريف التنسيقات
+            const headerStyle = {
+                font: { bold: true, color: { rgb: "FFFFFF" }, sz: 11 },
+                fill: { fgColor: { rgb: "1E3A8A" } },
+                alignment: { horizontal: "center", vertical: "center" },
+                border: { top: {style: "thin"}, bottom: {style: "thin"}, left: {style: "thin"}, right: {style: "thin"} }
+            };
+
+            const dataStyle = {
+                font: { sz: 10 },
+                alignment: { horizontal: "center", vertical: "center" },
+                border: { top: {style: "thin"}, bottom: {style: "thin"}, left: {style: "thin"}, right: {style: "thin"} }
+            };
+
+            const titleStyle = {
+                font: { bold: true, color: { rgb: "DC2626" }, sz: 14 },
+                alignment: { horizontal: "center", vertical: "center" }
+            };
+
             const wsData = [];
-            wsData.push([title]); // الصف الأول: العنوان
-            wsData.push([]);      // الصف الثاني: فارغ للمساحة
-            wsData.push(...dataRows); // الصفوف المتبقية: البيانات
+            wsData.push([{ v: title, t: 's', s: titleStyle }]);
+            wsData.push([]); 
+
+            dataRows.forEach((row, rowIndex) => {
+                const styledRow = row.map(cellValue => ({
+                    v: cellValue,
+                    t: typeof cellValue === 'number' ? 'n' : 's',
+                    s: rowIndex === 0 ? headerStyle : dataStyle
+                }));
+                wsData.push(styledRow);
+            });
 
             const ws = XLSX.utils.aoa_to_sheet(wsData);
 
@@ -960,10 +990,14 @@
             if(!ws['!merges']) ws['!merges'] = [];
             ws['!merges'].push({ s: {r:0, c:0}, e: {r:0, c: dataRows[0].length - 1} });
 
+            // ضبط عرض الأعمدة
+            ws['!cols'] = dataRows[0].map(() => ({ wch: 15 })); 
+
             XLSX.utils.book_append_sheet(wb, ws, "التقرير");
             XLSX.writeFile(wb, `${filename}.xlsx`);
             showToast('تم تصدير الإكسيل بنجاح', 'success');
         } catch (e) {
+            console.error(e);
             showToast('حدث خطأ أثناء التصدير', 'error');
         }
     }
@@ -1022,40 +1056,29 @@
         isPrinting = true;
         showToast('جاري إنشاء PDF...', 'success');
         
-        // إنشاء حاوية مؤقتة داخل الشاشة ولكن خلف المحتوى لضمان تحميلها بالكامل وعدم قصها
-        const tempContainer = document.createElement('div');
-        tempContainer.style.position = 'absolute';
-        tempContainer.style.top = '0';
-        tempContainer.style.right = '0';
-        tempContainer.style.width = '1000px'; // عرض ثابت لمنع قص الجداول
-        tempContainer.style.zIndex = '-9999'; // خلف الموقع
-        tempContainer.style.background = '#ffffff';
-        tempContainer.style.color = '#000000';
-        tempContainer.style.direction = 'rtl';
-        tempContainer.style.fontFamily = 'Arial, Tahoma, sans-serif'; // خطوط أساسية لمنع تقطع الحروف
-        
-        tempContainer.innerHTML = getPrintTemplate(title, content);
-        document.body.appendChild(tempContainer);
+        const pdfContainer = document.getElementById('pdf-generator-container');
+        pdfContainer.innerHTML = getPrintTemplate(title, content);
 
         setTimeout(() => {
             const opt = { 
                 margin: [10, 10, 10, 10], 
                 filename: `${title}_${new Date().toLocaleDateString('en-CA')}.pdf`, 
                 image: { type: 'jpeg', quality: 1 }, 
-                html2canvas: { scale: 2, useCORS: true, windowWidth: 1000, letterRendering: true, logging: false }, 
+                html2canvas: { scale: 2, useCORS: true, logging: false }, 
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
                 pagebreak: { mode: 'avoid-all' }
             };
             
-            html2pdf().set(opt).from(tempContainer).save().then(() => { 
-                document.body.removeChild(tempContainer);
+            html2pdf().set(opt).from(pdfContainer).save().then(() => { 
+                pdfContainer.innerHTML = ''; 
                 isPrinting = false; 
             }).catch(err => { 
-                document.body.removeChild(tempContainer);
+                console.error(err);
+                pdfContainer.innerHTML = ''; 
                 showToast('فشل الحفظ', 'error'); 
                 isPrinting = false; 
             });
-        }, 500); // الانتظار نصف ثانية لضمان تحميل الخطوط ورسم الجداول
+        }, 500); 
     }
 
     function generateQRBase64(text) {
@@ -1330,6 +1353,9 @@
     async function stopScanner() { 
         if(html5QrCode) { 
             try { 
+                // إجبار إغلاق الكاميرا لتنظيف الذاكرة
+                const tracks = html5QrCode._localMediaStream?.getTracks() || [];
+                tracks.forEach(track => track.stop());
                 await html5QrCode.stop(); 
                 html5QrCode.clear(); 
             } catch(e) { console.log(e); } 

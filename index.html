@@ -818,35 +818,54 @@
         }
     }, 5000);
     
+    let unsubMembers = null;
+    let unsubAttendance = null;
+    let unsubAccounting = null;
+
+
+    function clearAllListeners() {
+        if (unsubMembers) { unsubMembers(); unsubMembers = null; }
+        if (unsubAttendance) { unsubAttendance(); unsubAttendance = null; }
+        if (unsubAccounting) { unsubAccounting(); unsubAccounting = null; }
+    }
+
+
     onAuthStateChanged(auth, (user) => {
         clearTimeout(failSafeTimer); 
+        clearAllListeners(); 
+
+
+        const savedMode = localStorage.getItem('loginMode');
         
         if (user) {
-            if (user.uid === "Y3XYVlXxj7bJwEWas9Hx0DqfPi92") {
-                onSnapshot(collection(db, "members"), (snapshot) => { 
+            if (savedMode === 'admin' || user.uid === "Y3XYVlXxj7bJwEWas9Hx0DqfPi92") {
+                unsubMembers = onSnapshot(collection(db, "members"), (snapshot) => { 
                     window.members = []; snapshot.forEach(doc => window.members.push({ ...doc.data(), docId: doc.id })); 
                     window.renderStudents(); window.updateCounters(); loading.style.opacity = '0'; setTimeout(()=>loading.style.display='none', 300); 
                 });
-                onSnapshot(collection(db, "attendance"), (snapshot) => { 
+                unsubAttendance = onSnapshot(collection(db, "attendance"), (snapshot) => { 
                     window.attendance = []; snapshot.forEach(doc => window.attendance.push({ ...doc.data(), docId: doc.id })); window.updateCounters(); 
                 });
-                onSnapshot(collection(db, "accounting"), (snapshot) => { 
+                unsubAccounting = onSnapshot(collection(db, "accounting"), (snapshot) => { 
                     window.accounting = []; snapshot.forEach(doc => window.accounting.push({ ...doc.data(), docId: doc.id })); window.updateFinance(); 
                 });
             } else {
-                const memberCode = user.email.split('@')[0];
-                onSnapshot(query(collection(db, "members"), where("id", "==", memberCode)), (snapshot) => { 
+                const memberCode = localStorage.getItem('currentStudentId') || user.email.split('@')[0];
+                unsubMembers = onSnapshot(query(collection(db, "members"), where("id", "==", memberCode)), (snapshot) => { 
+                    if (localStorage.getItem('loginMode') !== 'student') return;
                     window.members = []; snapshot.forEach(doc => window.members.push({ ...doc.data(), docId: doc.id })); 
                     if(window.members.length > 0) { loadStudentDashboard(window.members[0]); document.getElementById('appContent').classList.remove('hidden'); }
                     loading.style.opacity = '0'; setTimeout(()=>loading.style.display='none', 300); 
                 });
-                onSnapshot(query(collection(db, "attendance"), where("studentId", "in", [memberCode, "EVENT_MARKER"])), (snapshot) => { 
+                unsubAttendance = onSnapshot(query(collection(db, "attendance"), where("studentId", "in", [memberCode, "EVENT_MARKER"])), (snapshot) => { 
+                    if (localStorage.getItem('loginMode') !== 'student') return;
                     window.attendance = []; snapshot.forEach(doc => window.attendance.push({ ...doc.data(), docId: doc.id })); 
-                    if(window.members.length > 0) loadStudentDashboard(window.members[0]);
+                    if(window.members.length > 0 && typeof updateStudentDashboardData === 'function') updateStudentDashboardData(window.members[0]);
                 });
-                onSnapshot(query(collection(db, "accounting"), where("stdId", "==", memberCode)), (snapshot) => { 
+                unsubAccounting = onSnapshot(query(collection(db, "accounting"), where("stdId", "==", memberCode)), (snapshot) => { 
+                    if (localStorage.getItem('loginMode') !== 'student') return;
                     window.accounting = []; snapshot.forEach(doc => window.accounting.push({ ...doc.data(), docId: doc.id })); 
-                    if(window.members.length > 0) loadStudentDashboard(window.members[0]);
+                    if(window.members.length > 0 && typeof updateStudentDashboardData === 'function') updateStudentDashboardData(window.members[0]);
                 });
             }
         } else {
@@ -1127,27 +1146,34 @@ window.handleLogin = async function() {
 
         if (loginMode === 'admin') { 
             try {
+                // إضافة مهمة: تحفظ نوع الحساب كإدارة قبل تسجيل الدخول مباشرة
+                localStorage.setItem('loginMode', 'admin');
+                
                 await window.signInWithEmailAndPassword(window.auth, code, pass);
                 proceedLogin('admin');
             } catch (error) {
+                localStorage.removeItem('loginMode');
                 errorMsg.innerText = "بيانات الدخول غير صحيحة أو لا تملك صلاحية";
                 errorMsg.classList.remove('hidden');
             }
         } else { 
             try {
-                // 1. محاولة تسجيل الدخول في Firebase Auth
-                await window.signInWithEmailAndPassword(window.auth, `${code}@yly.app`, pass);
+                // إضافة مهمة: تحفظ نوع الحساب كعضو قبل محاولة تسجيل الدخول
+                localStorage.setItem('loginMode', 'student');
                 localStorage.setItem('currentStudentId', code); 
+
+
+                await window.signInWithEmailAndPassword(window.auth, `${code}@yly.app`, pass);
                 proceedLogin('student');
             } catch (error) {
-                // 2. في حال الفشل، نتحقق فوراً هل الكود وكلمة المرور صحيحة وموجودة في قاعدة البيانات (members)
                 const isMemberExist = window.members.find(m => m.id === code && m.password === pass);
                 
                 if (isMemberExist) {
                     try {
-                        // 3. إنشاء حساب العضو في Firebase Auth تلقائياً وتسجيل دخوله
-                        await window.createUserWithEmailAndPassword(window.auth, `${code}@yly.app`, pass);
+                        localStorage.setItem('loginMode', 'student');
                         localStorage.setItem('currentStudentId', code);
+                        
+                        await window.createUserWithEmailAndPassword(window.auth, `${code}@yly.app`, pass);
                         proceedLogin('student');
                     } catch (createErr) {
                         errorMsg.innerText = "حدث خطأ أثناء تهيئة حساب العضو";
@@ -1160,8 +1186,6 @@ window.handleLogin = async function() {
             }
         } 
     }
-
-
     function proceedLogin(mode) {
         localStorage.setItem('isLoggedIn', 'true'); 
         localStorage.setItem('loginMode', mode); 
@@ -1228,10 +1252,8 @@ window.handleLogin = async function() {
     }
 
 
-    function loadStudentDashboard(member) {
+    window.updateStudentDashboardData = function(member) {
         if(!member) return;
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.getElementById('studentDashboard').classList.add('active');
         document.getElementById('dashName').innerText = member.name;
         document.getElementById('dashCode').innerText = member.id;
         document.getElementById('dashLevel').innerText = stageMap[member.level] || member.level;
@@ -1256,6 +1278,17 @@ window.handleLogin = async function() {
         document.getElementById('dashHistory').innerHTML = historyHtml || '<p class="text-center text-gray-400 text-xs">لا يوجد سجل</p>';
         
         document.getElementById('dashOwnPhone').innerText = member.ownPhone || member.phone || 'غير مسجل';
+    }
+
+
+    function loadStudentDashboard(member) {
+        if(!member) return;
+        if (localStorage.getItem('loginMode') === 'admin') return;
+
+
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.getElementById('studentDashboard').classList.add('active');
+        updateStudentDashboardData(member);
     }
 
 

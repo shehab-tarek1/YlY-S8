@@ -97,12 +97,12 @@
         .alert-icon { font-size: 35px; margin-bottom: 8px; display: block; }
         .alert-btn { background: #1e3a8a; color: white; padding: 8px 20px; border-radius: 6px; font-weight: bold; margin-top: 15px; width: 100%; border: 1px solid #000; }
 
-        .unified-card { border: 2px solid #1e3a8a; border-radius: 15px; padding: 15px; width: 100%; max-width: 400px; margin: 0 auto 15px auto; text-align: center; background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%); box-shadow: 0 4px 10px rgba(0,0,0,0.1); position: relative; overflow: hidden; }
+        .unified-card { border: 2px solid #1e3a8a; border-radius: 15px; padding: 15px; width: 100%; max-width: 420px; margin: 0 auto 15px auto; text-align: center; background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%); box-shadow: 0 4px 10px rgba(0,0,0,0.1); position: relative; overflow: hidden; }
         .unified-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: #dc2626; }
-        .unified-card-title { font-size: 12pt; font-weight: bold; margin-bottom: 5px; color: #dc2626; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .unified-card-name { font-size: 16pt; font-weight: 900; margin: 5px 0; border-bottom: 2px solid #1e3a8a; padding-bottom: 5px; color: #111827; }
-        .unified-card-row { font-size: 10pt; font-weight: bold; margin: 4px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #d1d5db; padding: 3px 0; color: #1e3a8a; }
-        .unified-card-footer { margin-top: 12px; font-size: 9pt; color: #6b7280; font-weight: bold; border-top: 1px solid #1e3a8a; padding-top: 4px; }
+        .unified-card-title { font-size: 13pt; font-weight: bold; margin-bottom: 5px; color: #dc2626; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .unified-card-name { font-size: 18pt; font-weight: 900; margin: 6px 0; border-bottom: 2px solid #1e3a8a; padding-bottom: 6px; color: #111827; word-break: break-word; }
+        .unified-card-row { font-size: 12pt; font-weight: bold; margin: 5px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #d1d5db; padding: 4px 0; color: #1e3a8a; }
+        .unified-card-footer { margin-top: 12px; font-size: 10pt; color: #6b7280; font-weight: bold; border-top: 1px solid #1e3a8a; padding-top: 4px; }
 
         .close-btn-modern { width: 28px; height: 28px; background-color: #ef4444; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.1s; flex-shrink: 0; cursor: pointer; }
         .close-btn-modern:active { transform: scale(0.9); }
@@ -944,15 +944,15 @@
         document.getElementById('dashOwnPhone').innerText = member.ownPhone || member.phone || 'غير مسجل';
     }
 
-    // محرك تصدير الإكسيل الحقيقي المطور
+    // محرك تصدير الإكسيل الحقيقي المطور الذكي
     window.exportToExcelReal = function(dataRows, title, filename) {
         try {
             const wb = XLSX.utils.book_new();
             wb.Workbook = { Views: [{ RTL: true }] }; 
             
-            const headerStyle = { font: { bold: true, color: { rgb: "FFFFFF" }, sz: 11, name: "Arial" }, fill: { fgColor: { rgb: "1E3A8A" } }, alignment: { horizontal: "center", vertical: "center", wrapText: true }, border: { top: {style: "thin"}, bottom: {style: "thin"}, left: {style: "thin"}, right: {style: "thin"} } };
-            const dataStyle = { font: { sz: 10, name: "Arial" }, alignment: { horizontal: "center", vertical: "center", wrapText: true }, border: { top: {style: "thin"}, bottom: {style: "thin"}, left: {style: "thin"}, right: {style: "thin"} } };
-            const titleStyle = { font: { bold: true, color: { rgb: "DC2626" }, sz: 14, name: "Arial" }, alignment: { horizontal: "center", vertical: "center" } };
+            const headerStyle = { font: { bold: true, color: { rgb: "FFFFFF" }, sz: 12, name: "Arial" }, fill: { fgColor: { rgb: "1E3A8A" } }, alignment: { horizontal: "center", vertical: "center", wrapText: true }, border: { top: {style: "thin"}, bottom: {style: "thin"}, left: {style: "thin"}, right: {style: "thin"} } };
+            const dataStyle = { font: { sz: 11, name: "Arial" }, alignment: { horizontal: "center", vertical: "center", wrapText: true }, border: { top: {style: "thin"}, bottom: {style: "thin"}, left: {style: "thin"}, right: {style: "thin"} } };
+            const titleStyle = { font: { bold: true, color: { rgb: "DC2626" }, sz: 15, name: "Arial" }, alignment: { horizontal: "center", vertical: "center" } };
 
             const wsData = [];
             wsData.push([{ v: title, t: 's', s: titleStyle }]);
@@ -966,7 +966,16 @@
             const ws = XLSX.utils.aoa_to_sheet(wsData);
             if(!ws['!merges']) ws['!merges'] = [];
             ws['!merges'].push({ s: {r:0, c:0}, e: {r:0, c: Math.max(0, dataRows[0].length - 1)} });
-            ws['!cols'] = dataRows[0].map(() => ({ wch: 18 })); 
+            
+            // حساب تلقائي لخصائص العرض للأعمدة لاستيعاب الاسم الرباعي والبيانات الطويلة
+            ws['!cols'] = dataRows[0].map((_, colIdx) => {
+                let maxLen = 15;
+                dataRows.forEach(row => {
+                    const val = row[colIdx] ? row[colIdx].toString() : '';
+                    if (val.length > maxLen) maxLen = val.length;
+                });
+                return { wch: Math.min(Math.max(maxLen + 4, 16), 45) };
+            }); 
 
             XLSX.utils.book_append_sheet(wb, ws, "التقرير");
             XLSX.writeFile(wb, `${filename}.xlsx`);
@@ -985,29 +994,29 @@
                 body { font-family: 'Arial', 'Tahoma', sans-serif !important; direction: rtl; }
                 .print-page { width: 100%; max-width: 100%; margin: 0 auto; padding: 15pt; background: white; color: #000; direction: rtl; }
                 .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2pt solid #1e3a8a; padding-bottom: 10pt; margin-bottom: 15pt; }
-                .print-meta-area { text-align: right; font-size: 10pt; font-weight: bold; width: 33%; }
+                .print-meta-area { text-align: right; font-size: 11pt; font-weight: bold; width: 33%; }
                 .print-title-area { text-align: center; width: 33%; }
-                .print-title-area h1 { font-size: 18pt; font-weight: 900; margin: 0; color: #1e3a8a; }
-                .print-title-area h2 { font-size: 13pt; font-weight: bold; margin: 4pt 0 0 0; color: #333; }
+                .print-title-area h1 { font-size: 20pt; font-weight: 900; margin: 0; color: #1e3a8a; }
+                .print-title-area h2 { font-size: 14pt; font-weight: bold; margin: 4pt 0 0 0; color: #333; }
                 .print-logo-area { text-align: left; width: 33%; }
-                table { width: 100%; border-collapse: collapse; margin-top: 12pt; font-size: 10pt; table-layout: fixed; }
+                table { width: 100%; border-collapse: collapse; margin-top: 12pt; font-size: 11pt; table-layout: fixed; }
                 tr { page-break-inside: avoid !important; }
                 thead { display: table-header-group; }
-                th { background-color: #1e3a8a !important; color: #fff !important; font-weight: bold; border: 1px solid #000; padding: 6pt 4pt; text-align: center; -webkit-print-color-adjust: exact; }
-                td { border: 1px solid #000; padding: 6pt 4pt; text-align: center; vertical-align: middle; word-wrap: break-word; }
+                th { background-color: #1e3a8a !important; color: #fff !important; font-weight: bold; border: 1px solid #000; padding: 8pt 6pt; text-align: center; -webkit-print-color-adjust: exact; }
+                td { border: 1px solid #000; padding: 8pt 6pt; text-align: center; vertical-align: middle; word-wrap: break-word; }
                 
-                .print-student-card { border: 2pt solid #1e3a8a !important; border-radius: 12pt; padding: 15pt; width: 100%; max-width: 420pt; margin: 15pt auto; text-align: center; background: #f8fafc; page-break-inside: avoid !important; position: relative; }
+                .print-student-card { border: 2.5pt solid #1e3a8a !important; border-radius: 12pt; padding: 18pt; width: 100%; max-width: 440pt; margin: 15pt auto; text-align: center; background: #f8fafc; page-break-inside: avoid !important; position: relative; }
                 .print-student-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 8pt; background: #dc2626; border-top-left-radius: 10pt; border-top-right-radius: 10pt; }
-                .print-card-title { font-size: 14pt; font-weight: bold; margin-bottom: 8pt; color: #dc2626; display: flex; justify-content: center; align-items: center; gap: 8pt; }
-                .print-card-name { font-size: 18pt; font-weight: bold; margin: 8pt 0; border-bottom: 2pt solid #1e3a8a; padding-bottom: 8pt; color: #000; }
-                .print-card-row { font-size: 11pt; font-weight: bold; margin: 5pt 0; display: flex; justify-content: space-between; border-bottom: 1pt dashed #ccc; padding: 3pt 0; color: #000; }
-                .print-card-footer { margin-top: 12pt; font-size: 10pt; color: #555; font-weight: bold; border-top: 1pt solid #1e3a8a; padding-top: 4pt; }
+                .print-card-title { font-size: 15pt; font-weight: bold; margin-bottom: 8pt; color: #dc2626; display: flex; justify-content: center; align-items: center; gap: 8pt; }
+                .print-card-name { font-size: 22pt; font-weight: 900; margin: 10pt 0; border-bottom: 2pt solid #1e3a8a; padding-bottom: 8pt; color: #000; word-break: break-word; }
+                .print-card-row { font-size: 13pt; font-weight: bold; margin: 6pt 0; display: flex; justify-content: space-between; border-bottom: 1pt dashed #ccc; padding: 4pt 0; color: #000; }
+                .print-card-footer { margin-top: 14pt; font-size: 11pt; color: #555; font-weight: bold; border-top: 1pt solid #1e3a8a; padding-top: 5pt; }
             </style>
             <div class="print-page">
                 <div class="print-header">
                     <div class="print-meta-area"><div>التاريخ: ${date}</div><div>YLY System Pro</div></div>
                     <div class="print-title-area"><h1>YLY Leaders</h1><h2>${title}</h2></div>
-                    <div class="print-logo-area"><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" style="width:50px; height:50px; object-fit:contain; float:left;"></div>
+                    <div class="print-logo-area"><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" style="width:55px; height:55px; object-fit:contain; float:left;"></div>
                 </div>
                 <div class="print-body">${content}</div>
             </div>`;
@@ -1026,7 +1035,7 @@
         } catch (e) { showToast('حدث خطأ أثناء الطباعة', 'error'); } finally { isPrinting = false; }
     };
 
-    // محرك الـ PDF المستقر والمعتمد
+    // محرك الـ PDF المستقر والمعالج مشكلة الصفحة البيضاء بالكامل
     window.savePDF = async function(title, elementIdOrHtml, isHtml = true) {
         if(isPrinting) return;
         isPrinting = true;
@@ -1034,44 +1043,63 @@
         const loading = document.getElementById('loadingOverlay');
         const loadingText = document.getElementById('loadingText');
         const oldText = loadingText ? loadingText.innerText : '';
-        if(loadingText) loadingText.innerText = 'جاري معالجة وتصدير الـ PDF...';
+        if(loadingText) loadingText.innerText = 'جاري تحضير وتصدير ملف الـ PDF...';
         if(loading) { loading.style.display = 'flex'; loading.style.opacity = '1'; }
 
         try {
             let contentStr = isHtml ? elementIdOrHtml : document.getElementById(elementIdOrHtml).innerHTML;
+            const printContainer = document.getElementById('print-container');
             
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = getPrintTemplate(title, contentStr);
-            tempDiv.style.position = 'absolute';
-            tempDiv.style.left = '-9999px';
-            tempDiv.style.top = '0';
-            tempDiv.style.width = '210mm';
-            tempDiv.style.minHeight = '297mm';
-            tempDiv.style.background = '#ffffff';
-            tempDiv.style.color = '#000000';
-            tempDiv.style.direction = 'rtl';
-            tempDiv.style.fontFamily = 'Arial, Tahoma, sans-serif';
-            
-            document.body.appendChild(tempDiv);
-            await new Promise(resolve => setTimeout(resolve, 400));
+            // تجهيز الحاوية الهيكلية وإبرازها لحظياً لالتقاطها بواسطة html2canvas
+            printContainer.innerHTML = getPrintTemplate(title, contentStr);
+            printContainer.style.position = 'fixed';
+            printContainer.style.top = '0';
+            printContainer.style.left = '0';
+            printContainer.style.width = '210mm';
+            printContainer.style.height = 'auto';
+            printContainer.style.zIndex = '99999';
+            printContainer.style.visibility = 'visible';
+            printContainer.style.opacity = '1';
+            printContainer.style.background = '#ffffff';
+
+            await new Promise(resolve => setTimeout(resolve, 350));
+
+            const targetElem = printContainer.firstElementChild || printContainer;
 
             const opt = { 
                 margin: [10, 10, 10, 10], 
                 filename: `${title}_${new Date().toLocaleDateString('en-CA')}.pdf`, 
                 image: { type: 'jpeg', quality: 0.98 }, 
-                html2canvas: { scale: 2, useCORS: true, logging: false, scrollX: 0, scrollY: 0, windowWidth: document.body.scrollWidth }, 
+                html2canvas: { 
+                    scale: 2, 
+                    useCORS: true, 
+                    logging: false, 
+                    scrollX: 0, 
+                    scrollY: 0,
+                    windowWidth: 1000 
+                }, 
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+                pagebreak: { mode: ['css', 'legacy'] }
             };
             
-            await html2pdf().set(opt).from(tempDiv).save();
-            document.body.removeChild(tempDiv);
-            showToast('تم حفظ الملف بنجاح', 'success');
+            await html2pdf().set(opt).from(targetElem).save();
+            showToast('تم حفظ ملف الـ PDF بنجاح', 'success');
 
         } catch (e) {
-            console.error(e);
+            console.error('PDF Error:', e);
             showToast('حدث خطأ أثناء حفظ الـ PDF', 'error');
         } finally {
+            const printContainer = document.getElementById('print-container');
+            if(printContainer) {
+                printContainer.innerHTML = '';
+                printContainer.style.position = 'fixed';
+                printContainer.style.top = '0';
+                printContainer.style.left = '0';
+                printContainer.style.width = '100%';
+                printContainer.style.height = '0px';
+                printContainer.style.zIndex = '-1';
+                printContainer.style.visibility = 'hidden';
+            }
             isPrinting = false;
             if(loading) {
                 loading.style.opacity = '0';

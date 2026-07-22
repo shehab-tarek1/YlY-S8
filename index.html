@@ -109,7 +109,7 @@
 
         #print-container { position: fixed; top: 0; left: 0; width: 100%; height: 0px; overflow: hidden; z-index: -1; background: white; visibility: hidden; }
         @media print {
-            body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background: white !important; width: 100% !important; height: 100% !important; }
+            html, body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background: white !important; width: 100% !important; height: auto !important; min-height: 100% !important; overflow: visible !important; }
             body > *:not(#print-container):not(#appContent):not(.fixed) { display: none !important; }
             body:has(#print-container:not(:empty)) > #appContent, body:has(#print-container:not(:empty)) > .fixed { display: none !important; }
             body:has(#print-container:not(:empty)) #print-container { display: block !important; position: absolute; top: 0; left: 0; width: 100%; height: auto !important; overflow: visible !important; z-index: 9999999; visibility: visible !important; opacity: 1 !important; }
@@ -786,7 +786,7 @@
     let loginMode = 'admin';
     let isPrinting = false; 
     let currentPage = 1;
-    const itemsPerPage = 10;
+    const itemsPerPage = 20; // تم زيادة الترقيم لعرض 20 اسم في الصفحة الواحدة
     let evalPeriod = 'today';
 
     function normalizeArabic(text) { return text ? text.replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي') : ''; }
@@ -992,7 +992,7 @@
         return `
             <style>
                 body { font-family: 'Arial', 'Tahoma', sans-serif !important; direction: rtl; }
-                .print-page { width: 100%; max-width: 100%; margin: 0 auto; padding: 15pt; background: white; color: #000; direction: rtl; }
+                .print-page { width: 100%; max-width: 100%; margin: 0 auto; padding: 15pt; background: white; color: #000; direction: rtl; height: auto !important; overflow: visible !important; }
                 .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2pt solid #1e3a8a; padding-bottom: 10pt; margin-bottom: 15pt; }
                 .print-meta-area { text-align: right; font-size: 11pt; font-weight: bold; width: 33%; }
                 .print-title-area { text-align: center; width: 33%; }
@@ -1004,13 +1004,6 @@
                 thead { display: table-header-group; }
                 th { background-color: #1e3a8a !important; color: #fff !important; font-weight: bold; border: 1px solid #000; padding: 8pt 6pt; text-align: center; -webkit-print-color-adjust: exact; }
                 td { border: 1px solid #000; padding: 8pt 6pt; text-align: center; vertical-align: middle; word-wrap: break-word; }
-                
-                .print-student-card { border: 2.5pt solid #1e3a8a !important; border-radius: 12pt; padding: 18pt; width: 100%; max-width: 440pt; margin: 15pt auto; text-align: center; background: #f8fafc; page-break-inside: avoid !important; position: relative; }
-                .print-student-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 8pt; background: #dc2626; border-top-left-radius: 10pt; border-top-right-radius: 10pt; }
-                .print-card-title { font-size: 15pt; font-weight: bold; margin-bottom: 8pt; color: #dc2626; display: flex; justify-content: center; align-items: center; gap: 8pt; }
-                .print-card-name { font-size: 22pt; font-weight: 900; margin: 10pt 0; border-bottom: 2pt solid #1e3a8a; padding-bottom: 8pt; color: #000; word-break: break-word; }
-                .print-card-row { font-size: 13pt; font-weight: bold; margin: 6pt 0; display: flex; justify-content: space-between; border-bottom: 1pt dashed #ccc; padding: 4pt 0; color: #000; }
-                .print-card-footer { margin-top: 14pt; font-size: 11pt; color: #555; font-weight: bold; border-top: 1pt solid #1e3a8a; padding-top: 5pt; }
             </style>
             <div class="print-page">
                 <div class="print-header">
@@ -1019,6 +1012,27 @@
                     <div class="print-logo-area"><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" style="width:55px; height:55px; object-fit:contain; float:left;"></div>
                 </div>
                 <div class="print-body">${content}</div>
+            </div>`;
+    }
+
+    // التنسيق الموحد لكارنيه العضو للتطابق التام بين الشاشة والطباعة والـ PDF
+    function getStudentCardPrintHTML(s, qrImageHtml) {
+        const stdPhone = s.ownPhone ? (s.ownPhone.startsWith('0') ? s.ownPhone : '0' + s.ownPhone) : (s.phone ? (s.phone.startsWith('0') ? s.phone : '0'+s.phone) : 'غير مسجل');
+        return `
+            <div style="border: 2px solid #1e3a8a; border-radius: 15px; padding: 18px; width: 100%; max-width: 400px; margin: 20px auto; text-align: center; background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%); box-shadow: 0 4px 10px rgba(0,0,0,0.1); position: relative; overflow: hidden; page-break-inside: avoid;">
+                <div style="position: absolute; top: 0; left: 0; right: 0; height: 6px; background: #dc2626;"></div>
+                <div style="font-size: 13pt; font-weight: bold; margin-bottom: 8px; color: #dc2626; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" style="width:25px; height:25px; object-fit:contain;">
+                    <span>بطاقة عضو YLY</span>
+                </div>
+                <div style="font-size: 18pt; font-weight: 900; margin: 8px 0; border-bottom: 2px solid #1e3a8a; padding-bottom: 8px; color: #111827; word-break: break-word;">${s.name}</div>
+                <div style="display:flex; justify-content:center; margin:12px 0;">${qrImageHtml}</div>
+                <div style="font-size: 12pt; font-weight: bold; margin: 6px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #d1d5db; padding: 4px 0; color: #1e3a8a;"><span>كود العضو:</span> <span>${s.id}</span></div>
+                <div style="font-size: 12pt; font-weight: bold; margin: 6px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #d1d5db; padding: 4px 0; color: #1e3a8a;"><span>كلمة السر:</span> <span>${s.password || '----'}</span></div>
+                <div style="font-size: 12pt; font-weight: bold; margin: 6px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #d1d5db; padding: 4px 0; color: #1e3a8a;"><span>اللجنة:</span> <span>${stageMap[s.level] || s.level}</span></div>
+                <div style="font-size: 12pt; font-weight: bold; margin: 6px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #d1d5db; padding: 4px 0; color: #1e3a8a;"><span>رقم الهاتف:</span> <span>${stdPhone}</span></div>
+                <div style="font-size: 12pt; font-weight: bold; margin: 6px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #d1d5db; padding: 4px 0; color: #1e3a8a;"><span>تاريخ الانضمام:</span> <span>${s.date}</span></div>
+                <div style="margin-top: 14px; font-size: 10pt; color: #6b7280; font-weight: bold; border-top: 1px solid #1e3a8a; padding-top: 6px;">YLY System Pro</div>
             </div>`;
     }
 
@@ -1035,7 +1049,7 @@
         } catch (e) { showToast('حدث خطأ أثناء الطباعة', 'error'); } finally { isPrinting = false; }
     };
 
-    // محرك الـ PDF المستقر والمعالج مشكلة الصفحة البيضاء بالكامل
+    // محرك الـ PDF المستقر والمعالج لمشكلة القطع والصفحة الواحدة
     window.savePDF = async function(title, elementIdOrHtml, isHtml = true) {
         if(isPrinting) return;
         isPrinting = true;
@@ -1050,13 +1064,14 @@
             let contentStr = isHtml ? elementIdOrHtml : document.getElementById(elementIdOrHtml).innerHTML;
             const printContainer = document.getElementById('print-container');
             
-            // تجهيز الحاوية الهيكلية وإبرازها لحظياً لالتقاطها بواسطة html2canvas
             printContainer.innerHTML = getPrintTemplate(title, contentStr);
             printContainer.style.position = 'fixed';
             printContainer.style.top = '0';
             printContainer.style.left = '0';
             printContainer.style.width = '210mm';
             printContainer.style.height = 'auto';
+            printContainer.style.maxHeight = 'none';
+            printContainer.style.overflow = 'visible';
             printContainer.style.zIndex = '99999';
             printContainer.style.visibility = 'visible';
             printContainer.style.opacity = '1';
@@ -1184,6 +1199,7 @@
         savePDF(`تقرير_${name}`, content, true);
     }
 
+    // طباعة القائمة بالكامل مع تضبيط أبعاد الأعمدة
     window.printStudentsList = function() {
         let rows = '';
         const filterStage = document.getElementById('studentListFilter').value;
@@ -1191,11 +1207,12 @@
         let filtered = window.members;
         if(filterStage !== 'all') { filtered = filtered.filter(s => s.level === filterStage); }
         if(query !== '') { filtered = filtered.filter(s => normalizeArabic(s.name ? s.name.toLowerCase() : '').includes(query) || (s.id && s.id.includes(query))); }
-        filtered.forEach((s, i) => { rows += `<tr><td style="width:30px;">${i+1}</td><td style="width:60px;">${s.id}</td><td>${s.name}</td><td style="width:50px;">${stageMap[s.level] || s.level}</td><td style="width:80px;">${s.date}</td></tr>`; });
-        const content = `<table><thead><tr><th style="width: 30px;">م</th><th style="width: 60px;">الكود</th><th>الاسم</th><th style="width:50px;">اللجنة</th><th style="width:80px;">التاريخ</th></tr></thead><tbody>${rows}</tbody></table>`;
+        filtered.forEach((s, i) => { rows += `<tr><td style="width:40px; white-space:nowrap;">${i+1}</td><td style="width:65px; white-space:nowrap; font-family:monospace;">${s.id}</td><td style="text-align:right; padding-right:8px;">${s.name}</td><td style="width:55px; white-space:nowrap;">${stageMap[s.level] || s.level}</td><td style="width:95px; white-space:nowrap;">${s.date}</td></tr>`; });
+        const content = `<table><thead><tr><th style="width:40px; white-space:nowrap;">م</th><th style="width:65px; white-space:nowrap;">الكود</th><th style="text-align:center;">الاسم</th><th style="width:55px; white-space:nowrap;">اللجنة</th><th style="width:95px; white-space:nowrap;">التاريخ</th></tr></thead><tbody>${rows}</tbody></table>`;
         printHTML('قائمة الأعضاء المسجلين', content);
     }
 
+    // حفظ القائمة كـ PDF بالكامل بنفس تنسيق الطباعة
     window.pdfStudentsList = function() {
         let rows = '';
         const filterStage = document.getElementById('studentListFilter').value;
@@ -1203,8 +1220,8 @@
         let filtered = window.members;
         if(filterStage !== 'all') { filtered = filtered.filter(s => s.level === filterStage); }
         if(query !== '') { filtered = filtered.filter(s => normalizeArabic(s.name ? s.name.toLowerCase() : '').includes(query) || (s.id && s.id.includes(query))); }
-        filtered.forEach((s, i) => { rows += `<tr><td style="width:30px;">${i+1}</td><td style="width:60px;">${s.id}</td><td>${s.name}</td><td style="width:50px;">${stageMap[s.level] || s.level}</td><td style="width:80px;">${s.date}</td></tr>`; });
-        const content = `<table><thead><tr><th style="width: 30px;">م</th><th style="width: 60px;">الكود</th><th>الاسم</th><th style="width:50px;">اللجنة</th><th style="width:80px;">التاريخ</th></tr></thead><tbody>${rows}</tbody></table>`;
+        filtered.forEach((s, i) => { rows += `<tr><td style="width:40px; white-space:nowrap;">${i+1}</td><td style="width:65px; white-space:nowrap; font-family:monospace;">${s.id}</td><td style="text-align:right; padding-right:8px;">${s.name}</td><td style="width:55px; white-space:nowrap;">${stageMap[s.level] || s.level}</td><td style="width:95px; white-space:nowrap;">${s.date}</td></tr>`; });
+        const content = `<table><thead><tr><th style="width:40px; white-space:nowrap;">م</th><th style="width:65px; white-space:nowrap;">الكود</th><th style="text-align:center;">الاسم</th><th style="width:55px; white-space:nowrap;">اللجنة</th><th style="width:95px; white-space:nowrap;">التاريخ</th></tr></thead><tbody>${rows}</tbody></table>`;
         savePDF('قائمة_الأعضاء', content, true);
     }
 
@@ -1302,6 +1319,7 @@
     function openStudentModal(id) { 
         const s = window.members.find(st => st.id === id); if(!s) return; 
         currentModalStudentId = id; 
+        const stdPhone = s.ownPhone ? (s.ownPhone.startsWith('0') ? s.ownPhone : '0' + s.ownPhone) : (s.phone ? (s.phone.startsWith('0') ? s.phone : '0'+s.phone) : 'غير مسجل');
         const card = document.getElementById('studentCardDisplay');
         card.innerHTML = `
             <div class="unified-card-title"><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" style="width:25px;"> بطاقة عضو YLY</div>
@@ -1310,7 +1328,7 @@
             <div class="unified-card-row"><span>كود العضو:</span> <span>${s.id}</span></div>
             <div class="unified-card-row"><span>كلمة السر:</span> <span>${s.password || '----'}</span></div>
             <div class="unified-card-row"><span>اللجنة:</span> <span>${stageMap[s.level] || s.level}</span></div>
-            <div class="unified-card-row"><span>رقم الهاتف:</span> <span><a href="https://wa.me/20${s.ownPhone || s.phone}" target="_blank" class="text-blue-600 hover:underline">${s.ownPhone || s.phone || 'غير مسجل'}</a></span></div>
+            <div class="unified-card-row"><span>رقم الهاتف:</span> <span><a href="https://wa.me/20${stdPhone}" target="_blank" class="text-blue-600 hover:underline">${stdPhone}</a></span></div>
             <div class="unified-card-row"><span>تاريخ الانضمام:</span> <span>${s.date}</span></div>
             <div class="unified-card-footer">YLY System Pro</div>
         `;
@@ -1624,15 +1642,9 @@
         const points = window.accounting.filter(r => r.category === 'points' && r.stdId === s.id);
         const totalPoints = points.reduce((sum, p) => sum + p.amount, 0);
 
+        const cardContent = getStudentCardPrintHTML(s, qrImageHtml);
         const content = `
-            <div class="print-student-card">
-                <div class="print-card-title"><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" style="width:30px;"> بطاقة عضو YLY</div>
-                <div class="print-card-name">${s.name}</div>
-                <div style="display:flex; justify-content:center; margin:10px 0;">${qrImageHtml}</div>
-                <div class="print-card-row"><span>كود العضو:</span> <span>${s.id}</span></div>
-                <div class="print-card-row"><span>اللجنة:</span> <span>${stageMap[s.level] || s.level}</span></div>
-                <div class="print-card-row"><span>تاريخ الانضمام:</span> <span>${s.date}</span></div>
-            </div>
+            ${cardContent}
             <table class="print-stats-table" style="width:100%; text-align:center; margin-bottom:20px;"><tr><td style="border:1px solid #000; padding:10px;"><div style="font-weight:bold;">أيام الحضور</div><div style="color:green; font-size:16pt; font-weight:bold;">${stats.present}</div></td><td style="border:1px solid #000; padding:10px;"><div style="font-weight:bold;">أيام الغياب</div><div style="color:red; font-size:16pt; font-weight:bold;">${stats.absent}</div></td><td style="border:1px solid #000; padding:10px;"><div style="font-weight:bold;">إجمالي النقاط</div><div style="color:#1e3a8a; font-size:16pt; font-weight:bold;">${totalPoints}</div></td></tr></table>
             <h3 style="border-bottom: 2px solid #1e3a8a; margin-top: 15px;">النقاط والتقييمات</h3><table><thead><tr><th>التاريخ</th><th>المهمة/التقييم</th><th>النقاط</th></tr></thead><tbody>${points.map(p => `<tr><td>${p.date}</td><td>${p.type}</td><td>${p.amount}</td></tr>`).join('') || '<tr><td colspan="3">لا يوجد</td></tr>'}</tbody></table>
             <h3 style="border-bottom: 2px solid #1e3a8a; margin-top: 15px;">سجل الحضور والغياب المفصل</h3><table><thead><tr><th>التاريخ</th><th>اليوم</th><th>الحالة</th></tr></thead><tbody>${stats.history.map(h => `<tr><td>${h.date}</td><td>${h.day}</td><td>${h.status==='present'?'حضور':'غياب'}</td></tr>`).join('')}</tbody></table>
@@ -1944,43 +1956,22 @@
         printHTML(title, content); 
     }
     
+    // طباعة الكارنيه بنفس الشكل تماماً
     window.printStudentCard = async function() { 
         const s = window.members.find(st => st.id === currentModalStudentId); if(!s) return; 
         showToast('جاري تجهيز الكارنيه...', 'success');
         const qrImageHtml = await generateQRBase64(s.id);
-        const stdPhone = s.ownPhone ? (s.ownPhone.startsWith('0') ? s.ownPhone : '0' + s.ownPhone) : (s.phone ? (s.phone.startsWith('0') ? s.phone : '0'+s.phone) : 'غير مسجل');
-
-        const content = `
-            <div class="print-student-card">
-                <div class="print-card-title"><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" style="width:30px;"> YLY System Pro</div>
-                <div class="print-card-name">${s.name}</div>
-                <div style="display:flex; justify-content:center; margin:10px 0;">${qrImageHtml}</div>
-                <div class="print-card-row"><span>كود العضو:</span> <span>${s.id}</span></div>
-                <div class="print-card-row"><span>اللجنة:</span> <span>${stageMap[s.level] || s.level}</span></div>
-                <div class="print-card-row"><span>رقم الهاتف:</span> <span>${stdPhone}</span></div>
-                <div class="print-card-footer">بطاقة هوية عضو مبادرة YLY</div>
-            </div>`;
-        printHTML('بطاقة عضو', content);
+        const content = getStudentCardPrintHTML(s, qrImageHtml);
+        printHTML(`بطاقة_${s.name}`, content);
     }
 
+    // حفظ الكارنيه كـ PDF بنفس الشكل التام
     window.shareStudentPdf = async function() { 
         const s = window.members.find(st => st.id === currentModalStudentId); if(!s) return; 
         showToast('جاري إنشاء PDF...', 'success');
         const qrImageHtml = await generateQRBase64(s.id);
-        const stdPhone = s.ownPhone ? (s.ownPhone.startsWith('0') ? s.ownPhone : '0' + s.ownPhone) : (s.phone ? (s.phone.startsWith('0') ? s.phone : '0'+s.phone) : 'غير مسجل');
-
-        const content = `
-            <div class="print-student-card">
-                <div class="print-card-title"><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" style="width:30px;"> بطاقة عضو YLY</div>
-                <div class="print-card-name">${s.name}</div>
-                <div style="display:flex; justify-content:center; margin:10px 0;">${qrImageHtml}</div>
-                <div class="print-card-row"><span>كود العضو:</span> <span>${s.id}</span></div>
-                <div class="print-card-row"><span>كلمة السر:</span> <span>${s.password || '----'}</span></div>
-                <div class="print-card-row"><span>اللجنة:</span> <span>${stageMap[s.level] || s.level}</span></div>
-                <div class="print-card-row"><span>رقم الهاتف:</span> <span>${stdPhone}</span></div>
-                <div class="print-card-row"><span>تاريخ الاشتراك:</span> <span>${s.date}</span></div>
-            </div>`;
-        savePDF(`بطاقة_${s.name}`, content);
+        const content = getStudentCardPrintHTML(s, qrImageHtml);
+        savePDF(`بطاقة_${s.name}`, content, true);
     }
     
     async function delStudent(docId, studentId) { 

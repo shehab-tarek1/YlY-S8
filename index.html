@@ -98,21 +98,6 @@
         .alert-icon { font-size: 35px; margin-bottom: 8px; display: block; }
         .alert-btn { background: #1e3a8a; color: white; padding: 8px 20px; border-radius: 6px; font-weight: bold; margin-top: 15px; width: 100%; border: 1px solid #000; }
 
-/* إخفاء أسهم الزيادة والنقصان الافتراضية في حقول التاريخ والأرقام */
-input[type="date"]::-webkit-inner-spin-button,
-input[type="date"]::-webkit-clear-button,
-input[type="month"]::-webkit-inner-spin-button,
-input[type="month"]::-webkit-clear-button,
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none !important;
-    margin: 0 !important;
-    display: none !important;
-}
-input[type="date"], input[type="month"], input[type="number"] {
-    -moz-appearance: textfield !important; /* لمتصفح فايرفوكس */
-}
-
         .unified-card { border: 4px double #1e3a8a; border-radius: 15px; padding: 20px; width: 100%; max-width: 350px; margin: 0 auto 15px auto; text-align: center; background: #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .unified-card-title { font-size: 14pt; font-weight: bold; margin-bottom: 10px; color: #dc2626; }
         .unified-card-name { font-size: 18pt; font-weight: 900; margin: 10px 0; border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; color: #111827; }
@@ -136,6 +121,21 @@ input[type="date"], input[type="month"], input[type="number"] {
         .dropdown-menu { transform-origin: top center; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
         .dropdown-menu.show { opacity: 1; transform: scaleY(1); visibility: visible; }
         .dropdown-menu.hide { opacity: 0; transform: scaleY(0); visibility: hidden; }
+
+        /* --- إخفاء أسهم الزيادة والنقصان الافتراضية (Spin Buttons) المزعجة في المتصفحات --- */
+        input[type="date"]::-webkit-inner-spin-button,
+        input[type="date"]::-webkit-clear-button,
+        input[type="month"]::-webkit-inner-spin-button,
+        input[type="month"]::-webkit-clear-button,
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none !important;
+            margin: 0 !important;
+            display: none !important;
+        }
+        input[type="date"], input[type="month"], input[type="number"] {
+            -moz-appearance: textfield !important;
+        }
 
         /* --- تخصيص حقول التاريخ (محاذاة لليمين واستبدال السهم بنتيجة) --- */
         input[type="date"], input[type="month"] {
@@ -777,7 +777,6 @@ input[type="date"], input[type="month"], input[type="number"] {
         const savedMode = localStorage.getItem('loginMode');
         
         if (user) {
-            // الإبقاء على صلاحية الـ UID للأدمن بناءً على طلبك الصارم
             if (savedMode === 'admin' || user.uid === "Y3XYVlXxj7bJwEWas9Hx0DqfPi92") {
                 unsubMembers = onSnapshot(collection(db, "members"), (snapshot) => { 
                     window.members = []; snapshot.forEach(doc => window.members.push({ ...doc.data(), docId: doc.id })); 
@@ -925,7 +924,7 @@ input[type="date"], input[type="month"], input[type="number"] {
 
                     ws[cellRef].s = {
                         font: { name: 'Cairo', sz: 11 },
-                        alignment: { horizontal: "center", vertical: "center" },
+                        alignment: { horizontal: "center", vertical: "center", wrapText: true }, // تعديل التفاف النص للإكسيل
                         border: borderStyle
                     };
                 }
@@ -1000,7 +999,6 @@ input[type="date"], input[type="month"], input[type="number"] {
         today = getEgyptDate();
         document.getElementById('headerDate').innerText = today;
         
-        // تعيين التواريخ لتاريخ اليوم الافتراضي
         document.getElementById('attendanceDate').value = today;
         document.getElementById('reportDate').value = today;
         const reportMonthEl = document.getElementById('reportMonth');
@@ -1120,7 +1118,6 @@ input[type="date"], input[type="month"], input[type="number"] {
         return { status: 'none' };
     }
 
-    // --- هندسة الأداء: الدالة المحسنة لعدم استهلاك الـ CPU (CPU Optimization fix) ---
     function calculateStudentStats(member) {
         let present = 0; let absent = 0; let history = [];
         const joinDateStr = member.date || '2020-01-01';
@@ -1995,8 +1992,8 @@ input[type="date"], input[type="month"], input[type="number"] {
                                 <td class="text-blue-700 font-bold">${c.totalPoints}</td>
                                 <td class="text-green-600 font-bold">${c.presentCount}</td>
                                 <td class="text-red-600 font-bold">${c.absentCount}</td>
-                                <td class="text-[9px] text-green-700 max-w-[120px] truncate">${c.presentDates.join(', ') || 'لا يوجد'}</td>
-                                <td class="text-[9px] text-red-700 max-w-[120px] truncate">${c.absentDates.join(', ') || 'لا يوجد'}</td>
+                                <td class="text-[9px] text-green-700 align-top" style="line-height: 1.6;">${c.presentDates.join('<br>') || 'لا يوجد'}</td>
+                                <td class="text-[9px] text-red-700 align-top" style="line-height: 1.6;">${c.absentDates.join('<br>') || 'لا يوجد'}</td>
                             </tr>`).join('')}
                         </tbody>
                     </table>
@@ -2057,8 +2054,8 @@ input[type="date"], input[type="month"], input[type="number"] {
             c.totalPoints,
             c.presentCount,
             c.absentCount,
-            c.presentDates.join(', ') || 'لا يوجد',
-            c.absentDates.join(', ') || 'لا يوجد'
+            c.presentDates.join('\n') || 'لا يوجد',
+            c.absentDates.join('\n') || 'لا يوجد'
         ]);
 
         exportToExcelStyle(headers, rows, titleHeader, "تقرير_شامل_YLY");
@@ -2077,8 +2074,8 @@ input[type="date"], input[type="month"], input[type="number"] {
             c.ownPhone || c.phone || 'غير مسجل',
             c.presentCount,
             c.absentCount,
-            c.presentDates.join(', ') || 'لا يوجد',
-            c.absentDates.join(', ') || 'لا يوجد'
+            c.presentDates.join('\n') || 'لا يوجد',
+            c.absentDates.join('\n') || 'لا يوجد'
         ]);
 
         exportToExcelStyle(headers, rows, titleHeader, "تقرير_الحضور_والغياب_YLY");
@@ -2116,7 +2113,7 @@ input[type="date"], input[type="month"], input[type="number"] {
         if(key === 'present' || key === 'absent') { 
             thead.innerHTML = `<tr><th class="col-index">م</th><th>الاسم</th><th>اللجنة</th><th>العدد</th><th>التواريخ</th></tr>`; 
             if(!list || list.length === 0) tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4">لا توجد بيانات</td></tr>`; 
-            else tbody.innerHTML = list.map((s, i) => `<tr class="hover:bg-gray-50"><td class="text-gray-500">${i + 1}</td><td class="font-bold">${s.name}</td><td>${stageMap[s.level] || s.level}</td><td class="font-bold ${key === 'absent' ? 'text-red-600' : 'text-green-600'}">${s[key + 'Count']} يوم</td><td class="text-[9px] text-gray-600 max-w-[150px] truncate">${(s[key + 'Dates'] || []).join(', ') || 'لا يوجد'}</td></tr>`).join('');
+            else tbody.innerHTML = list.map((s, i) => `<tr class="hover:bg-gray-50"><td class="text-gray-500">${i + 1}</td><td class="font-bold">${s.name}</td><td>${stageMap[s.level] || s.level}</td><td class="font-bold ${key === 'absent' ? 'text-red-600' : 'text-green-600'}">${s[key + 'Count']} يوم</td><td class="text-[9px] text-gray-600 align-top" style="line-height: 1.6;">${(s[key + 'Dates'] || []).join('<br>') || 'لا يوجد'}</td></tr>`).join('');
         } else if (key === 'points') {
             thead.innerHTML = `<tr><th class="col-index">م</th><th>الاسم</th><th>النقاط</th><th>المهمة</th><th>التاريخ</th></tr>`; 
             if(!list || list.length === 0) tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4">لا توجد بيانات</td></tr>`; 

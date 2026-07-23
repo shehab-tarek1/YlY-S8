@@ -137,22 +137,27 @@
             -moz-appearance: textfield !important;
         }
 
-        /* --- تخصيص حقول التاريخ (محاذاة لليمين واستبدال السهم بنتيجة) --- */
+        /* --- تخصيص حقول التاريخ (محاذاة لليمين واستبدال السهم بنتيجة نقية) --- */
         input[type="date"], input[type="month"] {
             text-align: right !important; 
             padding-left: 25px !important; 
+            background-image: none !important; /* 👈 هذا السطر يمسح السهم العام الذي أضفته أنت بالخطأ */
         }
+        
+        /* التحكم في العنصر الافتراضي للمتصفح (السهم الأصلي) واستبداله بالنتيجة */
         input[type="date"]::-webkit-calendar-picker-indicator,
         input[type="month"]::-webkit-calendar-picker-indicator {
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%231e3a8a"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>');
-            background-repeat: no-repeat;
-            background-position: left 5px center; 
-            background-size: 16px; 
-            color: transparent; 
+            background: transparent url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%231e3a8a"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>') no-repeat center !important;
+            background-size: 16px !important; 
+            color: transparent !important; /* 👈 هذا هو "السحر" الذي يخفي السهم الافتراضي تماماً */
             cursor: pointer;
             opacity: 0.8;
-            transition: opacity 0.2s;
+            width: 18px !important;
+            height: 18px !important;
+            margin: 0 !important;
+            padding: 0 !important;
         }
+
         input[type="date"]::-webkit-calendar-picker-indicator:hover,
         input[type="month"]::-webkit-calendar-picker-indicator:hover {
             opacity: 1;
@@ -160,10 +165,10 @@
 
         /* --- سهم القوائم المنسدلة (تصغير الحجم واستثناء حقل العضو) --- */
         input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%234b5563"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>');
-            background-repeat: no-repeat;
-            background-position: left 8px center;
-            background-size: 10px; 
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%234b5563"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>') !important;
+            background-repeat: no-repeat !important;
+            background-position: left 8px center !important;
+            background-size: 10px !important; 
             padding-left: 20px !important; 
         }
     </style>

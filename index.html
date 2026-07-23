@@ -4,17 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-
-
-
     <!-- SEO & Open Graph -->
     <meta property="og:title" content="YLY Management | Pro System">
     <meta property="og:description" content="نظام إدارة اللجان والأعضاء لمبادرة شباب يدير شباب YLY">
     <meta property="og:image" content="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657868/etyefoyw9madba5a5u1z.png">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657868/etyefoyw9madba5a5u1z.png">
-
-
 
 
     <!-- إعدادات PWA -->
@@ -25,12 +20,7 @@
     <link rel="apple-touch-icon" href="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png">
 
 
-
-
     <title>YLY Management | Pro System</title>
-
-
-
 
     <!-- المكتبات -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -41,31 +31,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 
 
-
-
     <style>
         body { font-family: 'Cairo', sans-serif; background-color: #f3f4f6; padding-bottom: 80px; font-size: 10px; -webkit-tap-highlight-color: transparent; user-select: none; }
         body.modal-open { overflow: hidden !important; height: 100vh; }
 
-
-
-
         input, select, textarea { border: 1px solid #9ca3af; border-radius: 0.25rem; background-color: #ffffff; color: #111827; font-weight: 700; transition: all 0.2s ease-in-out; padding-right: 0.5rem !important; padding-left: 1.5rem !important; height: 30px; font-size: 11px !important; width: 100%; }
         input:focus, select:focus { border-color: #1e3a8a; box-shadow: 0 0 0 1px rgba(30, 58, 138, 0.2); outline: none; }
-
-
-
 
         .input-wrapper { position: relative; width: 100%; }
         .input-icon { position: absolute; top: 50%; left: 4px; transform: translateY(-50%); color: #6b7280; pointer-events: none; width: 12px; height: 12px; z-index: 10; }
 
-
-
-
         .sub-nav-item { border: 1px solid #1e40af !important; color: #1e40af; background: transparent; font-weight: bold; transition: all 0.2s; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 10px; }
         .sub-nav-item.active { background: #1e40af !important; color: white !important; box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
-
-
 
 
         @media (min-width: 768px) {
@@ -77,37 +54,22 @@
             input, select, button { font-size: 12px !important; padding: 8px !important; height: 36px; }
         }
 
-
-
-
         .nav-item { transition: all 0.2s; opacity: 0.7; border-bottom: 3px solid transparent; }
         .nav-item.active { opacity: 1; background: white; color: #000; font-weight: 800; border-bottom-color: #dc2626; transform: translateY(-2px); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .tab-content { display: none; animation: fadeIn 0.2s ease-out; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-
-
-
         .spinner-box { position: relative; width: 90px; height: 90px; display: flex; justify-content: center; align-items: center; margin-bottom: 15px; }
         .modern-spinner { position: absolute; width: 100%; height: 100%; border: 4px solid rgba(255, 255, 255, 0.05); border-left-color: #dc2626; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
-
-
-
 
         .scanner-wrapper { border-radius: 0.5rem; overflow: hidden; background: #000; position: relative; width: 100%; height: 250px !important; border: 2px solid #374151; }
         .scanner-wrapper video { object-fit: cover; width: 100% !important; height: 100% !important; border-radius: 0.5rem; }
         @media (min-width: 768px) { .scanner-wrapper { height: 400px !important; } }
         #html5-qrcode-button-camera-stop, #html5-qrcode-anchor-scan-type-change { display: none !important; }
 
-
-
-
         .glass-card { background: white; border-radius: 0.5rem; padding: 0.5rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); border: 1px solid #d1d5db; margin-bottom: 0.5rem; }
-
-
-
 
         .custom-table { width: 100%; border-collapse: collapse; font-size: 10px; table-layout: fixed; border: 1px solid #374151; }
         @media (min-width: 768px) { .custom-table { font-size: 12px; } }
@@ -121,9 +83,6 @@
         .col-index { width: 25px; color: #6b7280; }
         .col-action { width: 45px; min-width: 45px; } 
 
-
-
-
         #loadingOverlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(15px); z-index: 999999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; transition: opacity 0.3s ease; }
         
         #loginOverlay { position: fixed; inset: 0; background: linear-gradient(135deg, #1e3a8a 0%, #111827 100%); z-index: 100000; display: none; align-items: center; justify-content: center; padding: 15px; }
@@ -133,24 +92,15 @@
         .login-tab { flex: 1; padding: 8px; cursor: pointer; font-weight: bold; border-bottom: 3px solid transparent; color: #6b7280; transition: all 0.3s; }
         .login-tab.active { color: #1e3a8a; border-bottom-color: #1e3a8a; background: #f3f4f6; border-radius: 5px 5px 0 0; }
 
-
-
-
         .std-dash-card { background: white; border-radius: 10px; padding: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #d1d5db; }
         .std-info-row { display: flex; justify-content: space-between; border-bottom: 1px solid #f3f4f6; padding: 6px 0; font-size: 11px; }
         .std-info-label { color: #4b5563; font-weight: 600; }
         .std-info-val { color: #111827; font-weight: 700; }
 
-
-
-
         #customAlertModal, #paymentConfirmModal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200000; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(2px); }
         .alert-card { background: white; border-radius: 12px; padding: 20px; width: 100%; max-width: 300px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border-top: 5px solid #1e3a8a; }
         .alert-icon { font-size: 35px; margin-bottom: 8px; display: block; }
         .alert-btn { background: #1e3a8a; color: white; padding: 8px 20px; border-radius: 6px; font-weight: bold; margin-top: 15px; width: 100%; border: 1px solid #000; }
-
-
-
 
         .unified-card { border: 4px double #1e3a8a; border-radius: 15px; padding: 20px; width: 100%; max-width: 350px; margin: 0 auto 15px auto; text-align: center; background: #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .unified-card-title { font-size: 14pt; font-weight: bold; margin-bottom: 10px; color: #dc2626; }
@@ -158,14 +108,8 @@
         .unified-card-row { font-size: 11pt; font-weight: bold; margin: 5px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #d1d5db; padding: 4px 0; color: #1e3a8a; }
         .unified-card-footer { margin-top: 15px; font-size: 9pt; color: #6b7280; font-weight: bold; border-top: 1px solid #1e3a8a; padding-top: 5px; }
 
-
-
-
         .close-btn-modern { width: 28px; height: 28px; background-color: #ef4444; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.1s; flex-shrink: 0; margin-right: 10px; }
         .close-btn-modern:active { transform: scale(0.9); }
-
-
-
 
         #print-container { position: fixed; top: 0; left: 0; width: 100%; height: 0px; overflow: hidden; z-index: -1; background: white; visibility: hidden; }
         @media print {
@@ -178,17 +122,11 @@
             .no-print { display: none !important; }
         }
 
-
-
-
         .dropdown-menu { transform-origin: top center; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
         .dropdown-menu.show { opacity: 1; transform: scaleY(1); visibility: visible; }
         .dropdown-menu.hide { opacity: 0; transform: scaleY(0); visibility: hidden; }
 
-
-
-
-        input[type="date"]::-webkit-inner-spin-button,
+     input[type="date"]::-webkit-inner-spin-button,
         input[type="date"]::-webkit-clear-button,
         input[type="month"]::-webkit-inner-spin-button,
         input[type="month"]::-webkit-clear-button,
@@ -201,9 +139,6 @@
         input[type="date"], input[type="month"], input[type="number"] {
             -moz-appearance: textfield !important;
         }
-
-
-
 
         input[type="date"], input[type="month"] {
             text-align: right !important; 
@@ -224,15 +159,10 @@
             padding: 0 !important;
         }
 
-
-
-
         input[type="date"]::-webkit-calendar-picker-indicator:hover,
         input[type="month"]::-webkit-calendar-picker-indicator:hover {
             opacity: 1;
         }
-
-
 
 
         input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
@@ -247,8 +177,6 @@
 <body class="text-gray-800" onclick="closeAllDropdowns(event)">
 
 
-
-
 <div id="loadingOverlay">
     <div class="spinner-box">
         <div class="modern-spinner"></div>
@@ -257,8 +185,6 @@
     <div class="text-2xl font-black tracking-wider text-white mb-2">YLY <span class="text-red-500">System</span></div>
     <div class="text-[10px] text-gray-400 font-mono">جاري تأمين النظام وتهيئته...</div>
 </div>
-
-
 
 
 <div id="loginOverlay">
@@ -287,22 +213,13 @@
     </div>
 </div>
 
-
-
-
 <div id="customAlertModal">
     <div class="alert-card"><div id="alertIcon" class="alert-icon">⚠️</div><h3 id="alertTitle" class="text-base font-bold text-gray-800 mb-1">تنبيه</h3><p id="alertMessage" class="text-[11px] text-gray-600 font-bold mb-4"></p><button onclick="closeCustomAlert()" class="alert-btn shadow-lg">حسناً</button></div>
 </div>
 
-
-
-
 <div id="paymentConfirmModal">
     <div class="alert-card border-t-4 border-blue-600"><div class="text-4xl mb-2">⭐</div><h3 class="text-base font-bold text-gray-800 mb-1">تأكيد تقييم</h3><p id="payConfirmMsg" class="text-[11px] text-gray-600 font-bold mb-4"></p><div class="flex gap-2"><button onclick="proceedWithPayment()" class="flex-1 bg-blue-600 text-white py-2 rounded font-bold text-xs shadow">نعم</button><button onclick="closePaymentConfirm()" class="flex-1 bg-gray-500 text-white py-2 rounded font-bold text-xs">إلغاء</button></div></div>
 </div>
-
-
-
 
 <div id="checkResultModal" class="fixed inset-0 bg-black/80 hidden z-[250] flex items-center justify-center p-4 no-print">
     <div class="bg-white rounded-xl w-full max-w-md p-4 shadow-2xl relative h-[85vh] flex flex-col">
@@ -364,11 +281,7 @@
 </div>
 
 
-
-
 <div id="print-container"></div>
-
-
 
 
 <div id="appContent" class="hidden">
@@ -396,11 +309,7 @@
     </header>
 
 
-
-
     <main id="mainContent" class="container mx-auto p-3 max-w-4xl md:max-w-6xl">
-
-
 
 
         <section id="studentDashboard" class="tab-content">
@@ -450,8 +359,6 @@
         </section>
 
 
-
-
         <section id="students" class="tab-content">
             <div class="glass-card border-r-4 border-blue-700 no-print mb-4">
                 <h2 class="font-bold text-gray-900 mb-2 text-xs md:text-base">تسجيل عضو جديد</h2>
@@ -484,14 +391,9 @@
                         </div>
                     </div>
 
-
-
-
                     <button onclick="registerStudent()" class="w-full bg-blue-900 text-white py-2 rounded font-bold shadow hover:bg-blue-800 text-xs transition md:text-sm md:col-span-2 md:py-3">حفظ العضو</button>
                 </div>
             </div>
-
-
 
 
             <div class="glass-card border-r-4 border-red-600 no-print mb-4">
@@ -502,8 +404,6 @@
                     <button onclick="stopCheckScanner()" id="btnStopCheck" class="flex-1 bg-red-100 text-red-600 py-1.5 rounded font-bold text-xs hidden">إيقاف</button>
                 </div>
             </div>
-
-
 
 
             <div class="glass-card">
@@ -521,9 +421,6 @@
             <div class="p-2 text-xs hover:bg-blue-50 cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('studentListFilter', 'studentListFilterDisplay', 'studentListFilterMenu', 'SM', 'SM', renderStudents)">SM</div>
         </div>
     </div>
-
-
-
 
     <div class="input-wrapper flex-1 min-w-0">
         <svg class="input-icon" style="width:14px; height:14px; left:6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
@@ -552,9 +449,6 @@
             </div>
         </section>
 
-
-
-
         <section id="attendance" class="tab-content">
             <div class="glass-card text-center">
                 <h2 class="text-sm font-bold text-gray-900 mb-2 md:text-lg">سجل حضور الفعاليات</h2>
@@ -563,18 +457,12 @@
                     📅 تم تفعيل الحضور اليوم لـ: <span id="exceptionalLevelName"></span>
                 </div>
 
-
-
-
                 <div class="mb-2 bg-white p-2 rounded border border-gray-300 shadow-sm">
                     <div class="grid grid-cols-2 gap-2">
                         <div class="input-wrapper">
                             <label class="text-[9px] text-gray-600 font-bold block mb-1">تاريخ اليوم</label>
                             <div class="relative"><input type="date" id="attendanceDate" onchange="changeAttendanceDate()" class="w-full p-1 text-right font-bold text-gray-900 text-xs bg-white"></div>
                         </div>
-
-
-
 
                         <div class="input-wrapper">
                             <label class="text-[9px] text-gray-600 font-bold block mb-1">اللجنة</label>
@@ -593,16 +481,10 @@
                     </div>
                 </div>
 
-
-
-
                 <div class="flex bg-gray-100 p-1 rounded mb-2 no-print border border-gray-300">
                     <button onclick="setAttMode('scan')" id="btnAttScan" class="sub-nav-item flex-1 rounded text-[10px] active transition-all">📷 قارئ الباركود</button>
                     <button onclick="setAttMode('manual')" id="btnAttManual" class="sub-nav-item flex-1 rounded text-[10px] transition-all">⌨️ إدخال يدوي</button>
                 </div>
-
-
-
 
                 <div id="attScanArea" class="relative">
                     <div id="reader" class="scanner-wrapper w-full mb-2"></div>
@@ -614,9 +496,6 @@
                     </div>
                 </div>
 
-
-
-
                 <div id="attManualArea" class="hidden">
                     <div class="input-wrapper mb-2">
                         <input type="number" id="manualAttID" placeholder="كود العضو" class="w-full text-center text-xl font-bold p-2 font-mono md:text-2xl md:p-3">
@@ -624,16 +503,10 @@
                     <button onclick="manualAttendance()" class="w-full bg-blue-900 text-white py-2 rounded font-bold text-xs md:text-sm md:py-3">تسجيل الحضور</button>
                 </div>
 
-
-
-
                 <div class="grid grid-cols-2 gap-2 mt-3 no-print md:gap-4">
                     <div onclick="openAttendanceModal('present')" class="bg-green-50 p-2 rounded border border-green-200 cursor-pointer hover:bg-green-100 transition"><span class="block text-lg font-bold text-green-600 md:text-2xl" id="presentCount">0</span><span class="text-[10px] text-green-800 font-bold md:text-sm">تم الحضور</span></div>
                     <div onclick="openAttendanceModal('absent')" class="bg-red-50 p-2 rounded border border-red-200 cursor-pointer hover:bg-red-100 transition"><span class="block text-lg font-bold text-red-600 md:text-2xl" id="absentCount">0</span><span class="text-[10px] text-red-800 font-bold md:text-sm">غياب اليوم</span></div>
                 </div>
-
-
-
 
                 <div class="flex flex-col items-center gap-2 mt-5 border-t border-gray-200 pt-5 no-print">
                     <button onclick="confirmEventDay()" class="w-64 bg-blue-700 text-white py-2 rounded font-bold text-[11px] shadow-sm hover:bg-blue-800 flex justify-center items-center gap-2">✅ تفعيل يوم حضور للجنة المحددة</button>
@@ -642,15 +515,9 @@
             </div>
         </section>
 
-
-
-
         <section id="accounting" class="tab-content">
             <div class="glass-card border-t-4 border-blue-600">
                 <h3 class="font-bold text-blue-900 mb-2 text-xs md:text-base">⭐ إضافة نقاط وتقييمات الأعضاء</h3>
-
-
-
 
                 <div id="defaultPaymentBar" class="bg-blue-50 p-2 rounded mb-2 border border-blue-200">
                     <div class="text-[9px] text-blue-800 font-bold mb-1">إعدادات التقييم الحالية</div>
@@ -669,22 +536,14 @@
                             </div>
                         </div>
 
-
-
-
                         <input type="text" id="defScoreNote" class="w-2/4 p-1 text-[10px]" placeholder="تفاصيل (اختياري)">
                     </div>
                 </div>
-
-
-
 
                 <div class="flex bg-gray-100 p-1 rounded mb-2 no-print border border-gray-300">
                     <button onclick="togglePayMethod('scan')" id="btnPayScan" class="sub-nav-item flex-1 rounded text-[10px] active font-bold md:text-sm md:py-2">📷 قارئ الباركود</button>
                     <button onclick="togglePayMethod('manual')" id="btnPayManual" class="sub-nav-item flex-1 rounded text-[10px] font-bold md:text-sm md:py-2">⌨️ إدخال يدوي</button>
                 </div>
-
-
 
 
                 <div id="payScanDiv" class="mb-2">
@@ -696,16 +555,12 @@
                 </div>
 
 
-
-
                 <div id="payManualDiv" class="hidden flex gap-2 mb-2">
                     <div class="input-wrapper flex-1">
                         <input type="number" id="paySearchID" placeholder="كود العضو" class="w-full p-1 text-center font-bold text-xs md:text-sm md:p-2">
                     </div>
                     <button onclick="searchStudentForPay()" class="bg-blue-700 text-white px-2 rounded text-xs md:text-sm md:px-4">🔍 بحث</button>
                 </div>
-
-
 
 
                 <div id="paymentForm" class="hidden bg-yellow-50 p-2 rounded border border-yellow-200">
@@ -725,9 +580,6 @@
                             </div>
                         </div>
 
-
-
-
                     </div>
                     <input type="text" id="payNote" class="w-full p-1 text-[10px] mb-1" placeholder="تفاصيل إضافية (اسم الكويز أو المهمة)">
                     <div class="flex gap-2 mt-2">
@@ -736,8 +588,6 @@
                     </div>
                 </div>
             </div>
-
-
 
 
             <div class="bg-sky-50 text-sky-950 p-3 rounded-xl shadow-sm mt-4 md:p-5 border-2 border-sky-200">
@@ -764,9 +614,6 @@
             </div>
         </section>
 
-
-
-
         <section id="reports" class="tab-content">
             <div class="glass-card border-t-4 border-gray-600 mb-4">
                 <h3 class="font-bold mb-1 text-gray-900 flex items-center gap-2 text-xs md:text-base"><span>👤</span> استعلام عن تقرير عضو</h3>
@@ -784,9 +631,6 @@
                         </div>
                     </div>
 
-
-
-
                     <div class="input-wrapper flex-1">
                         <input type="text" id="reportStudentSearch" placeholder="ابحث بالاسم أو الكود" class="w-full p-1 text-xs md:text-sm md:p-2">
                     </div>
@@ -794,9 +638,6 @@
                 </div>
                 <div id="studentReportResult" class="hidden bg-gray-50 p-2 rounded border border-gray-200 text-[10px] md:text-sm"></div>
             </div>
-
-
-
 
             <div class="glass-card border-t-4 border-blue-800 mb-4">
                 <h3 class="font-bold mb-1 text-blue-900 text-xs md:text-base">📊 التقارير العامة والإحصائيات</h3>
@@ -813,9 +654,6 @@
                             </div>
                         </div>
 
-
-
-
                     </div>
                     <div>
                         <label class="text-[9px] text-gray-500 block mb-0.5 md:text-xs">اللجنة المستهدفة</label>
@@ -831,9 +669,6 @@
                                 <div class="p-2 text-xs hover:bg-blue-50 cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('reportStage', 'reportStageDisplay', 'reportStageMenu', 'SM', 'السوشيال ميديا (SM)')">السوشيال ميديا (SM)</div>
                             </div>
                         </div>
-
-
-
 
                     </div>
                     <div id="divDateInput">
@@ -858,8 +693,6 @@
                         </div>
 
 
-
-
                     </div>
                 </div>
                 <button id="btnGenerateReport" onclick="toggleAdvancedReport()" class="w-full bg-blue-900 text-white py-1.5 rounded font-bold shadow hover:bg-blue-950 text-[10px] md:text-sm md:py-2 transition-all">توليد التقرير</button>
@@ -881,8 +714,6 @@
 </div>
 
 
-
-
 <div id="studentModal" class="fixed inset-0 bg-black/80 hidden z-[150] flex items-center justify-center p-4 no-print">
     <div class="bg-white rounded-xl w-full max-w-xs p-4 text-center relative shadow-2xl md:max-w-sm">
         <button onclick="closeModal('studentModal')" class="close-btn-modern" style="top: 10px; right: 10px; position: absolute;">&times;</button>
@@ -894,8 +725,6 @@
         <button onclick="closeModal('studentModal')" class="w-full bg-gray-200 text-gray-800 py-1.5 rounded font-bold text-[11px] hover:bg-gray-300 transition border border-gray-300">إغلاق النافذة</button>
     </div>
 </div>
-
-
 
 
 <div id="detailsModal" class="fixed inset-0 bg-black/80 hidden z-[100] flex items-center justify-center p-4 no-print">
@@ -915,8 +744,6 @@
 </div>
 
 
-
-
 <div id="pwaInstallBanner" class="fixed bottom-4 left-4 z-[999999] translate-y-24 opacity-0 transition-all duration-500 ease-out hidden w-auto max-w-[280px]">
     <div class="bg-blue-900/95 backdrop-blur-md border border-blue-700 rounded-2xl p-3 shadow-2xl flex items-center justify-between gap-3">
         <div class="flex items-center gap-2"><div class="bg-blue-800 p-1.5 rounded-xl border border-blue-600"><span class="text-xl">📲</span></div><div><h4 class="text-white font-bold text-xs">تثبيت التطبيق</h4><p class="text-blue-200 text-[9px]">YLY System</p></div></div>
@@ -926,20 +753,14 @@
 </div>
 
 
-
-
 <div id="pdf-generator-container" style="position: fixed; left: -5000px; top: 0; width: 210mm; min-height: 297mm; background: white; z-index: -100; visibility: hidden;"></div>
 <div id="toast" class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-full shadow-xl z-[200] hidden font-bold text-[10px] max-w-[90%] w-auto text-center whitespace-nowrap"></div>
-
-
 
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, onSnapshot, query, where, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
-
 
 
     const firebaseConfig = {
@@ -953,13 +774,9 @@
     };
 
 
-
-
     const app = initializeApp(firebaseConfig); 
     const db = getFirestore(app);
     const auth = getAuth(app);
-
-
 
 
     window.db = db; window.auth = auth; window.collection = collection; window.addDoc = addDoc; window.getDocs = getDocs; window.doc = doc; window.deleteDoc = deleteDoc; window.onSnapshot = onSnapshot; window.query = query; window.where = where; window.setDoc = setDoc; window.updateDoc = updateDoc;

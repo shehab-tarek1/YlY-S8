@@ -56,7 +56,7 @@
 
 
     <style>
-        body { font-family: 'Cairo', sans-serif; background-color: #f3f4f6; padding-bottom: 80px; font-size: 10px; -webkit-tap-highlight-color: transparent; user-select: none; }
+        body { font-family: 'Cairo', sans-serif; background-color: #f3f4f6; padding-bottom: 80px; font-size: 10px; -webkit-tap-highlight-color: transparent; user-select: none; overflow-x: hidden !important; }
         body.modal-open { overflow: hidden !important; height: 100vh; }
 
 
@@ -2299,24 +2299,22 @@
     };
 
 
-
-
-    window.savePDF = function(title, content, isLandscape = false) {
+window.savePDF = function(title, content, isLandscape = false) {
         if(isPrinting) return;
         isPrinting = true;
         showToast('جاري إنشاء PDF متعدد الصفحات...', 'success');
         const pdfContainer = document.getElementById('pdf-generator-container');
         try {
-            pdfContainer.style.width = isLandscape ? '297mm' : '210mm';
-            pdfContainer.style.position = 'fixed';
-            pdfContainer.style.left = '0';
+            pdfContainer.style.position = 'absolute';
+            pdfContainer.style.left = '-9999px';
             pdfContainer.style.top = '0';
-            pdfContainer.style.opacity = '0.01';
-            pdfContainer.style.pointerEvents = 'none';
-            pdfContainer.style.zIndex = '-9999';
+            pdfContainer.style.width = isLandscape ? '297mm' : '210mm';
+            pdfContainer.style.height = 'auto';
             pdfContainer.style.direction = 'ltr';
+            pdfContainer.style.visibility = 'visible';
+            pdfContainer.style.opacity = '1';
             pdfContainer.innerHTML = `<div style="direction: rtl; width: 100%; margin: 0 auto; background: #fff;">${getPrintTemplate(title, content, isLandscape)}</div>`;
-            pdfContainer.style.visibility = 'visible';            
+            
             setTimeout(() => {
                 const element = pdfContainer.firstElementChild;
                 const opt = { 
@@ -2335,16 +2333,6 @@
             }, 600);
         } catch (e) { isPrinting = false; }
     }
-
-
-
-
-
-
-
-
-
-
 
 
 

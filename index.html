@@ -901,7 +901,7 @@
 <div id="detailsModal" class="fixed inset-0 bg-black/80 hidden z-[100] flex items-center justify-center p-4 no-print">
     <div class="bg-white rounded-xl w-full max-w-xl p-0 h-[80vh] flex flex-col shadow-2xl overflow-hidden md:max-w-2xl relative">
         <div class="flex justify-between items-center p-3 border-b bg-gray-50">
-            <h3 id="detailsTitle" class="font-bold text-sm text-gray-800 md:text-lg"></h3>
+            <h3 id="detailsTitle" class="font-bold text-xs md:text-sm text-gray-900 leading-snug flex-1 pl-2 text-right whitespace-normal break-words"></h3>
             <div class="flex items-center gap-2">
                 <button onclick="printContent('detailsTableArea', document.getElementById('detailsTitle').innerText)" class="bg-gray-800 text-white px-2 py-1 rounded text-[10px] md:text-sm border border-gray-900">🖨️ طباعة</button>
                 <button onclick="pdfContent('detailsTableArea', document.getElementById('detailsTitle').innerText)" class="bg-red-700 text-white px-2 py-1 rounded text-[10px] md:text-sm border border-red-900">PDF</button>
@@ -1570,24 +1570,25 @@
 
 
 
-    function getPrintTemplate(title, content) {
+    function getPrintTemplate(title, content, isLandscape = false) {
         const todayPrintDate = new Date().toLocaleDateString('ar-EG');
         return `
             <style>
                 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
+                @page { size: A4 ${isLandscape ? 'landscape' : 'portrait'}; margin: 8mm; }
                 body { font-family: 'Cairo', sans-serif; direction: rtl; }
-                .print-page { width: 100%; max-width: 100%; margin: 0 auto; padding: 20px; background: white; color: #000; }
-                .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #1e3a8a; padding-bottom: 15px; margin-bottom: 20px; }
-                .print-meta-area { text-align: left; font-size: 9pt; color: #555; }
-                .print-title-area { text-align: center; flex: 1; }
-                .print-title-area h1 { font-size: 22pt; font-weight: 900; margin: 0; color: #1e3a8a; }
-                .print-title-area h2 { font-size: 14pt; font-weight: 800; margin: 5px 0 0 0; color: #dc2626; border-bottom: 1px solid #ddd; padding-bottom: 5px; display: inline-block; }
-                .print-logo-area { font-size: 40px; }
-                table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 11pt; table-layout: fixed; page-break-inside: auto; }
+                .print-page { width: 100%; max-width: 100%; margin: 0 auto; padding: 10px; background: white; color: #000; }
+                .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; margin-bottom: 15px; }
+                .print-meta-area { text-align: left; font-size: 8pt; color: #555; }
+                .print-title-area { text-align: center; flex: 1; padding: 0 10px; }
+                .print-title-area h1 { font-size: 20pt; font-weight: 900; margin: 0; color: #1e3a8a; }
+                .print-title-area h2 { font-size: 12pt; font-weight: 800; margin: 3px 0 0 0; color: #dc2626; border-bottom: 1px solid #ddd; padding-bottom: 3px; display: inline-block; white-space: normal; line-height: 1.3; }
+                .print-logo-area { font-size: 30px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 9pt; table-layout: fixed; page-break-inside: auto; }
                 tr { page-break-inside: avoid; page-break-after: auto; }
                 thead { display: table-header-group; }
-                th { background-color: #1e3a8a !important; color: #fff !important; font-weight: 900; border: 1px solid #000; padding: 8px; text-align: center; -webkit-print-color-adjust: exact; }
-                td { border: 1px solid #000; padding: 8px; text-align: center; vertical-align: middle; }
+                th { background-color: #1e3a8a !important; color: #fff !important; font-weight: 900; border: 1px solid #000; padding: 6px 4px; text-align: center; -webkit-print-color-adjust: exact; }
+                td { border: 1px solid #000; padding: 5px 4px; text-align: center; vertical-align: middle; word-wrap: break-words; }
                 .print-student-card { border: 4px double #1e3a8a !important; border-radius: 15px; padding: 20px; width: 350px; margin: 20px auto; text-align: center; page-break-inside: avoid; background: #fff; }
                 .print-card-title { font-size: 16pt; font-weight: bold; margin-bottom: 10px; color: #dc2626; }
                 .print-card-name { font-size: 20pt; font-weight: 900; margin: 10px 0; border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; color: #000; }
@@ -1602,23 +1603,21 @@
                 <div class="print-header">
                     <div class="print-meta-area"><div>تاريخ الطباعة: ${todayPrintDate}</div><div>YLY System</div></div>
                     <div class="print-title-area"><h1>YLY Leaders</h1><h2>${title}</h2></div>
-                    <div class="print-logo-area"><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" style="width:50px; height:50px; object-fit:contain;"></div>
+                    <div class="print-logo-area"><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" style="width:45px; height:45px; object-fit:contain;"></div>
                 </div>
                 <div class="print-body">${content}</div>
             </div>`;
     }
 
 
-
-
-    window.printHTML = async function(title, content) {
+    window.printHTML = async function(title, content, isLandscape = false) {
         if(isPrinting) return;
         isPrinting = true;
         showToast('جاري تحضير الطباعة...', 'success');
         try {
             const printContainer = document.getElementById('print-container');
             printContainer.innerHTML = '';
-            printContainer.innerHTML = getPrintTemplate(title, content);
+            printContainer.innerHTML = getPrintTemplate(title, content, isLandscape);
             await new Promise(resolve => setTimeout(resolve, 300));
             window.print();
             setTimeout(() => { printContainer.innerHTML = ''; }, 1000);
@@ -1626,21 +1625,29 @@
     };
 
 
-
-
-    window.savePDF = function(title, content) {
+    window.savePDF = function(title, content, isLandscape = false) {
         if(isPrinting) return;
         isPrinting = true;
         showToast('جاري إنشاء PDF...', 'success');
         const pdfContainer = document.getElementById('pdf-generator-container');
         try {
             pdfContainer.style.direction = 'ltr';
-            pdfContainer.innerHTML = `<div style="direction: rtl; width: 100%; margin: 0 auto;">${getPrintTemplate(title, content)}</div>`;
+            pdfContainer.innerHTML = `<div style="direction: rtl; width: 100%; margin: 0 auto;">${getPrintTemplate(title, content, isLandscape)}</div>`;
             pdfContainer.style.visibility = 'visible';
             setTimeout(() => {
                 const element = pdfContainer.firstElementChild;
-                const opt = { margin: [10, 10, 10, 10], filename: `${title}_${new Date().toLocaleDateString('en-CA')}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, logging: false }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-                html2pdf().set(opt).from(element).save().then(() => { pdfContainer.style.visibility = 'hidden'; pdfContainer.innerHTML = ''; isPrinting = false; }).catch(err => { showToast('فشل الحفظ', 'error'); isPrinting = false; });
+                const opt = { 
+                    margin: [8, 8, 8, 8], 
+                    filename: `${title}_${new Date().toLocaleDateString('en-CA')}.pdf`, 
+                    image: { type: 'jpeg', quality: 0.98 }, 
+                    html2canvas: { scale: 2, useCORS: true, logging: false }, 
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: isLandscape ? 'landscape' : 'portrait' } 
+                };
+                html2pdf().set(opt).from(element).save().then(() => { 
+                    pdfContainer.style.visibility = 'hidden'; 
+                    pdfContainer.innerHTML = ''; 
+                    isPrinting = false; 
+                }).catch(err => { showToast('فشل الحفظ', 'error'); isPrinting = false; });
             }, 500);
         } catch (e) { isPrinting = false; }
     }
@@ -2546,35 +2553,124 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
 
 
 
-    // توليد تقارير سريعة ومستقلة مباشرة من البيانات لضمان أقصى كفاءة للأعداد الكبيرة
+    let reportCurrentPage = 1;
+    const reportItemsPerPage = 10;
+
+
+    function renderReportCombinedTable() {
+        const category = document.getElementById('reportCategory').value;
+        const resDiv = document.getElementById('reportResult');
+        const stage = document.getElementById('reportStage').value;
+        const type = document.getElementById('reportType').value;
+        const dateInput = document.getElementById('reportDate').value;
+        const monthInput = document.getElementById('reportMonth').value;
+        const dateLabel = type === 'daily' ? `يومي بتاريخ (${dateInput || today})` : `شهري لشهر (${monthInput || today.substring(0,7)})`;
+
+
+        let html = `<h4 class="font-bold text-center border-b pb-2 mb-2 text-blue-900">تقرير ${dateLabel} - لجنة (${stageMap[stage] || 'كل اللجان'})</h4>`;
+
+
+        if (category === 'combined') {
+            const totalMembers = currentReportData.combined.length;
+            const totalPages = Math.ceil(totalMembers / reportItemsPerPage) || 1;
+            if (reportCurrentPage > totalPages) reportCurrentPage = totalPages;
+            if (reportCurrentPage < 1) reportCurrentPage = 1;
+
+
+            const start = (reportCurrentPage - 1) * reportItemsPerPage;
+            const end = start + reportItemsPerPage;
+            const pageItems = currentReportData.combined.slice(start, end);
+
+
+            html += `
+                <div class="overflow-x-auto">
+                    <table class="w-full text-[10px] text-center border custom-table mb-2">
+                        <thead class="bg-blue-900 text-white">
+                            <tr>
+                                <th>م</th>
+                                <th>الاسم</th>
+                                <th>اللجنة</th>
+                                <th>النقاط</th>
+                                <th>حضور</th>
+                                <th>غياب</th>
+                                <th>تواريخ الحضور</th>
+                                <th>تواريخ الغياب</th>
+                            </tr>
+                        </thead>
+                        <tbody>${pageItems.map((c, i) => `
+                            <tr>
+                                <td>${start + i + 1}</td>
+                                <td class="font-bold">${c.name}</td>
+                                <td>${stageMap[c.level]||c.level}</td>
+                                <td class="text-blue-700 font-bold">${c.totalPoints}</td>
+                                <td class="text-green-600 font-bold">${c.presentCount}</td>
+                                <td class="text-red-600 font-bold">${c.absentCount}</td>
+                                <td class="text-[9px] text-green-700 align-top" style="line-height: 1.6;">${c.presentDates.join('<br>') || 'لا يوجد'}</td>
+                                <td class="text-[9px] text-red-700 align-top" style="line-height: 1.6;">${c.absentDates.join('<br>') || 'لا يوجد'}</td>
+                            </tr>`).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="flex justify-between items-center my-2 px-1 border-t pt-2">
+                    <button onclick="prevReportPage()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded text-[10px]">➡️ السابق</button>
+                    <span class="text-[10px] font-bold text-gray-700">صفحة ${reportCurrentPage} من ${totalPages} (إجمالي ${totalMembers} عضو)</span>
+                    <button onclick="nextReportPage()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded text-[10px]">التالي ⬅️</button>
+                </div>
+                <div class="grid grid-cols-3 gap-2 mt-2">
+                    <button onclick="exportCombinedExcel()" class="bg-green-700 text-white py-1.5 rounded font-bold shadow text-[10px] md:text-sm flex items-center justify-center gap-1">📊 Excel</button>
+                    <button onclick="pdfCombinedReport()" class="bg-red-700 text-white py-1.5 rounded font-bold shadow text-[10px] md:text-sm flex items-center justify-center gap-1">📄 PDF (أفقي)</button>
+                    <button onclick="printCombinedReport()" class="bg-gray-800 text-white py-1.5 rounded font-bold shadow text-[10px] md:text-sm flex items-center justify-center gap-1">🖨️ طباعة (أفقي)</button>
+                </div>`;
+        } else if (category === 'attendance') {
+            html += `
+                <div class="grid grid-cols-2 gap-2 text-center mb-2">
+                    <div onclick='openReportDetails("present")' class="bg-green-100 p-2 rounded cursor-pointer hover:bg-green-200">
+                        <div class="text-xs font-bold">الحضور (${currentReportData.present.length} عضو)</div>
+                    </div>
+                    <div onclick='openReportDetails("absent")' class="bg-red-100 p-2 rounded cursor-pointer hover:bg-red-200">
+                        <div class="text-xs font-bold">الغياب (${currentReportData.absent.length} عضو)</div>
+                    </div>
+                </div>
+                <button onclick="exportAttendanceReportExcel()" class="w-full bg-green-700 text-white py-1.5 rounded font-bold shadow text-[10px] md:text-sm">📥 تصدير تقرير الحضور والغياب (Excel)</button>`;
+        } else {
+            html += `
+                <div onclick='openReportDetails("points")' class="bg-blue-50 p-3 rounded border border-blue-200 cursor-pointer hover:bg-blue-100 text-center mb-2">
+                    <span class="text-xs text-gray-500 block">إجمالي النقاط الممنوحة</span>
+                    <span class="font-bold text-blue-700 text-xl">${currentReportData.points.reduce((sum, p) => sum + p.amount, 0)} نقطة</span>
+                    <br><span class="text-[9px] text-gray-400">اضغط للتفاصيل</span>
+                </div>
+                <button onclick="exportPointsReportExcel()" class="w-full bg-green-700 text-white py-1.5 rounded font-bold shadow text-[10px] md:text-sm">📥 تصدير تقرير النقاط والمهام (Excel)</button>`;
+        }
+
+
+        resDiv.innerHTML = html;
+        resDiv.classList.remove('hidden');
+    }
+
+
+    window.nextReportPage = function() { reportCurrentPage++; renderReportCombinedTable(); }
+    window.prevReportPage = function() { reportCurrentPage--; renderReportCombinedTable(); }
+
+
     async function generateAdvancedReport() {
         const type = document.getElementById('reportType').value;
         const stage = document.getElementById('reportStage').value;
         const dateInput = document.getElementById('reportDate').value;
         const monthInput = document.getElementById('reportMonth').value;
-        const category = document.getElementById('reportCategory').value;
-        const resDiv = document.getElementById('reportResult');
-
-
 
 
         currentReportData = { present: [], absent: [], points: [], combined: [] };
-
-
+        reportCurrentPage = 1;
 
 
         let targetMembers = window.members;
         if(stage !== 'all') targetMembers = window.members.filter(s => s.level === stage);
 
 
-
-
         let datesArray = [];
-        let dateLabel = '';
         if(type === 'daily') {
             if(!dateInput) return showToast('اختر التاريخ', 'error');
             datesArray = [dateInput];
-            dateLabel = `يومي بتاريخ (${dateInput})`;
         } else {
             if(!monthInput) return showToast('اختر الشهر', 'error');
             const [year, month] = monthInput.split('-').map(Number);
@@ -2582,16 +2678,11 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
             for(let i=1; i<=daysInMonth; i++) {
                 datesArray.push(`${year}-${String(month).padStart(2, '0')}-${String(i).padStart(2, '0')}`);
             }
-            dateLabel = `شهري لشهر (${monthInput})`;
         }
-
-
 
 
         let periodAttendance = [];
         let periodAccounting = [];
-
-
 
 
         try {
@@ -2616,14 +2707,10 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
         }
 
 
-
-
         function getStudentReportStatus(member, dateStr) {
             const attendanceRecord = periodAttendance.find(r => r.date === dateStr && r.studentId === member.id);
             const eventRec = periodAttendance.find(r => r.studentId === "EVENT_MARKER" && r.date === dateStr);
             const isExpectedToAttend = eventRec && (!eventRec.levels || eventRec.levels.includes('all') || eventRec.levels.includes(member.level));
-
-
 
 
             if (attendanceRecord) { return { status: 'present', time: attendanceRecord.time }; }
@@ -2632,12 +2719,7 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
         }
 
 
-
-
-        let totalPointsForPeriod = 0;
         let pointsForPeriod = periodAccounting.filter(a => a.category === 'points' && datesArray.includes(a.date));
-
-
 
 
         targetMembers.forEach(member => {
@@ -2646,10 +2728,8 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
             let absentDates = [];
 
 
-
-
             datesArray.forEach(d => {
-                if (d >= member.date && d <= today) {
+                if (d >= (member.date || '2020-01-01') && d <= today) {
                     const statusObj = getStudentReportStatus(member, d);
                     if (statusObj.status === 'present') {
                         presentCount++;
@@ -2660,8 +2740,6 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
                     }
                 }
             });
-
-
 
 
             const memberPoints = pointsForPeriod.filter(p => p.stdId === member.id).reduce((sum, p) => sum + p.amount, 0);
@@ -2677,96 +2755,15 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
             if (presentCount > 0) currentReportData.present.push(memberObj);
             if (absentCount > 0) currentReportData.absent.push(memberObj);
             currentReportData.combined.push(memberObj);
-            
-            totalPointsForPeriod += memberPoints;
         });
 
 
-
-
         currentReportData.points = pointsForPeriod;
-
-
-
-
-        let html = `<h4 class="font-bold text-center border-b pb-2 mb-2 text-blue-900">تقرير ${dateLabel} - لجنة (${stageMap[stage] || 'كل اللجان'})</h4>`;
-
-
-
-
-        if (category === 'combined') {
-            html += `
-                <div class="overflow-x-auto">
-                    <table class="w-full text-[10px] text-center border custom-table mb-2">
-                        <thead class="bg-blue-900 text-white">
-                            <tr>
-                                <th>م</th>
-                                <th>الاسم</th>
-                                <th>اللجنة</th>
-                                <th>النقاط</th>
-                                <th>حضور</th>
-                                <th>غياب</th>
-                                <th>تواريخ الحضور</th>
-                                <th>تواريخ الغياب</th>
-                            </tr>
-                        </thead>
-                        <tbody>${currentReportData.combined.map((c, i) => `
-                            <tr>
-                                <td>${i+1}</td>
-                                <td class="font-bold">${c.name}</td>
-                                <td>${stageMap[c.level]||c.level}</td>
-                                <td class="text-blue-700 font-bold">${c.totalPoints}</td>
-                                <td class="text-green-600 font-bold">${c.presentCount}</td>
-                                <td class="text-red-600 font-bold">${c.absentCount}</td>
-                                <td class="text-[9px] text-green-700 align-top" style="line-height: 1.6;">${c.presentDates.join('<br>') || 'لا يوجد'}</td>
-                                <td class="text-[9px] text-red-700 align-top" style="line-height: 1.6;">${c.absentDates.join('<br>') || 'لا يوجد'}</td>
-                            </tr>`).join('')}
-                        </tbody>
-                    </table>
-                </div>
-                <div class="grid grid-cols-3 gap-2 mt-2">
-    <button onclick="exportCombinedExcel()" class="bg-green-700 text-white py-1.5 rounded font-bold shadow text-[10px] md:text-sm flex items-center justify-center gap-1">📊 Excel</button>
-    <button onclick="pdfCombinedReport()" class="bg-red-700 text-white py-1.5 rounded font-bold shadow text-[10px] md:text-sm flex items-center justify-center gap-1">📄 PDF</button>
-    <button onclick="printCombinedReport()" class="bg-gray-800 text-white py-1.5 rounded font-bold shadow text-[10px] md:text-sm flex items-center justify-center gap-1">🖨️ طباعة</button>
-</div>
-            `;
-        }
-        else if (category === 'attendance') {
-            html += `
-                <div class="grid grid-cols-2 gap-2 text-center mb-2">
-                    <div onclick='openReportDetails("present")' class="bg-green-100 p-2 rounded cursor-pointer hover:bg-green-200">
-                        <div class="text-xs font-bold">الحضور (${currentReportData.present.length} عضو)</div>
-                    </div>
-                    <div onclick='openReportDetails("absent")' class="bg-red-100 p-2 rounded cursor-pointer hover:bg-red-200">
-                        <div class="text-xs font-bold">الغياب (${currentReportData.absent.length} عضو)</div>
-                    </div>
-                </div>
-                <button onclick="exportAttendanceReportExcel()" class="w-full bg-green-700 text-white py-1.5 rounded font-bold shadow text-[10px] md:text-sm">📥 تصدير تقرير الحضور والغياب (Excel)</button>
-            `;
-        } 
-        else {
-            html += `
-                <div onclick='openReportDetails("points")' class="bg-blue-50 p-3 rounded border border-blue-200 cursor-pointer hover:bg-blue-100 text-center mb-2">
-                    <span class="text-xs text-gray-500 block">إجمالي النقاط الممنوحة</span>
-                    <span class="font-bold text-blue-700 text-xl">${totalPointsForPeriod} نقطة</span>
-                    <br><span class="text-[9px] text-gray-400">اضغط للتفاصيل</span>
-                </div>
-                <button onclick="exportPointsReportExcel()" class="w-full bg-green-700 text-white py-1.5 rounded font-bold shadow text-[10px] md:text-sm">📥 تصدير تقرير النقاط والمهام (Excel)</button>
-            `;
-        }
-
-
-
-
-        resDiv.innerHTML = html; resDiv.classList.remove('hidden');
+        renderReportCombinedTable();
     }
 
 
-
-
     window.toggleReportView = function() { if (!document.getElementById('reportResult').classList.contains('hidden')) { generateAdvancedReport(); } }
-
-
 
 
     function getReportTitleHeader(baseTitle) {
@@ -2785,8 +2782,6 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
         const stageText = stageMap[stage] || 'كل اللجان';
         return `${baseTitle} - ${periodText} - ${stageText}`;
     }
-
-
 
 
     window.exportCombinedExcel = function() {
@@ -2808,18 +2803,12 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
         ]);
 
 
-
-
         exportToExcelStyle(headers, rows, titleHeader, "تقرير_شامل_YLY");
     }
 
 
-
-
     window.exportAttendanceReportExcel = function() {
         if(!currentReportData.combined || currentReportData.combined.length === 0) return showToast('لا توجد بيانات للتصدير', 'error');
-
-
 
 
         const titleHeader = getReportTitleHeader("تقرير الحضور والغياب التفصيلي YLY");
@@ -2837,18 +2826,12 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
         ]);
 
 
-
-
         exportToExcelStyle(headers, rows, titleHeader, "تقرير_الحضور_والغياب_YLY");
     }
 
 
-
-
     window.exportPointsReportExcel = function() {
         if(!currentReportData.points || currentReportData.points.length === 0) return showToast('لا توجد بيانات للتصدير', 'error');
-
-
 
 
         const titleHeader = getReportTitleHeader("تقرير النقاط والمهام YLY");
@@ -2864,42 +2847,44 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
         ]);
 
 
-
-
         exportToExcelStyle(headers, rows, titleHeader, "تقرير_النقاط_والمهام_YLY");
     }
 
 
-window.printCombinedReport = function() {
+    window.printCombinedReport = function() {
         if(!currentReportData.combined || currentReportData.combined.length === 0) return showToast('لا توجد بيانات للطباعة', 'error');
         const title = getReportTitleHeader("التقرير الشامل");
         let rows = currentReportData.combined.map((c, i) => `
             <tr>
-                <td style="width:30px;">${i+1}</td>
-                <td style="width:70px;">${c.id}</td>
+                <td style="width:25px;">${i+1}</td>
+                <td style="width:50px;">${c.id}</td>
                 <td style="font-weight:bold;">${c.name}</td>
-                <td>${stageMap[c.level]||c.level}</td>
-                <td style="color:blue; font-weight:bold;">${c.totalPoints}</td>
-                <td style="color:green; font-weight:bold;">${c.presentCount}</td>
-                <td style="color:red; font-weight:bold;">${c.absentCount}</td>
+                <td style="width:90px;">${stageMap[c.level]||c.level}</td>
+                <td style="color:blue; font-weight:bold; width:45px;">${c.totalPoints}</td>
+                <td style="color:green; font-weight:bold; width:40px;">${c.presentCount}</td>
+                <td style="color:red; font-weight:bold; width:40px;">${c.absentCount}</td>
+                <td style="font-size:8pt; color:green; text-align:right;">${c.presentDates.join(', ') || 'لا يوجد'}</td>
+                <td style="font-size:8pt; color:red; text-align:right;">${c.absentDates.join(', ') || 'لا يوجد'}</td>
             </tr>
         `).join('');
         const content = `
             <table class="print-table">
                 <thead>
                     <tr>
-                        <th>م</th>
-                        <th>الكود</th>
+                        <th style="width:25px;">م</th>
+                        <th style="width:50px;">الكود</th>
                         <th>الاسم</th>
-                        <th>اللجنة</th>
-                        <th>النقاط</th>
-                        <th>حضور</th>
-                        <th>غياب</th>
+                        <th style="width:90px;">اللجنة</th>
+                        <th style="width:45px;">النقاط</th>
+                        <th style="width:40px;">حضور</th>
+                        <th style="width:40px;">غياب</th>
+                        <th>تواريخ الحضور</th>
+                        <th>تواريخ الغياب</th>
                     </tr>
                 </thead>
                 <tbody>${rows}</tbody>
             </table>`;
-        printHTML(title, content);
+        printHTML(title, content, true);
     }
 
 
@@ -2908,31 +2893,35 @@ window.printCombinedReport = function() {
         const title = getReportTitleHeader("التقرير الشامل");
         let rows = currentReportData.combined.map((c, i) => `
             <tr>
-                <td style="width:30px;">${i+1}</td>
-                <td style="width:70px;">${c.id}</td>
+                <td style="width:25px;">${i+1}</td>
+                <td style="width:50px;">${c.id}</td>
                 <td style="font-weight:bold;">${c.name}</td>
-                <td>${stageMap[c.level]||c.level}</td>
-                <td style="color:blue; font-weight:bold;">${c.totalPoints}</td>
-                <td style="color:green; font-weight:bold;">${c.presentCount}</td>
-                <td style="color:red; font-weight:bold;">${c.absentCount}</td>
+                <td style="width:90px;">${stageMap[c.level]||c.level}</td>
+                <td style="color:blue; font-weight:bold; width:45px;">${c.totalPoints}</td>
+                <td style="color:green; font-weight:bold; width:40px;">${c.presentCount}</td>
+                <td style="color:red; font-weight:bold; width:40px;">${c.absentCount}</td>
+                <td style="font-size:8pt; color:green; text-align:right;">${c.presentDates.join(', ') || 'لا يوجد'}</td>
+                <td style="font-size:8pt; color:red; text-align:right;">${c.absentDates.join(', ') || 'لا يوجد'}</td>
             </tr>
         `).join('');
         const content = `
             <table class="print-table">
                 <thead>
                     <tr>
-                        <th>م</th>
-                        <th>الكود</th>
+                        <th style="width:25px;">م</th>
+                        <th style="width:50px;">الكود</th>
                         <th>الاسم</th>
-                        <th>اللجنة</th>
-                        <th>النقاط</th>
-                        <th>حضور</th>
-                        <th>غياب</th>
+                        <th style="width:90px;">اللجنة</th>
+                        <th style="width:45px;">النقاط</th>
+                        <th style="width:40px;">حضور</th>
+                        <th style="width:40px;">غياب</th>
+                        <th>تواريخ الحضور</th>
+                        <th>تواريخ الغياب</th>
                     </tr>
                 </thead>
                 <tbody>${rows}</tbody>
             </table>`;
-        savePDF(title, content);
+        savePDF(title, content, true);
     }
 
 

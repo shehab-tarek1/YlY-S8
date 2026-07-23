@@ -193,7 +193,7 @@
         <div id="loginForm">
             <div class="input-wrapper mb-2">
                 <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                <input type="text" id="loginCode" class="login-input" placeholder="البريد الإلكتروني للقيادة (Email)">
+                <input type="text" id="loginCode" class="login-input" placeholder="البريد الإلكتروني للادارة ">
             </div>
             <div class="input-wrapper mb-3">
                 <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
@@ -396,7 +396,7 @@
                             <input type="text" id="studentListFilterDisplay" readonly value="الكل" class="text-[10px] px-2 h-8 w-16 md:w-20 text-center font-bold text-gray-800 bg-white border border-gray-400 rounded cursor-pointer" onclick="toggleCustomDropdown(event, 'studentListFilterMenu')">
                             <input type="hidden" id="studentListFilter" value="all">
                             <div id="studentListFilterMenu" class="dropdown-menu hide absolute top-full right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] min-w-[100px] overflow-hidden text-right">
-                                <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('studentListFilter', 'studentListFilterDisplay', 'studentListFilterMenu', 'all', 'الكل', renderStudents)">الكل</div>
+                                <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('studentListFilter', 'studentListFilterDisplay', 'studentListFilterMenu', 'all',  'الكل', renderStudents)">كل اللجان</div>
                                 <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('studentListFilter', 'studentListFilterDisplay', 'studentListFilterMenu', 'HR', 'HR', renderStudents)">HR</div>
                                 <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('studentListFilter', 'studentListFilterDisplay', 'studentListFilterMenu', 'PR', 'PR', renderStudents)">PR</div>
                                 <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('studentListFilter', 'studentListFilterDisplay', 'studentListFilterMenu', 'OR', 'OR', renderStudents)">OR</div>
@@ -492,7 +492,7 @@
 
                 <div class="flex flex-col items-center gap-2 mt-5 border-t border-gray-200 pt-5 no-print">
                     <button onclick="confirmEventDay()" class="w-64 bg-blue-700 text-white py-2 rounded font-bold text-[11px] shadow-sm hover:bg-blue-800 flex justify-center items-center gap-2">✅ تفعيل يوم حضور للجنة المحددة</button>
-                    <button onclick="cancelEventDay()" class="w-64 bg-gray-500 text-white py-2 rounded font-bold text-[11px] shadow-sm hover:bg-gray-600 flex justify-center items-center gap-2">❌ إلغاء تفعيل اليوم</button>
+                    <button onclick="cancelEventDay()" class="w-64 bg-gray-500 text-white py-2 rounded font-bold text-[11px] shadow-sm hover:bg-gray-600 flex justify-center items-center gap-2"> إلغاء تفعيل اليوم</button>
                 </div>
             </div>
         </section>
@@ -601,7 +601,7 @@
                         <input type="text" id="searchStageDisplay" readonly value="الكل" class="w-full p-1 bg-white text-[10px] md:text-sm md:p-2 text-center font-bold border rounded cursor-pointer" onclick="toggleCustomDropdown(event, 'searchStageMenu')">
                         <input type="hidden" id="searchStage" value="all">
                         <div id="searchStageMenu" class="dropdown-menu hide absolute top-full right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] w-full overflow-hidden text-right">
-                            <div class="p-1.5 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('searchStage', 'searchStageDisplay', 'searchStageMenu', 'all', 'الكل')">الكل</div>
+                            <div class="p-1.5 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('searchStage', 'searchStageDisplay', 'searchStageMenu', 'all', 'الكل')">كل الاعضاء</div>
                             <div class="p-1.5 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('searchStage', 'searchStageDisplay', 'searchStageMenu', 'HR', 'HR')">HR</div>
                             <div class="p-1.5 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('searchStage', 'searchStageDisplay', 'searchStageMenu', 'PR', 'PR')">PR</div>
                             <div class="p-1.5 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('searchStage', 'searchStageDisplay', 'searchStageMenu', 'OR', 'OR')">OR</div>

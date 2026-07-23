@@ -125,10 +125,10 @@
 
 
 
-        .custom-table { width: 100%; border-collapse: collapse; font-size: 10px; table-layout: fixed; border: 1px solid #374151; }
+        .custom-table { width: 100%; border-collapse: collapse; font-size: 10px; border: 1px solid #374151; word-wrap: break-word; }
         @media (min-width: 768px) { .custom-table { font-size: 12px; } }
         .custom-table thead { background-color: #1e3a8a; color: white; font-weight: 800; border-bottom: 2px solid #000; }
-        .custom-table th, .custom-table td { padding: 4px; border: 1px solid #e5e7eb; text-align: center; vertical-align: middle; line-height: 1.3; }
+        .custom-table th, .custom-table td { padding: 5px 3px; border: 1px solid #e5e7eb; text-align: center; vertical-align: middle; line-height: 1.3; }
         .custom-table thead th { color: white !important; }
         .col-code { width: 45px; font-family: monospace; font-weight: bold; }
         .custom-table tbody td.col-code { color: #000; }
@@ -136,8 +136,6 @@
         .custom-table tbody td.col-date { color: #4b5563; }
         .col-index { width: 25px; color: #6b7280; }
         .col-action { width: 45px; min-width: 45px; } 
-
-
 
 
         #loadingOverlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(15px); z-index: 999999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; transition: opacity 0.3s ease; }
@@ -150,22 +148,16 @@
         .login-tab.active { color: #1e3a8a; border-bottom-color: #1e3a8a; background: #f3f4f6; border-radius: 5px 5px 0 0; }
 
 
-
-
         .std-dash-card { background: white; border-radius: 10px; padding: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #d1d5db; }
         .std-info-row { display: flex; justify-content: space-between; border-bottom: 1px solid #f3f4f6; padding: 6px 0; font-size: 11px; }
         .std-info-label { color: #4b5563; font-weight: 600; }
         .std-info-val { color: #111827; font-weight: 700; }
 
 
-
-
         #customAlertModal, #paymentConfirmModal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200000; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(2px); }
         .alert-card { background: white; border-radius: 12px; padding: 20px; width: 100%; max-width: 300px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border-top: 5px solid #1e3a8a; }
         .alert-icon { font-size: 35px; margin-bottom: 8px; display: block; }
         .alert-btn { background: #1e3a8a; color: white; padding: 8px 20px; border-radius: 6px; font-weight: bold; margin-top: 15px; width: 100%; border: 1px solid #000; }
-
-
 
 
         .unified-card { border: 4px double #1e3a8a; border-radius: 15px; padding: 20px; width: 100%; max-width: 350px; margin: 0 auto 15px auto; text-align: center; background: #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
@@ -175,26 +167,18 @@
         .unified-card-footer { margin-top: 15px; font-size: 9pt; color: #6b7280; font-weight: bold; border-top: 1px solid #1e3a8a; padding-top: 5px; }
 
 
-
-
         .close-btn-modern { width: 28px; height: 28px; background-color: #ef4444; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.1s; flex-shrink: 0; margin-right: 10px; }
         .close-btn-modern:active { transform: scale(0.9); }
 
 
-
-
         #print-container { position: fixed; top: 0; left: 0; width: 100%; height: 0px; overflow: hidden; z-index: -1; background: white; visibility: hidden; }
         @media print {
-            body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background: white !important; width: 100% !important; height: 100% !important; }
-            body > *:not(#print-container):not(#appContent):not(.fixed) { display: none !important; }
-            body:has(#print-container:not(:empty)) > #appContent, body:has(#print-container:not(:empty)) > .fixed { display: none !important; }
-            body:has(#print-container:not(:empty)) #print-container { display: block !important; position: absolute; top: 0; left: 0; width: 100%; height: auto !important; overflow: visible !important; z-index: 9999999; visibility: visible !important; }
-            body:not(:has(#print-container:not(:empty))):has(.fixed:not(.hidden)) #appContent { display: none !important; }
-            @page { size: A4; margin: 10mm; }
+            body { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; background: white !important; }
+            body.is-printing #appContent, body.is-printing .fixed, body.is-printing header, body.is-printing main { display: none !important; }
+            body.is-printing #print-container { display: block !important; position: absolute; top: 0; left: 0; width: 100%; height: auto !important; overflow: visible !important; z-index: 9999999; visibility: visible !important; }
+            @page { size: A4; margin: 8mm; }
             .no-print { display: none !important; }
-        }
-
-
+        } 
 
 
         .dropdown-menu { transform-origin: top center; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
@@ -1931,39 +1915,11 @@
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // إصلاح أمني وهندسي شامل لدخول الطلاب دون الاعتماد على مصفوفة الأعضاء بالذاكرة
-    window.handleLogin = async function() { 
+  window.handleLogin = async function() { 
         const code = document.getElementById('loginCode').value.trim(); 
         const pass = document.getElementById('loginPass').value.trim(); 
         const errorMsg = document.getElementById('loginError'); 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        const loginBtn = document.querySelector('.login-btn');
 
 
         if(!code || !pass) {
@@ -1973,18 +1929,21 @@
         }
 
 
+        errorMsg.classList.add('hidden');
+        if (loginBtn) {
+            loginBtn.innerText = "جاري تسجيل الدخول...";
+            loginBtn.disabled = true;
+            loginBtn.style.opacity = "0.7";
+        }
 
 
-
-
-
-
-
-
-
-
-
-
+        const resetLoginBtn = () => {
+            if (loginBtn) {
+                loginBtn.innerText = "تسجيل الدخول";
+                loginBtn.disabled = false;
+                loginBtn.style.opacity = "1";
+            }
+        };
 
 
         if (loginMode === 'admin') { 
@@ -1996,6 +1955,7 @@
                 localStorage.removeItem('loginMode');
                 errorMsg.innerText = "بيانات الدخول غير صحيحة أو لا تملك صلاحية";
                 errorMsg.classList.remove('hidden');
+                resetLoginBtn();
             }
         } else { 
             try {
@@ -2005,7 +1965,6 @@
                 proceedLogin('student');
             } catch (error) {
                 try {
-                    // استعلام مباشر من قاعدة البيانات بخصوص العضو
                     const q = window.query(window.collection(window.db, "members"), window.where("id", "==", code), window.where("password", "==", pass));
                     const snap = await window.getDocs(q);
                     if (!snap.empty) {
@@ -2020,28 +1979,16 @@
                     } else {
                         errorMsg.innerText = "كود العضو أو كلمة المرور غير صحيحة";
                         errorMsg.classList.remove('hidden');
+                        resetLoginBtn();
                     }
                 } catch(err) {
                     errorMsg.innerText = "حدث خطأ أثناء الاتصال بقاعدة البيانات";
                     errorMsg.classList.remove('hidden');
+                    resetLoginBtn();
                 }
             }
         } 
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     function proceedLogin(mode) {
@@ -2330,29 +2277,26 @@
     }
 
 
-
-
-
-
-
-
-    window.printHTML = async function(title, content, isLandscape = false) {
+  window.printHTML = async function(title, content, isLandscape = false) {
         if(isPrinting) return;
         isPrinting = true;
         showToast('جاري تحضير الطباعة...', 'success');
         try {
+            document.body.classList.add('is-printing');
             const printContainer = document.getElementById('print-container');
             printContainer.innerHTML = '';
             printContainer.innerHTML = getPrintTemplate(title, content, isLandscape);
             await new Promise(resolve => setTimeout(resolve, 300));
             window.print();
-            setTimeout(() => { printContainer.innerHTML = ''; }, 1000);
-        } catch (e) { showToast('حدث خطأ أثناء الطباعة', 'error'); } finally { isPrinting = false; }
+            setTimeout(() => { 
+                printContainer.innerHTML = ''; 
+                document.body.classList.remove('is-printing');
+            }, 1000);
+        } catch (e) { 
+            document.body.classList.remove('is-printing');
+            showToast('حدث خطأ أثناء الطباعة', 'error'); 
+        } finally { isPrinting = false; }
     };
-
-
-
-
 
 
 
@@ -4096,13 +4040,7 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
     const reportItemsPerPage = 10;
 
 
-
-
-
-
-
-
-    function renderReportCombinedTable() {
+   function renderReportCombinedTable() {
         const category = document.getElementById('reportCategory').value;
         const resDiv = document.getElementById('reportResult');
         const stage = document.getElementById('reportStage').value;
@@ -4125,33 +4063,36 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
             const start = (reportCurrentPage - 1) * reportItemsPerPage;
             const end = start + reportItemsPerPage;
             const pageItems = currentReportData.combined.slice(start, end);
+            const isDaily = type === 'daily';
 
 
             html += `
-                <div class="overflow-x-auto">
-                    <table class="w-full text-[10px] text-center border custom-table mb-2">
+                <div class="overflow-x-auto rounded border border-gray-300 shadow-sm">
+                    <table class="custom-table w-full text-[10px] text-center">
                         <thead class="bg-blue-900 text-white">
                             <tr>
-                                <th>م</th>
+                                <th style="width:28px;">م</th>
                                 <th>الاسم</th>
-                                <th>اللجنة</th>
-                                <th>النقاط</th>
-                                <th>حضور</th>
-                                <th>غياب</th>
-                                <th>تواريخ الحضور</th>
-                                <th>تواريخ الغياب</th>
+                                <th style="width:85px;">اللجنة</th>
+                                <th style="width:45px;">النقاط</th>
+                                ${isDaily ? `<th style="width:55px;">الحالة</th><th style="width:80px;">وقت الحضور</th>` : `<th style="width:40px;">حضور</th><th style="width:40px;">غياب</th><th style="width:95px;">تواريخ الحضور</th><th style="width:95px;">تواريخ الغياب</th>`}
                             </tr>
                         </thead>
                         <tbody>${pageItems.map((c, i) => `
-                            <tr>
+                            <tr class="hover:bg-blue-50/50">
                                 <td>${start + i + 1}</td>
-                                <td class="font-bold">${c.name}</td>
+                                <td class="font-bold text-gray-900 text-right pr-2">${c.name}</td>
                                 <td>${stageMap[c.level]||c.level}</td>
                                 <td class="text-blue-700 font-bold">${c.totalPoints}</td>
-                                <td class="text-green-600 font-bold">${c.presentCount}</td>
-                                <td class="text-red-600 font-bold">${c.absentCount}</td>
-                                <td class="text-[9px] text-green-700 align-top" style="line-height: 1.6;">${c.presentDates.join('<br>') || 'لا يوجد'}</td>
-                                <td class="text-[9px] text-red-700 align-top" style="line-height: 1.6;">${c.absentDates.join('<br>') || 'لا يوجد'}</td>
+                                ${isDaily ? `
+                                    <td class="font-bold ${c.presentCount > 0 ? 'text-green-600' : 'text-red-600'}">${c.presentCount > 0 ? 'حاضر' : 'غائب'}</td>
+                                    <td class="text-gray-600 font-mono text-[9px]">${c.presentCount > 0 ? (c.presentTime || '-') : '-'}</td>
+                                ` : `
+                                    <td class="text-green-600 font-bold">${c.presentCount}</td>
+                                    <td class="text-red-600 font-bold">${c.absentCount}</td>
+                                    <td class="text-[9px] text-green-700 align-top" style="line-height: 1.5; width:95px;">${c.presentDates.join('<br>') || 'لا يوجد'}</td>
+                                    <td class="text-[9px] text-red-700 align-top" style="line-height: 1.5; width:95px;">${c.absentDates.join('<br>') || 'لا يوجد'}</td>
+                                `}
                             </tr>`).join('')}
                         </tbody>
                     </table>
@@ -4163,8 +4104,8 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
                 </div>
                 <div class="grid grid-cols-3 gap-2 mt-2">
                     <button onclick="exportCombinedExcel()" class="bg-green-700 text-white py-1.5 rounded font-bold shadow text-[10px] md:text-sm flex items-center justify-center gap-1">📊 Excel</button>
-                    <button onclick="pdfCombinedReport()" class="bg-red-700 text-white py-1.5 rounded font-bold shadow text-[10px] md:text-sm flex items-center justify-center gap-1">📄 PDF (أفقي)</button>
-                    <button onclick="printCombinedReport()" class="bg-gray-800 text-white py-1.5 rounded font-bold shadow text-[10px] md:text-sm flex items-center justify-center gap-1">🖨️ طباعة (أفقي)</button>
+                    <button onclick="pdfCombinedReport()" class="bg-red-700 text-white py-1.5 rounded font-bold shadow text-[10px] md:text-sm flex items-center justify-center gap-1">📄 PDF</button>
+                    <button onclick="printCombinedReport()" class="bg-gray-800 text-white py-1.5 rounded font-bold shadow text-[10px] md:text-sm flex items-center justify-center gap-1">🖨️ طباعة</button>
                 </div>`;
         } else if (category === 'attendance') {
             html += `
@@ -4238,25 +4179,35 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
         let periodAccounting = [];
 
 
-        try {
-            if (type === 'daily') {
-                const attQ = window.query(window.collection(window.db, "attendance"), window.where("date", "==", dateInput));
-                const accQ = window.query(window.collection(window.db, "accounting"), window.where("date", "==", dateInput));
-                const [attSnap, accSnap] = await Promise.all([window.getDocs(attQ), window.getDocs(accQ)]);
-                attSnap.forEach(doc => periodAttendance.push({ ...doc.data(), docId: doc.id }));
-                accSnap.forEach(doc => periodAccounting.push({ ...doc.data(), docId: doc.id }));
-            } else {
-                const startDate = datesArray[0];
-                const endDate = datesArray[datesArray.length - 1];
-                const attQ = window.query(window.collection(window.db, "attendance"), window.where("date", ">=", startDate), window.where("date", "<=", endDate));
-                const accQ = window.query(window.collection(window.db, "accounting"), window.where("date", ">=", startDate), window.where("date", "<=", endDate));
-                const [attSnap, accSnap] = await Promise.all([window.getDocs(attQ), window.getDocs(accQ)]);
-                attSnap.forEach(doc => periodAttendance.push({ ...doc.data(), docId: doc.id }));
-                accSnap.forEach(doc => periodAccounting.push({ ...doc.data(), docId: doc.id }));
-            }
-        } catch(err) {
+        // تحسين أداء لحظي الفلترة الذكية من الذاكرة أولاً
+        const sixtyDaysAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        const isWithinMemory = datesArray.every(d => d >= sixtyDaysAgo);
+
+
+        if (isWithinMemory && window.attendance.length > 0) {
             periodAttendance = window.attendance;
             periodAccounting = window.accounting;
+        } else {
+            try {
+                if (type === 'daily') {
+                    const attQ = window.query(window.collection(window.db, "attendance"), window.where("date", "==", dateInput));
+                    const accQ = window.query(window.collection(window.db, "accounting"), window.where("date", "==", dateInput));
+                    const [attSnap, accSnap] = await Promise.all([window.getDocs(attQ), window.getDocs(accQ)]);
+                    attSnap.forEach(doc => periodAttendance.push({ ...doc.data(), docId: doc.id }));
+                    accSnap.forEach(doc => periodAccounting.push({ ...doc.data(), docId: doc.id }));
+                } else {
+                    const startDate = datesArray[0];
+                    const endDate = datesArray[datesArray.length - 1];
+                    const attQ = window.query(window.collection(window.db, "attendance"), window.where("date", ">=", startDate), window.where("date", "<=", endDate));
+                    const accQ = window.query(window.collection(window.db, "accounting"), window.where("date", ">=", startDate), window.where("date", "<=", endDate));
+                    const [attSnap, accSnap] = await Promise.all([window.getDocs(attQ), window.getDocs(accQ)]);
+                    attSnap.forEach(doc => periodAttendance.push({ ...doc.data(), docId: doc.id }));
+                    accSnap.forEach(doc => periodAccounting.push({ ...doc.data(), docId: doc.id }));
+                }
+            } catch(err) {
+                periodAttendance = window.attendance;
+                periodAccounting = window.accounting;
+            }
         }
 
 
@@ -4279,6 +4230,7 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
             let presentCount = 0; let absentCount = 0;
             let presentDates = [];
             let absentDates = [];
+            let presentTime = '-';
 
 
             datesArray.forEach(d => {
@@ -4287,6 +4239,9 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
                     if (statusObj.status === 'present') {
                         presentCount++;
                         presentDates.push(d);
+                        if (type === 'daily' && statusObj.time) {
+                            presentTime = statusObj.time;
+                        }
                     } else if (statusObj.status === 'absent') {
                         absentCount++;
                         absentDates.push(d);
@@ -4302,6 +4257,7 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
                 absentCount,
                 presentDates,
                 absentDates,
+                presentTime,
                 totalPoints: memberPoints
             };
             
@@ -4314,6 +4270,7 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
         currentReportData.points = pointsForPeriod;
         renderReportCombinedTable();
     }
+   
 
 
     window.toggleReportView = function() { if (!document.getElementById('reportResult').classList.contains('hidden')) { generateAdvancedReport(); } }
@@ -4340,20 +4297,41 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
     window.exportCombinedExcel = function() {
         if(!currentReportData.combined || currentReportData.combined.length === 0) return showToast('لا توجد بيانات للتصدير', 'error');
         
+        const type = document.getElementById('reportType').value;
+        const isDaily = type === 'daily';
         const titleHeader = getReportTitleHeader("التقرير الشامل YLY (الحضور والغياب والنقاط)");
-        const headers = ["م", "الكود", "الاسم", "اللجنة", "رقم الهاتف", "النقاط المكتسبة", "أيام الحضور", "أيام الغياب", "تواريخ الحضور", "تواريخ الغياب"];
-        const rows = currentReportData.combined.map((c, i) => [
-            i + 1,
-            c.id,
-            c.name,
-            stageMap[c.level] || c.level,
-            c.ownPhone || c.phone || 'غير مسجل',
-            c.totalPoints,
-            c.presentCount,
-            c.absentCount,
-            c.presentDates.join('\n') || 'لا يوجد',
-            c.absentDates.join('\n') || 'لا يوجد'
-        ]);
+        
+        let headers = [];
+        let rows = [];
+
+
+        if (isDaily) {
+            headers = ["م", "الكود", "الاسم", "اللجنة", "رقم الهاتف", "النقاط المكتسبة", "الحالة", "وقت الحضور"];
+            rows = currentReportData.combined.map((c, i) => [
+                i + 1,
+                c.id,
+                c.name,
+                stageMap[c.level] || c.level,
+                c.ownPhone || c.phone || 'غير مسجل',
+                c.totalPoints,
+                c.presentCount > 0 ? 'حاضر' : 'غائب',
+                c.presentCount > 0 ? (c.presentTime || '-') : '-'
+            ]);
+        } else {
+            headers = ["م", "الكود", "الاسم", "اللجنة", "رقم الهاتف", "النقاط المكتسبة", "أيام الحضور", "أيام الغياب", "تواريخ الحضور", "تواريخ الغياب"];
+            rows = currentReportData.combined.map((c, i) => [
+                i + 1,
+                c.id,
+                c.name,
+                stageMap[c.level] || c.level,
+                c.ownPhone || c.phone || 'غير مسجل',
+                c.totalPoints,
+                c.presentCount,
+                c.absentCount,
+                c.presentDates.join('\n') || 'لا يوجد',
+                c.absentDates.join('\n') || 'لا يوجد'
+            ]);
+        }
 
 
         exportToExcelStyle(headers, rows, titleHeader, "تقرير_شامل_YLY");
@@ -4364,19 +4342,39 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
         if(!currentReportData.combined || currentReportData.combined.length === 0) return showToast('لا توجد بيانات للتصدير', 'error');
 
 
+        const type = document.getElementById('reportType').value;
+        const isDaily = type === 'daily';
         const titleHeader = getReportTitleHeader("تقرير الحضور والغياب التفصيلي YLY");
-        const headers = ["م", "الكود", "الاسم", "اللجنة", "رقم الهاتف", "أيام الحضور", "أيام الغياب", "تواريخ الحضور التفصيلية", "تواريخ الغياب التفصيلية"];
-        const rows = currentReportData.combined.map((c, i) => [
-            i + 1,
-            c.id,
-            c.name,
-            stageMap[c.level] || c.level,
-            c.ownPhone || c.phone || 'غير مسجل',
-            c.presentCount,
-            c.absentCount,
-            c.presentDates.join('\n') || 'لا يوجد',
-            c.absentDates.join('\n') || 'لا يوجد'
-        ]);
+        
+        let headers = [];
+        let rows = [];
+
+
+        if (isDaily) {
+            headers = ["م", "الكود", "الاسم", "اللجنة", "رقم الهاتف", "الحالة", "وقت الحضور"];
+            rows = currentReportData.combined.map((c, i) => [
+                i + 1,
+                c.id,
+                c.name,
+                stageMap[c.level] || c.level,
+                c.ownPhone || c.phone || 'غير مسجل',
+                c.presentCount > 0 ? 'حاضر' : 'غائب',
+                c.presentCount > 0 ? (c.presentTime || '-') : '-'
+            ]);
+        } else {
+            headers = ["م", "الكود", "الاسم", "اللجنة", "رقم الهاتف", "أيام الحضور", "أيام الغياب", "تواريخ الحضور التفصيلية", "تواريخ الغياب التفصيلية"];
+            rows = currentReportData.combined.map((c, i) => [
+                i + 1,
+                c.id,
+                c.name,
+                stageMap[c.level] || c.level,
+                c.ownPhone || c.phone || 'غير مسجل',
+                c.presentCount,
+                c.absentCount,
+                c.presentDates.join('\n') || 'لا يوجد',
+                c.absentDates.join('\n') || 'لا يوجد'
+            ]);
+        }
 
 
         exportToExcelStyle(headers, rows, titleHeader, "تقرير_الحضور_والغياب_YLY");
@@ -4407,74 +4405,107 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
     window.printCombinedReport = function() {
         if(!currentReportData.combined || currentReportData.combined.length === 0) return showToast('لا توجد بيانات للطباعة', 'error');
         const title = getReportTitleHeader("التقرير الشامل");
-        let rows = currentReportData.combined.map((c, i) => `
-            <tr>
-                <td style="width:25px;">${i+1}</td>
-                <td style="width:50px;">${c.id}</td>
-                <td style="font-weight:bold;">${c.name}</td>
-                <td style="width:90px;">${stageMap[c.level]||c.level}</td>
-                <td style="color:blue; font-weight:bold; width:45px;">${c.totalPoints}</td>
-                <td style="color:green; font-weight:bold; width:40px;">${c.presentCount}</td>
-                <td style="color:red; font-weight:bold; width:40px;">${c.absentCount}</td>
-                <td style="font-size:8pt; color:green; text-align:right;">${c.presentDates.join('<br>') || 'لا يوجد'}</td>
-                <td style="font-size:8pt; color:red; text-align:right;">${c.absentDates.join('<br>') || 'لا يوجد'}</td>
-            </tr>
-        `).join('');
+        const isDaily = document.getElementById('reportType').value === 'daily';
+        
+        let rows = '';
+        if(isDaily) {
+            rows = currentReportData.combined.map((c, i) => `
+                <tr>
+                    <td style="width:30px;">${i+1}</td>
+                    <td style="width:60px;">${c.id}</td>
+                    <td style="font-weight:bold;">${c.name}</td>
+                    <td style="width:100px;">${stageMap[c.level]||c.level}</td>
+                    <td style="color:blue; font-weight:bold; width:50px;">${c.totalPoints}</td>
+                    <td style="font-weight:bold; color:${c.presentCount > 0 ? 'green' : 'red'}; width:60px;">${c.presentCount > 0 ? 'حاضر' : 'غائب'}</td>
+                    <td style="width:80px; font-mono; font-size:8pt;">${c.presentCount > 0 ? (c.presentTime || '-') : '-'}</td>
+                </tr>
+            `).join('');
+        } else {
+            rows = currentReportData.combined.map((c, i) => `
+                <tr>
+                    <td style="width:25px;">${i+1}</td>
+                    <td style="width:50px;">${c.id}</td>
+                    <td style="font-weight:bold;">${c.name}</td>
+                    <td style="width:90px;">${stageMap[c.level]||c.level}</td>
+                    <td style="color:blue; font-weight:bold; width:45px;">${c.totalPoints}</td>
+                    <td style="color:green; font-weight:bold; width:40px;">${c.presentCount}</td>
+                    <td style="color:red; font-weight:bold; width:40px;">${c.absentCount}</td>
+                    <td style="font-size:8pt; color:green; text-align:right; width:110px;">${c.presentDates.join('<br>') || 'لا يوجد'}</td>
+                    <td style="font-size:8pt; color:red; text-align:right; width:110px;">${c.absentDates.join('<br>') || 'لا يوجد'}</td>
+                </tr>
+            `).join('');
+        }
+
+
         const content = `
             <table class="print-table">
                 <thead>
                     <tr>
-                        <th style="width:25px;">م</th>
-                        <th style="width:50px;">الكود</th>
+                        <th>م</th>
+                        <th>الكود</th>
                         <th>الاسم</th>
-                        <th style="width:90px;">اللجنة</th>
-                        <th style="width:45px;">النقاط</th>
-                        <th style="width:40px;">حضور</th>
-                        <th style="width:40px;">غياب</th>
-                        <th>تواريخ الحضور</th>
-                        <th>تواريخ الغياب</th>
+                        <th>اللجنة</th>
+                        <th>النقاط</th>
+                        ${isDaily ? '<th>الحالة</th><th>وقت الحضور</th>' : '<th>حضور</th><th>غياب</th><th style="width:110px;">تواريخ الحضور</th><th style="width:110px;">تواريخ الغياب</th>'}
                     </tr>
                 </thead>
                 <tbody>${rows}</tbody>
             </table>`;
-        printHTML(title, content, true);
+        printHTML(title, content, !isDaily);
     }
 
 
     window.pdfCombinedReport = function() {
         if(!currentReportData.combined || currentReportData.combined.length === 0) return showToast('لا توجد بيانات للتحميل', 'error');
         const title = getReportTitleHeader("التقرير الشامل");
-        let rows = currentReportData.combined.map((c, i) => `
-            <tr>
-                <td style="width:25px;">${i+1}</td>
-                <td style="width:50px;">${c.id}</td>
-                <td style="font-weight:bold;">${c.name}</td>
-                <td style="width:90px;">${stageMap[c.level]||c.level}</td>
-                <td style="color:blue; font-weight:bold; width:45px;">${c.totalPoints}</td>
-                <td style="color:green; font-weight:bold; width:40px;">${c.presentCount}</td>
-                <td style="color:red; font-weight:bold; width:40px;">${c.absentCount}</td>
-                <td style="font-size:8pt; color:green; text-align:right;">${c.presentDates.join('<br>') || 'لا يوجد'}</td>
-                <td style="font-size:8pt; color:red; text-align:right;">${c.absentDates.join('<br>') || 'لا يوجد'}</td>
-            </tr>
-        `).join('');
+        const isDaily = document.getElementById('reportType').value === 'daily';
+
+
+        let rows = '';
+        if(isDaily) {
+            rows = currentReportData.combined.map((c, i) => `
+                <tr>
+                    <td style="width:30px;">${i+1}</td>
+                    <td style="width:60px;">${c.id}</td>
+                    <td style="font-weight:bold;">${c.name}</td>
+                    <td style="width:100px;">${stageMap[c.level]||c.level}</td>
+                    <td style="color:blue; font-weight:bold; width:50px;">${c.totalPoints}</td>
+                    <td style="font-weight:bold; color:${c.presentCount > 0 ? 'green' : 'red'}; width:60px;">${c.presentCount > 0 ? 'حاضر' : 'غائب'}</td>
+                    <td style="width:80px; font-mono; font-size:8pt;">${c.presentCount > 0 ? (c.presentTime || '-') : '-'}</td>
+                </tr>
+            `).join('');
+        } else {
+            rows = currentReportData.combined.map((c, i) => `
+                <tr>
+                    <td style="width:25px;">${i+1}</td>
+                    <td style="width:50px;">${c.id}</td>
+                    <td style="font-weight:bold;">${c.name}</td>
+                    <td style="width:90px;">${stageMap[c.level]||c.level}</td>
+                    <td style="color:blue; font-weight:bold; width:45px;">${c.totalPoints}</td>
+                    <td style="color:green; font-weight:bold; width:40px;">${c.presentCount}</td>
+                    <td style="color:red; font-weight:bold; width:40px;">${c.absentCount}</td>
+                    <td style="font-size:8pt; color:green; text-align:right; width:110px;">${c.presentDates.join('<br>') || 'لا يوجد'}</td>
+                    <td style="font-size:8pt; color:red; text-align:right; width:110px;">${c.absentDates.join('<br>') || 'لا يوجد'}</td>
+                </tr>
+            `).join('');
+        }
+
+
         const content = `
             <table class="print-table">
                 <thead>
                     <tr>
-                        <th style="width:25px;">م</th>
-                        <th style="width:50px;">الكود</th>
+                        <th>م</th>
+                        <th>الكود</th>
                         <th>الاسم</th>
-                        <th style="width:90px;">اللجنة</th>
-                        <th style="width:45px;">النقاط</th>
-                        <th style="width:40px;">حضور</th>
-                        <th style="width:40px;">غياب</th>
-                        <th>تواريخ الحضور</th>
-                        <th>تواريخ الغياب</th>
+                        <th>اللجنة</th>
+                        <th>النقاط</th>
+                        ${isDaily ? '<th>الحالة</th><th>وقت الحضور</th>' : '<th>حضور</th><th>غياب</th><th style="width:110px;">تواريخ الحضور</th><th style="width:110px;">تواريخ الغياب</th>'}
                     </tr>
                 </thead>
                 <tbody>${rows}</tbody>
             </table>`;
-        savePDF(title, content, true);
+        savePDF(title, content, !isDaily);
     }
 
 
@@ -4492,6 +4523,7 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
                     <td style="font-weight:bold;">${c.name}</td>
                     <td>${stageMap[c.level]||c.level}</td>
                     <td style="font-weight:bold; color:${c.presentCount > 0 ? 'green' : 'red'};">${c.presentCount > 0 ? 'حاضر' : 'غائب'}</td>
+                    <td style="font-mono; font-size:8pt;">${c.presentCount > 0 ? (c.presentTime || '-') : '-'}</td>
                 </tr>
             `).join('');
         } else {
@@ -4503,8 +4535,8 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
                     <td>${stageMap[c.level]||c.level}</td>
                     <td style="color:green; font-weight:bold;">${c.presentCount}</td>
                     <td style="color:red; font-weight:bold;">${c.absentCount}</td>
-                    <td style="font-size:8pt; color:green; text-align:right;">${c.presentDates.join('<br>') || 'لا يوجد'}</td>
-                    <td style="font-size:8pt; color:red; text-align:right;">${c.absentDates.join('<br>') || 'لا يوجد'}</td>
+                    <td style="font-size:8pt; color:green; text-align:right; width:110px;">${c.presentDates.join('<br>') || 'لا يوجد'}</td>
+                    <td style="font-size:8pt; color:red; text-align:right; width:110px;">${c.absentDates.join('<br>') || 'لا يوجد'}</td>
                 </tr>
             `).join('');
         }
@@ -4518,7 +4550,7 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
                         <th>الكود</th>
                         <th>الاسم</th>
                         <th>اللجنة</th>
-                        ${isDaily ? '<th>الحالة</th>' : '<th>حضور</th><th>غياب</th><th>تواريخ الحضور</th><th>تواريخ الغياب</th>'}
+                        ${isDaily ? '<th>الحالة</th><th>وقت الحضور</th>' : '<th>حضور</th><th>غياب</th><th style="width:110px;">تواريخ الحضور</th><th style="width:110px;">تواريخ الغياب</th>'}
                     </tr>
                 </thead>
                 <tbody>${rows}</tbody>
@@ -4542,6 +4574,7 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
                     <td style="font-weight:bold;">${c.name}</td>
                     <td>${stageMap[c.level]||c.level}</td>
                     <td style="font-weight:bold; color:${c.presentCount > 0 ? 'green' : 'red'};">${c.presentCount > 0 ? 'حاضر' : 'غائب'}</td>
+                    <td style="font-mono; font-size:8pt;">${c.presentCount > 0 ? (c.presentTime || '-') : '-'}</td>
                 </tr>
             `).join('');
         } else {
@@ -4553,8 +4586,8 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
                     <td>${stageMap[c.level]||c.level}</td>
                     <td style="color:green; font-weight:bold;">${c.presentCount}</td>
                     <td style="color:red; font-weight:bold;">${c.absentCount}</td>
-                    <td style="font-size:8pt; color:green; text-align:right;">${c.presentDates.join('<br>') || 'لا يوجد'}</td>
-                    <td style="font-size:8pt; color:red; text-align:right;">${c.absentDates.join('<br>') || 'لا يوجد'}</td>
+                    <td style="font-size:8pt; color:green; text-align:right; width:110px;">${c.presentDates.join('<br>') || 'لا يوجد'}</td>
+                    <td style="font-size:8pt; color:red; text-align:right; width:110px;">${c.absentDates.join('<br>') || 'لا يوجد'}</td>
                 </tr>
             `).join('');
         }
@@ -4568,7 +4601,7 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
                         <th>الكود</th>
                         <th>الاسم</th>
                         <th>اللجنة</th>
-                        ${isDaily ? '<th>الحالة</th>' : '<th>حضور</th><th>غياب</th><th>تواريخ الحضور</th><th>تواريخ الغياب</th>'}
+                        ${isDaily ? '<th>الحالة</th><th>وقت الحضور</th>' : '<th>حضور</th><th>غياب</th><th style="width:110px;">تواريخ الحضور</th><th style="width:110px;">تواريخ الغياب</th>'}
                     </tr>
                 </thead>
                 <tbody>${rows}</tbody>
@@ -4644,9 +4677,9 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
 
         if(key === 'present' || key === 'absent') { 
             if(isDaily) {
-                thead.innerHTML = `<tr><th class="col-index">م</th><th>الاسم</th><th>الكود</th><th>اللجنة</th><th>الحالة</th></tr>`; 
-                if(!list || list.length === 0) tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4">لا توجد بيانات</td></tr>`; 
-                else tbody.innerHTML = list.map((s, i) => `<tr class="hover:bg-gray-50"><td class="text-gray-500">${i + 1}</td><td class="font-bold">${s.name}</td><td class="font-mono text-blue-600">${s.id}</td><td>${stageMap[s.level] || s.level}</td><td class="font-bold ${key === 'absent' ? 'text-red-600' : 'text-green-600'}">${key === 'absent' ? 'غائب' : 'حاضر'}</td></tr>`).join('');
+                thead.innerHTML = `<tr><th class="col-index">م</th><th>الاسم</th><th>الكود</th><th>اللجنة</th><th>الحالة</th><th>وقت الحضور</th></tr>`; 
+                if(!list || list.length === 0) tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4">لا توجد بيانات</td></tr>`; 
+                else tbody.innerHTML = list.map((s, i) => `<tr class="hover:bg-gray-50"><td class="text-gray-500">${i + 1}</td><td class="font-bold">${s.name}</td><td class="font-mono text-blue-600">${s.id}</td><td>${stageMap[s.level] || s.level}</td><td class="font-bold ${key === 'absent' ? 'text-red-600' : 'text-green-600'}">${key === 'absent' ? 'غائب' : 'حاضر'}</td><td class="font-mono text-xs text-gray-600">${key === 'absent' ? '-' : (s.presentTime || '-')}</td></tr>`).join('');
             } else {
                 thead.innerHTML = `<tr><th class="col-index">م</th><th>الاسم</th><th>اللجنة</th><th>العدد</th><th>التواريخ</th></tr>`; 
                 if(!list || list.length === 0) tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4">لا توجد بيانات</td></tr>`; 
@@ -4660,8 +4693,6 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
         document.getElementById('detailsModal').classList.remove('hidden'); 
         document.body.classList.add('modal-open');
     }
-
-
 
 
 

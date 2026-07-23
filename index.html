@@ -32,7 +32,6 @@
         body { font-family: 'Cairo', sans-serif; background-color: #f3f4f6; padding-bottom: 80px; font-size: 10px; -webkit-tap-highlight-color: transparent; user-select: none; }
         body.modal-open { overflow: hidden !important; height: 100vh; }
 
-
         input, select, textarea { border: 1px solid #9ca3af; border-radius: 0.25rem; background-color: #ffffff; color: #111827; font-weight: 700; transition: all 0.2s ease-in-out; padding-right: 0.5rem !important; padding-left: 1.5rem !important; height: 30px; font-size: 11px !important; width: 100%; }
         input:focus, select:focus { border-color: #1e3a8a; box-shadow: 0 0 0 1px rgba(30, 58, 138, 0.2); outline: none; }
 
@@ -4071,9 +4070,7 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
 
 
 
-
-
-    function renderReportCombinedTable() {
+ function renderReportCombinedTable() {
         const category = document.getElementById('reportCategory').value;
         const resDiv = document.getElementById('reportResult');
         const stage = document.getElementById('reportStage').value;
@@ -4096,6 +4093,7 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
             const start = (reportCurrentPage - 1) * reportItemsPerPage;
             const end = start + reportItemsPerPage;
             const pageItems = currentReportData.combined.slice(start, end);
+            const isDaily = type === 'daily';
 
 
             html += `
@@ -4107,10 +4105,7 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
                                 <th>الاسم</th>
                                 <th>اللجنة</th>
                                 <th>النقاط</th>
-                                <th>حضور</th>
-                                <th>غياب</th>
-                                <th>تواريخ الحضور</th>
-                                <th>تواريخ الغياب</th>
+                                ${isDaily ? `<th>الحالة</th><th>وقت الحضور</th>` : `<th>حضور</th><th>غياب</th><th style="width:100px;">تواريخ الحضور</th><th style="width:100px;">تواريخ الغياب</th>`}
                             </tr>
                         </thead>
                         <tbody>${pageItems.map((c, i) => `
@@ -4119,10 +4114,15 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
                                 <td class="font-bold">${c.name}</td>
                                 <td>${stageMap[c.level]||c.level}</td>
                                 <td class="text-blue-700 font-bold">${c.totalPoints}</td>
-                                <td class="text-green-600 font-bold">${c.presentCount}</td>
-                                <td class="text-red-600 font-bold">${c.absentCount}</td>
-                                <td class="text-[9px] text-green-700 align-top" style="line-height: 1.6;">${c.presentDates.join('<br>') || 'لا يوجد'}</td>
-                                <td class="text-[9px] text-red-700 align-top" style="line-height: 1.6;">${c.absentDates.join('<br>') || 'لا يوجد'}</td>
+                                ${isDaily ? `
+                                    <td class="font-bold ${c.presentCount > 0 ? 'text-green-600' : 'text-red-600'}">${c.presentCount > 0 ? 'حاضر' : 'غائب'}</td>
+                                    <td class="text-gray-600 font-mono text-[9px]">${c.presentCount > 0 ? (c.presentTime || '-') : '-'}</td>
+                                ` : `
+                                    <td class="text-green-600 font-bold">${c.presentCount}</td>
+                                    <td class="text-red-600 font-bold">${c.absentCount}</td>
+                                    <td class="text-[9px] text-green-700 align-top" style="line-height: 1.6; width:100px;">${c.presentDates.join('<br>') || 'لا يوجد'}</td>
+                                    <td class="text-[9px] text-red-700 align-top" style="line-height: 1.6; width:100px;">${c.absentDates.join('<br>') || 'لا يوجد'}</td>
+                                `}
                             </tr>`).join('')}
                         </tbody>
                     </table>
@@ -4134,8 +4134,8 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
                 </div>
                 <div class="grid grid-cols-3 gap-2 mt-2">
                     <button onclick="exportCombinedExcel()" class="bg-green-700 text-white py-1.5 rounded font-bold shadow text-[10px] md:text-sm flex items-center justify-center gap-1">📊 Excel</button>
-                    <button onclick="pdfCombinedReport()" class="bg-red-700 text-white py-1.5 rounded font-bold shadow text-[10px] md:text-sm flex items-center justify-center gap-1">📄 PDF (أفقي)</button>
-                    <button onclick="printCombinedReport()" class="bg-gray-800 text-white py-1.5 rounded font-bold shadow text-[10px] md:text-sm flex items-center justify-center gap-1">🖨️ طباعة (أفقي)</button>
+                    <button onclick="pdfCombinedReport()" class="bg-red-700 text-white py-1.5 rounded font-bold shadow text-[10px] md:text-sm flex items-center justify-center gap-1">📄 PDF</button>
+                    <button onclick="printCombinedReport()" class="bg-gray-800 text-white py-1.5 rounded font-bold shadow text-[10px] md:text-sm flex items-center justify-center gap-1">🖨️ طباعة</button>
                 </div>`;
         } else if (category === 'attendance') {
             html += `
@@ -4250,6 +4250,7 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
             let presentCount = 0; let absentCount = 0;
             let presentDates = [];
             let absentDates = [];
+            let presentTime = '-';
 
 
             datesArray.forEach(d => {
@@ -4258,6 +4259,9 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
                     if (statusObj.status === 'present') {
                         presentCount++;
                         presentDates.push(d);
+                        if (type === 'daily' && statusObj.time) {
+                            presentTime = statusObj.time;
+                        }
                     } else if (statusObj.status === 'absent') {
                         absentCount++;
                         absentDates.push(d);
@@ -4273,6 +4277,7 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
                 absentCount,
                 presentDates,
                 absentDates,
+                presentTime,
                 totalPoints: memberPoints
             };
             
@@ -4311,20 +4316,41 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
     window.exportCombinedExcel = function() {
         if(!currentReportData.combined || currentReportData.combined.length === 0) return showToast('لا توجد بيانات للتصدير', 'error');
         
+        const type = document.getElementById('reportType').value;
+        const isDaily = type === 'daily';
         const titleHeader = getReportTitleHeader("التقرير الشامل YLY (الحضور والغياب والنقاط)");
-        const headers = ["م", "الكود", "الاسم", "اللجنة", "رقم الهاتف", "النقاط المكتسبة", "أيام الحضور", "أيام الغياب", "تواريخ الحضور", "تواريخ الغياب"];
-        const rows = currentReportData.combined.map((c, i) => [
-            i + 1,
-            c.id,
-            c.name,
-            stageMap[c.level] || c.level,
-            c.ownPhone || c.phone || 'غير مسجل',
-            c.totalPoints,
-            c.presentCount,
-            c.absentCount,
-            c.presentDates.join('\n') || 'لا يوجد',
-            c.absentDates.join('\n') || 'لا يوجد'
-        ]);
+        
+        let headers = [];
+        let rows = [];
+
+
+        if (isDaily) {
+            headers = ["م", "الكود", "الاسم", "اللجنة", "رقم الهاتف", "النقاط المكتسبة", "الحالة", "وقت الحضور"];
+            rows = currentReportData.combined.map((c, i) => [
+                i + 1,
+                c.id,
+                c.name,
+                stageMap[c.level] || c.level,
+                c.ownPhone || c.phone || 'غير مسجل',
+                c.totalPoints,
+                c.presentCount > 0 ? 'حاضر' : 'غائب',
+                c.presentCount > 0 ? (c.presentTime || '-') : '-'
+            ]);
+        } else {
+            headers = ["م", "الكود", "الاسم", "اللجنة", "رقم الهاتف", "النقاط المكتسبة", "أيام الحضور", "أيام الغياب", "تواريخ الحضور", "تواريخ الغياب"];
+            rows = currentReportData.combined.map((c, i) => [
+                i + 1,
+                c.id,
+                c.name,
+                stageMap[c.level] || c.level,
+                c.ownPhone || c.phone || 'غير مسجل',
+                c.totalPoints,
+                c.presentCount,
+                c.absentCount,
+                c.presentDates.join('\n') || 'لا يوجد',
+                c.absentDates.join('\n') || 'لا يوجد'
+            ]);
+        }
 
 
         exportToExcelStyle(headers, rows, titleHeader, "تقرير_شامل_YLY");
@@ -4335,19 +4361,39 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
         if(!currentReportData.combined || currentReportData.combined.length === 0) return showToast('لا توجد بيانات للتصدير', 'error');
 
 
+        const type = document.getElementById('reportType').value;
+        const isDaily = type === 'daily';
         const titleHeader = getReportTitleHeader("تقرير الحضور والغياب التفصيلي YLY");
-        const headers = ["م", "الكود", "الاسم", "اللجنة", "رقم الهاتف", "أيام الحضور", "أيام الغياب", "تواريخ الحضور التفصيلية", "تواريخ الغياب التفصيلية"];
-        const rows = currentReportData.combined.map((c, i) => [
-            i + 1,
-            c.id,
-            c.name,
-            stageMap[c.level] || c.level,
-            c.ownPhone || c.phone || 'غير مسجل',
-            c.presentCount,
-            c.absentCount,
-            c.presentDates.join('\n') || 'لا يوجد',
-            c.absentDates.join('\n') || 'لا يوجد'
-        ]);
+        
+        let headers = [];
+        let rows = [];
+
+
+        if (isDaily) {
+            headers = ["م", "الكود", "الاسم", "اللجنة", "رقم الهاتف", "الحالة", "وقت الحضور"];
+            rows = currentReportData.combined.map((c, i) => [
+                i + 1,
+                c.id,
+                c.name,
+                stageMap[c.level] || c.level,
+                c.ownPhone || c.phone || 'غير مسجل',
+                c.presentCount > 0 ? 'حاضر' : 'غائب',
+                c.presentCount > 0 ? (c.presentTime || '-') : '-'
+            ]);
+        } else {
+            headers = ["م", "الكود", "الاسم", "اللجنة", "رقم الهاتف", "أيام الحضور", "أيام الغياب", "تواريخ الحضور التفصيلية", "تواريخ الغياب التفصيلية"];
+            rows = currentReportData.combined.map((c, i) => [
+                i + 1,
+                c.id,
+                c.name,
+                stageMap[c.level] || c.level,
+                c.ownPhone || c.phone || 'غير مسجل',
+                c.presentCount,
+                c.absentCount,
+                c.presentDates.join('\n') || 'لا يوجد',
+                c.absentDates.join('\n') || 'لا يوجد'
+            ]);
+        }
 
 
         exportToExcelStyle(headers, rows, titleHeader, "تقرير_الحضور_والغياب_YLY");
@@ -4378,74 +4424,107 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
     window.printCombinedReport = function() {
         if(!currentReportData.combined || currentReportData.combined.length === 0) return showToast('لا توجد بيانات للطباعة', 'error');
         const title = getReportTitleHeader("التقرير الشامل");
-        let rows = currentReportData.combined.map((c, i) => `
-            <tr>
-                <td style="width:25px;">${i+1}</td>
-                <td style="width:50px;">${c.id}</td>
-                <td style="font-weight:bold;">${c.name}</td>
-                <td style="width:90px;">${stageMap[c.level]||c.level}</td>
-                <td style="color:blue; font-weight:bold; width:45px;">${c.totalPoints}</td>
-                <td style="color:green; font-weight:bold; width:40px;">${c.presentCount}</td>
-                <td style="color:red; font-weight:bold; width:40px;">${c.absentCount}</td>
-                <td style="font-size:8pt; color:green; text-align:right;">${c.presentDates.join('<br>') || 'لا يوجد'}</td>
-                <td style="font-size:8pt; color:red; text-align:right;">${c.absentDates.join('<br>') || 'لا يوجد'}</td>
-            </tr>
-        `).join('');
+        const isDaily = document.getElementById('reportType').value === 'daily';
+        
+        let rows = '';
+        if(isDaily) {
+            rows = currentReportData.combined.map((c, i) => `
+                <tr>
+                    <td style="width:30px;">${i+1}</td>
+                    <td style="width:60px;">${c.id}</td>
+                    <td style="font-weight:bold;">${c.name}</td>
+                    <td style="width:100px;">${stageMap[c.level]||c.level}</td>
+                    <td style="color:blue; font-weight:bold; width:50px;">${c.totalPoints}</td>
+                    <td style="font-weight:bold; color:${c.presentCount > 0 ? 'green' : 'red'}; width:60px;">${c.presentCount > 0 ? 'حاضر' : 'غائب'}</td>
+                    <td style="width:80px; font-mono; font-size:8pt;">${c.presentCount > 0 ? (c.presentTime || '-') : '-'}</td>
+                </tr>
+            `).join('');
+        } else {
+            rows = currentReportData.combined.map((c, i) => `
+                <tr>
+                    <td style="width:25px;">${i+1}</td>
+                    <td style="width:50px;">${c.id}</td>
+                    <td style="font-weight:bold;">${c.name}</td>
+                    <td style="width:90px;">${stageMap[c.level]||c.level}</td>
+                    <td style="color:blue; font-weight:bold; width:45px;">${c.totalPoints}</td>
+                    <td style="color:green; font-weight:bold; width:40px;">${c.presentCount}</td>
+                    <td style="color:red; font-weight:bold; width:40px;">${c.absentCount}</td>
+                    <td style="font-size:8pt; color:green; text-align:right; width:110px;">${c.presentDates.join('<br>') || 'لا يوجد'}</td>
+                    <td style="font-size:8pt; color:red; text-align:right; width:110px;">${c.absentDates.join('<br>') || 'لا يوجد'}</td>
+                </tr>
+            `).join('');
+        }
+
+
         const content = `
             <table class="print-table">
                 <thead>
                     <tr>
-                        <th style="width:25px;">م</th>
-                        <th style="width:50px;">الكود</th>
+                        <th>م</th>
+                        <th>الكود</th>
                         <th>الاسم</th>
-                        <th style="width:90px;">اللجنة</th>
-                        <th style="width:45px;">النقاط</th>
-                        <th style="width:40px;">حضور</th>
-                        <th style="width:40px;">غياب</th>
-                        <th>تواريخ الحضور</th>
-                        <th>تواريخ الغياب</th>
+                        <th>اللجنة</th>
+                        <th>النقاط</th>
+                        ${isDaily ? '<th>الحالة</th><th>وقت الحضور</th>' : '<th>حضور</th><th>غياب</th><th style="width:110px;">تواريخ الحضور</th><th style="width:110px;">تواريخ الغياب</th>'}
                     </tr>
                 </thead>
                 <tbody>${rows}</tbody>
             </table>`;
-        printHTML(title, content, true);
+        printHTML(title, content, !isDaily);
     }
 
 
     window.pdfCombinedReport = function() {
         if(!currentReportData.combined || currentReportData.combined.length === 0) return showToast('لا توجد بيانات للتحميل', 'error');
         const title = getReportTitleHeader("التقرير الشامل");
-        let rows = currentReportData.combined.map((c, i) => `
-            <tr>
-                <td style="width:25px;">${i+1}</td>
-                <td style="width:50px;">${c.id}</td>
-                <td style="font-weight:bold;">${c.name}</td>
-                <td style="width:90px;">${stageMap[c.level]||c.level}</td>
-                <td style="color:blue; font-weight:bold; width:45px;">${c.totalPoints}</td>
-                <td style="color:green; font-weight:bold; width:40px;">${c.presentCount}</td>
-                <td style="color:red; font-weight:bold; width:40px;">${c.absentCount}</td>
-                <td style="font-size:8pt; color:green; text-align:right;">${c.presentDates.join('<br>') || 'لا يوجد'}</td>
-                <td style="font-size:8pt; color:red; text-align:right;">${c.absentDates.join('<br>') || 'لا يوجد'}</td>
-            </tr>
-        `).join('');
+        const isDaily = document.getElementById('reportType').value === 'daily';
+
+
+        let rows = '';
+        if(isDaily) {
+            rows = currentReportData.combined.map((c, i) => `
+                <tr>
+                    <td style="width:30px;">${i+1}</td>
+                    <td style="width:60px;">${c.id}</td>
+                    <td style="font-weight:bold;">${c.name}</td>
+                    <td style="width:100px;">${stageMap[c.level]||c.level}</td>
+                    <td style="color:blue; font-weight:bold; width:50px;">${c.totalPoints}</td>
+                    <td style="font-weight:bold; color:${c.presentCount > 0 ? 'green' : 'red'}; width:60px;">${c.presentCount > 0 ? 'حاضر' : 'غائب'}</td>
+                    <td style="width:80px; font-mono; font-size:8pt;">${c.presentCount > 0 ? (c.presentTime || '-') : '-'}</td>
+                </tr>
+            `).join('');
+        } else {
+            rows = currentReportData.combined.map((c, i) => `
+                <tr>
+                    <td style="width:25px;">${i+1}</td>
+                    <td style="width:50px;">${c.id}</td>
+                    <td style="font-weight:bold;">${c.name}</td>
+                    <td style="width:90px;">${stageMap[c.level]||c.level}</td>
+                    <td style="color:blue; font-weight:bold; width:45px;">${c.totalPoints}</td>
+                    <td style="color:green; font-weight:bold; width:40px;">${c.presentCount}</td>
+                    <td style="color:red; font-weight:bold; width:40px;">${c.absentCount}</td>
+                    <td style="font-size:8pt; color:green; text-align:right; width:110px;">${c.presentDates.join('<br>') || 'لا يوجد'}</td>
+                    <td style="font-size:8pt; color:red; text-align:right; width:110px;">${c.absentDates.join('<br>') || 'لا يوجد'}</td>
+                </tr>
+            `).join('');
+        }
+
+
         const content = `
             <table class="print-table">
                 <thead>
                     <tr>
-                        <th style="width:25px;">م</th>
-                        <th style="width:50px;">الكود</th>
+                        <th>م</th>
+                        <th>الكود</th>
                         <th>الاسم</th>
-                        <th style="width:90px;">اللجنة</th>
-                        <th style="width:45px;">النقاط</th>
-                        <th style="width:40px;">حضور</th>
-                        <th style="width:40px;">غياب</th>
-                        <th>تواريخ الحضور</th>
-                        <th>تواريخ الغياب</th>
+                        <th>اللجنة</th>
+                        <th>النقاط</th>
+                        ${isDaily ? '<th>الحالة</th><th>وقت الحضور</th>' : '<th>حضور</th><th>غياب</th><th style="width:110px;">تواريخ الحضور</th><th style="width:110px;">تواريخ الغياب</th>'}
                     </tr>
                 </thead>
                 <tbody>${rows}</tbody>
             </table>`;
-        savePDF(title, content, true);
+        savePDF(title, content, !isDaily);
     }
 
 
@@ -4463,6 +4542,7 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
                     <td style="font-weight:bold;">${c.name}</td>
                     <td>${stageMap[c.level]||c.level}</td>
                     <td style="font-weight:bold; color:${c.presentCount > 0 ? 'green' : 'red'};">${c.presentCount > 0 ? 'حاضر' : 'غائب'}</td>
+                    <td style="font-mono; font-size:8pt;">${c.presentCount > 0 ? (c.presentTime || '-') : '-'}</td>
                 </tr>
             `).join('');
         } else {
@@ -4474,8 +4554,8 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
                     <td>${stageMap[c.level]||c.level}</td>
                     <td style="color:green; font-weight:bold;">${c.presentCount}</td>
                     <td style="color:red; font-weight:bold;">${c.absentCount}</td>
-                    <td style="font-size:8pt; color:green; text-align:right;">${c.presentDates.join('<br>') || 'لا يوجد'}</td>
-                    <td style="font-size:8pt; color:red; text-align:right;">${c.absentDates.join('<br>') || 'لا يوجد'}</td>
+                    <td style="font-size:8pt; color:green; text-align:right; width:110px;">${c.presentDates.join('<br>') || 'لا يوجد'}</td>
+                    <td style="font-size:8pt; color:red; text-align:right; width:110px;">${c.absentDates.join('<br>') || 'لا يوجد'}</td>
                 </tr>
             `).join('');
         }
@@ -4489,7 +4569,7 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
                         <th>الكود</th>
                         <th>الاسم</th>
                         <th>اللجنة</th>
-                        ${isDaily ? '<th>الحالة</th>' : '<th>حضور</th><th>غياب</th><th>تواريخ الحضور</th><th>تواريخ الغياب</th>'}
+                        ${isDaily ? '<th>الحالة</th><th>وقت الحضور</th>' : '<th>حضور</th><th>غياب</th><th style="width:110px;">تواريخ الحضور</th><th style="width:110px;">تواريخ الغياب</th>'}
                     </tr>
                 </thead>
                 <tbody>${rows}</tbody>
@@ -4513,6 +4593,7 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
                     <td style="font-weight:bold;">${c.name}</td>
                     <td>${stageMap[c.level]||c.level}</td>
                     <td style="font-weight:bold; color:${c.presentCount > 0 ? 'green' : 'red'};">${c.presentCount > 0 ? 'حاضر' : 'غائب'}</td>
+                    <td style="font-mono; font-size:8pt;">${c.presentCount > 0 ? (c.presentTime || '-') : '-'}</td>
                 </tr>
             `).join('');
         } else {
@@ -4524,8 +4605,8 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
                     <td>${stageMap[c.level]||c.level}</td>
                     <td style="color:green; font-weight:bold;">${c.presentCount}</td>
                     <td style="color:red; font-weight:bold;">${c.absentCount}</td>
-                    <td style="font-size:8pt; color:green; text-align:right;">${c.presentDates.join('<br>') || 'لا يوجد'}</td>
-                    <td style="font-size:8pt; color:red; text-align:right;">${c.absentDates.join('<br>') || 'لا يوجد'}</td>
+                    <td style="font-size:8pt; color:green; text-align:right; width:110px;">${c.presentDates.join('<br>') || 'لا يوجد'}</td>
+                    <td style="font-size:8pt; color:red; text-align:right; width:110px;">${c.absentDates.join('<br>') || 'لا يوجد'}</td>
                 </tr>
             `).join('');
         }
@@ -4539,7 +4620,7 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
                         <th>الكود</th>
                         <th>الاسم</th>
                         <th>اللجنة</th>
-                        ${isDaily ? '<th>الحالة</th>' : '<th>حضور</th><th>غياب</th><th>تواريخ الحضور</th><th>تواريخ الغياب</th>'}
+                        ${isDaily ? '<th>الحالة</th><th>وقت الحضور</th>' : '<th>حضور</th><th>غياب</th><th style="width:110px;">تواريخ الحضور</th><th style="width:110px;">تواريخ الغياب</th>'}
                     </tr>
                 </thead>
                 <tbody>${rows}</tbody>
@@ -4615,9 +4696,9 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
 
         if(key === 'present' || key === 'absent') { 
             if(isDaily) {
-                thead.innerHTML = `<tr><th class="col-index">م</th><th>الاسم</th><th>الكود</th><th>اللجنة</th><th>الحالة</th></tr>`; 
-                if(!list || list.length === 0) tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4">لا توجد بيانات</td></tr>`; 
-                else tbody.innerHTML = list.map((s, i) => `<tr class="hover:bg-gray-50"><td class="text-gray-500">${i + 1}</td><td class="font-bold">${s.name}</td><td class="font-mono text-blue-600">${s.id}</td><td>${stageMap[s.level] || s.level}</td><td class="font-bold ${key === 'absent' ? 'text-red-600' : 'text-green-600'}">${key === 'absent' ? 'غائب' : 'حاضر'}</td></tr>`).join('');
+                thead.innerHTML = `<tr><th class="col-index">م</th><th>الاسم</th><th>الكود</th><th>اللجنة</th><th>الحالة</th><th>وقت الحضور</th></tr>`; 
+                if(!list || list.length === 0) tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4">لا توجد بيانات</td></tr>`; 
+                else tbody.innerHTML = list.map((s, i) => `<tr class="hover:bg-gray-50"><td class="text-gray-500">${i + 1}</td><td class="font-bold">${s.name}</td><td class="font-mono text-blue-600">${s.id}</td><td>${stageMap[s.level] || s.level}</td><td class="font-bold ${key === 'absent' ? 'text-red-600' : 'text-green-600'}">${key === 'absent' ? 'غائب' : 'حاضر'}</td><td class="font-mono text-xs text-gray-600">${key === 'absent' ? '-' : (s.presentTime || '-')}</td></tr>`).join('');
             } else {
                 thead.innerHTML = `<tr><th class="col-index">م</th><th>الاسم</th><th>اللجنة</th><th>العدد</th><th>التواريخ</th></tr>`; 
                 if(!list || list.length === 0) tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4">لا توجد بيانات</td></tr>`; 
@@ -4631,8 +4712,6 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
         document.getElementById('detailsModal').classList.remove('hidden'); 
         document.body.classList.add('modal-open');
     }
-
-
 
 
 

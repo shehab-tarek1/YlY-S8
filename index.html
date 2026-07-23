@@ -393,10 +393,10 @@
                     <h2 class="font-bold text-[10px] md:text-sm text-gray-800">قائمة الأعضاء (<span id="stdCount">0</span>)</h2>
                     <div class="flex gap-1.5 items-center flex-1 justify-end max-w-full">
                         <div class="relative shrink-0" id="studentListFilterContainer">
-                            <input type="text" id="studentListFilterDisplay" readonly value="الكل" class="text-[10px] px-2 h-8 w-16 md:w-20 text-center font-bold text-gray-800 bg-white border border-gray-400 rounded cursor-pointer" onclick="toggleCustomDropdown(event, 'studentListFilterMenu')">
-                            <input type="hidden" id="studentListFilter" value="all">
-                            <div id="studentListFilterMenu" class="dropdown-menu hide absolute top-full right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] min-w-[100px] overflow-hidden text-right">
-                                <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('studentListFilter', 'studentListFilterDisplay', 'studentListFilterMenu', 'all',  'الكل', renderStudents)">كل اللجان</div>
+    <input type="text" id="studentListFilterDisplay" readonly value="كل اللجان" class="text-[10px] px-2 h-8 w-20 md:w-24 text-center font-bold text-gray-800 bg-white border border-gray-400 rounded cursor-pointer" onclick="toggleCustomDropdown(event, 'studentListFilterMenu')">
+    <input type="hidden" id="studentListFilter" value="all">
+    <div id="studentListFilterMenu" class="dropdown-menu hide absolute top-full right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] min-w-[100px] overflow-hidden text-right">
+        <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('studentListFilter', 'studentListFilterDisplay', 'studentListFilterMenu', 'all', 'كل اللجان', renderStudents)">كل اللجان</div>
                                 <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('studentListFilter', 'studentListFilterDisplay', 'studentListFilterMenu', 'HR', 'HR', renderStudents)">HR</div>
                                 <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('studentListFilter', 'studentListFilterDisplay', 'studentListFilterMenu', 'PR', 'PR', renderStudents)">PR</div>
                                 <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('studentListFilter', 'studentListFilterDisplay', 'studentListFilterMenu', 'OR', 'OR', renderStudents)">OR</div>
@@ -597,11 +597,11 @@
                 <h3 class="font-bold mb-1 text-gray-900 flex items-center gap-2 text-xs md:text-base"><span>👤</span> استعلام عن تقرير عضو</h3>
                 <div class="flex gap-1 mb-1">
                     
-                    <div class="relative w-1/4" id="searchStageContainer">
-                        <input type="text" id="searchStageDisplay" readonly value="الكل" class="w-full p-1 bg-white text-[10px] md:text-sm md:p-2 text-center font-bold border rounded cursor-pointer" onclick="toggleCustomDropdown(event, 'searchStageMenu')">
-                        <input type="hidden" id="searchStage" value="all">
-                        <div id="searchStageMenu" class="dropdown-menu hide absolute top-full right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] w-full overflow-hidden text-right">
-                            <div class="p-1.5 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('searchStage', 'searchStageDisplay', 'searchStageMenu', 'all', 'الكل')">كل الاعضاء</div>
+                   <div class="relative w-1/4 min-w-[80px]" id="searchStageContainer">
+    <input type="text" id="searchStageDisplay" readonly value="كل اللجان" class="w-full p-1 bg-white text-[10px] md:text-sm md:p-2 text-center font-bold border rounded cursor-pointer" onclick="toggleCustomDropdown(event, 'searchStageMenu')">
+    <input type="hidden" id="searchStage" value="all">
+    <div id="searchStageMenu" class="dropdown-menu hide absolute top-full right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] w-full overflow-hidden text-right">
+        <div class="p-1.5 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('searchStage', 'searchStageDisplay', 'searchStageMenu', 'all', 'كل اللجان')">كل اللجان</div>
                             <div class="p-1.5 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('searchStage', 'searchStageDisplay', 'searchStageMenu', 'HR', 'HR')">HR</div>
                             <div class="p-1.5 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('searchStage', 'searchStageDisplay', 'searchStageMenu', 'PR', 'PR')">PR</div>
                             <div class="p-1.5 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('searchStage', 'searchStageDisplay', 'searchStageMenu', 'OR', 'OR')">OR</div>

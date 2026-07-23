@@ -4061,20 +4061,20 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
 
             html += `
                 <div class="overflow-x-auto rounded border border-gray-300 shadow-sm">
-                    <table class="custom-table w-full text-[10px] text-center">
+                    <table class="custom-table w-full text-[10px] text-center" style="min-width: 600px;">
                         <thead class="bg-blue-900 text-white">
                             <tr>
-                                <th style="width:28px;">م</th>
-                                <th>الاسم</th>
-                                <th style="width:40px;">اللجنة</th>
+                                <th style="width:25px;">م</th>
+                                <th style="min-width:140px;">الاسم</th>
+                                <th style="width:45px;">اللجنة</th>
                                 <th style="width:45px;">النقاط</th>
-                                ${isDaily ? `<th style="width:55px;">الحالة</th><th style="width:80px;">وقت الحضور</th>` : `<th style="width:40px;">حضور</th><th style="width:40px;">غياب</th><th style="width:95px;">تواريخ الحضور</th><th style="width:95px;">تواريخ الغياب</th>`}
+                                ${isDaily ? `<th style="width:55px;">الحالة</th><th style="width:80px;">وقت الحضور</th>` : `<th style="width:40px;">حضور</th><th style="width:40px;">غياب</th><th style="width:110px;">تواريخ الحضور</th><th style="width:110px;">تواريخ الغياب</th>`}
                             </tr>
                         </thead>
                         <tbody>${pageItems.map((c, i) => `
                             <tr class="hover:bg-blue-50/50">
                                 <td>${start + i + 1}</td>
-                                <td class="font-bold text-gray-900 text-right pr-2">${c.name}</td>
+                                <td class="font-bold text-gray-900 text-right pr-2" style="min-width:140px; white-space:nowrap;">${c.name}</td>
                                 <td class="font-bold text-blue-900">${c.level}</td>
                                 <td class="text-blue-700 font-bold">${c.totalPoints}</td>
                                 ${isDaily ? `
@@ -4083,8 +4083,8 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
                                 ` : `
                                     <td class="text-green-600 font-bold">${c.presentCount}</td>
                                     <td class="text-red-600 font-bold">${c.absentCount}</td>
-                                    <td class="text-[9px] text-green-700 align-top" style="line-height: 1.5; width:95px;">${c.presentDates.join('<br>') || 'لا يوجد'}</td>
-                                    <td class="text-[9px] text-red-700 align-top" style="line-height: 1.5; width:95px;">${c.absentDates.join('<br>') || 'لا يوجد'}</td>
+                                    <td class="text-[9px] text-green-700 align-top" style="line-height: 1.5; width:110px;">${c.presentDates.join('<br>') || 'لا يوجد'}</td>
+                                    <td class="text-[9px] text-red-700 align-top" style="line-height: 1.5; width:110px;">${c.absentDates.join('<br>') || 'لا يوجد'}</td>
                                 `}
                             </tr>`).join('')}
                         </tbody>
@@ -4133,6 +4133,8 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
         resDiv.innerHTML = html;
         resDiv.classList.remove('hidden');
     }
+
+
 
 
     window.nextReportPage = function() { reportCurrentPage++; renderReportCombinedTable(); }

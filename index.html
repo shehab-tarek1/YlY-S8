@@ -5,12 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 
+
+
     <!-- SEO & Open Graph -->
     <meta property="og:title" content="YLY Management | Pro System">
     <meta property="og:description" content="نظام إدارة اللجان والأعضاء لمبادرة شباب يدير شباب YLY">
     <meta property="og:image" content="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657868/etyefoyw9madba5a5u1z.png">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657868/etyefoyw9madba5a5u1z.png">
+
+
 
 
     <!-- إعدادات PWA -->
@@ -21,7 +25,11 @@
     <link rel="apple-touch-icon" href="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png">
 
 
+
+
     <title>YLY Management | Pro System</title>
+
+
 
 
     <!-- المكتبات -->
@@ -33,21 +41,31 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 
 
+
+
     <style>
         body { font-family: 'Cairo', sans-serif; background-color: #f3f4f6; padding-bottom: 80px; font-size: 10px; -webkit-tap-highlight-color: transparent; user-select: none; }
         body.modal-open { overflow: hidden !important; height: 100vh; }
+
+
 
 
         input, select, textarea { border: 1px solid #9ca3af; border-radius: 0.25rem; background-color: #ffffff; color: #111827; font-weight: 700; transition: all 0.2s ease-in-out; padding-right: 0.5rem !important; padding-left: 1.5rem !important; height: 30px; font-size: 11px !important; width: 100%; }
         input:focus, select:focus { border-color: #1e3a8a; box-shadow: 0 0 0 1px rgba(30, 58, 138, 0.2); outline: none; }
 
 
+
+
         .input-wrapper { position: relative; width: 100%; }
         .input-icon { position: absolute; top: 50%; left: 4px; transform: translateY(-50%); color: #6b7280; pointer-events: none; width: 12px; height: 12px; z-index: 10; }
 
 
+
+
         .sub-nav-item { border: 1px solid #1e40af !important; color: #1e40af; background: transparent; font-weight: bold; transition: all 0.2s; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 10px; }
         .sub-nav-item.active { background: #1e40af !important; color: white !important; box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
+
+
 
 
         @media (min-width: 768px) {
@@ -60,6 +78,8 @@
         }
 
 
+
+
         .nav-item { transition: all 0.2s; opacity: 0.7; border-bottom: 3px solid transparent; }
         .nav-item.active { opacity: 1; background: white; color: #000; font-weight: 800; border-bottom-color: #dc2626; transform: translateY(-2px); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .tab-content { display: none; animation: fadeIn 0.2s ease-out; }
@@ -67,9 +87,13 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
 
+
+
         .spinner-box { position: relative; width: 90px; height: 90px; display: flex; justify-content: center; align-items: center; margin-bottom: 15px; }
         .modern-spinner { position: absolute; width: 100%; height: 100%; border: 4px solid rgba(255, 255, 255, 0.05); border-left-color: #dc2626; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
+
+
 
 
         .scanner-wrapper { border-radius: 0.5rem; overflow: hidden; background: #000; position: relative; width: 100%; height: 250px !important; border: 2px solid #374151; }
@@ -78,7 +102,11 @@
         #html5-qrcode-button-camera-stop, #html5-qrcode-anchor-scan-type-change { display: none !important; }
 
 
+
+
         .glass-card { background: white; border-radius: 0.5rem; padding: 0.5rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); border: 1px solid #d1d5db; margin-bottom: 0.5rem; }
+
+
 
 
         .custom-table { width: 100%; border-collapse: collapse; font-size: 10px; table-layout: fixed; border: 1px solid #374151; }
@@ -94,6 +122,8 @@
         .col-action { width: 45px; min-width: 45px; } 
 
 
+
+
         #loadingOverlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(15px); z-index: 999999; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; transition: opacity 0.3s ease; }
         
         #loginOverlay { position: fixed; inset: 0; background: linear-gradient(135deg, #1e3a8a 0%, #111827 100%); z-index: 100000; display: none; align-items: center; justify-content: center; padding: 15px; }
@@ -104,16 +134,22 @@
         .login-tab.active { color: #1e3a8a; border-bottom-color: #1e3a8a; background: #f3f4f6; border-radius: 5px 5px 0 0; }
 
 
+
+
         .std-dash-card { background: white; border-radius: 10px; padding: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #d1d5db; }
         .std-info-row { display: flex; justify-content: space-between; border-bottom: 1px solid #f3f4f6; padding: 6px 0; font-size: 11px; }
         .std-info-label { color: #4b5563; font-weight: 600; }
         .std-info-val { color: #111827; font-weight: 700; }
 
 
+
+
         #customAlertModal, #paymentConfirmModal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200000; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(2px); }
         .alert-card { background: white; border-radius: 12px; padding: 20px; width: 100%; max-width: 300px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border-top: 5px solid #1e3a8a; }
         .alert-icon { font-size: 35px; margin-bottom: 8px; display: block; }
         .alert-btn { background: #1e3a8a; color: white; padding: 8px 20px; border-radius: 6px; font-weight: bold; margin-top: 15px; width: 100%; border: 1px solid #000; }
+
+
 
 
         .unified-card { border: 4px double #1e3a8a; border-radius: 15px; padding: 20px; width: 100%; max-width: 350px; margin: 0 auto 15px auto; text-align: center; background: #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
@@ -123,8 +159,12 @@
         .unified-card-footer { margin-top: 15px; font-size: 9pt; color: #6b7280; font-weight: bold; border-top: 1px solid #1e3a8a; padding-top: 5px; }
 
 
+
+
         .close-btn-modern { width: 28px; height: 28px; background-color: #ef4444; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.1s; flex-shrink: 0; margin-right: 10px; }
         .close-btn-modern:active { transform: scale(0.9); }
+
+
 
 
         #print-container { position: fixed; top: 0; left: 0; width: 100%; height: 0px; overflow: hidden; z-index: -1; background: white; visibility: hidden; }
@@ -139,9 +179,13 @@
         }
 
 
+
+
         .dropdown-menu { transform-origin: top center; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
         .dropdown-menu.show { opacity: 1; transform: scaleY(1); visibility: visible; }
         .dropdown-menu.hide { opacity: 0; transform: scaleY(0); visibility: hidden; }
+
+
 
 
         input[type="date"]::-webkit-inner-spin-button,
@@ -157,6 +201,8 @@
         input[type="date"], input[type="month"], input[type="number"] {
             -moz-appearance: textfield !important;
         }
+
+
 
 
         input[type="date"], input[type="month"] {
@@ -179,10 +225,14 @@
         }
 
 
+
+
         input[type="date"]::-webkit-calendar-picker-indicator:hover,
         input[type="month"]::-webkit-calendar-picker-indicator:hover {
             opacity: 1;
         }
+
+
 
 
         input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
@@ -197,6 +247,8 @@
 <body class="text-gray-800" onclick="closeAllDropdowns(event)">
 
 
+
+
 <div id="loadingOverlay">
     <div class="spinner-box">
         <div class="modern-spinner"></div>
@@ -205,6 +257,8 @@
     <div class="text-2xl font-black tracking-wider text-white mb-2">YLY <span class="text-red-500">System</span></div>
     <div class="text-[10px] text-gray-400 font-mono">جاري تأمين النظام وتهيئته...</div>
 </div>
+
+
 
 
 <div id="loginOverlay">
@@ -234,14 +288,20 @@
 </div>
 
 
+
+
 <div id="customAlertModal">
     <div class="alert-card"><div id="alertIcon" class="alert-icon">⚠️</div><h3 id="alertTitle" class="text-base font-bold text-gray-800 mb-1">تنبيه</h3><p id="alertMessage" class="text-[11px] text-gray-600 font-bold mb-4"></p><button onclick="closeCustomAlert()" class="alert-btn shadow-lg">حسناً</button></div>
 </div>
 
 
+
+
 <div id="paymentConfirmModal">
     <div class="alert-card border-t-4 border-blue-600"><div class="text-4xl mb-2">⭐</div><h3 class="text-base font-bold text-gray-800 mb-1">تأكيد تقييم</h3><p id="payConfirmMsg" class="text-[11px] text-gray-600 font-bold mb-4"></p><div class="flex gap-2"><button onclick="proceedWithPayment()" class="flex-1 bg-blue-600 text-white py-2 rounded font-bold text-xs shadow">نعم</button><button onclick="closePaymentConfirm()" class="flex-1 bg-gray-500 text-white py-2 rounded font-bold text-xs">إلغاء</button></div></div>
 </div>
+
+
 
 
 <div id="checkResultModal" class="fixed inset-0 bg-black/80 hidden z-[250] flex items-center justify-center p-4 no-print">
@@ -304,7 +364,11 @@
 </div>
 
 
+
+
 <div id="print-container"></div>
+
+
 
 
 <div id="appContent" class="hidden">
@@ -332,7 +396,11 @@
     </header>
 
 
+
+
     <main id="mainContent" class="container mx-auto p-3 max-w-4xl md:max-w-6xl">
+
+
 
 
         <section id="studentDashboard" class="tab-content">
@@ -382,6 +450,8 @@
         </section>
 
 
+
+
         <section id="students" class="tab-content">
             <div class="glass-card border-r-4 border-blue-700 no-print mb-4">
                 <h2 class="font-bold text-gray-900 mb-2 text-xs md:text-base">تسجيل عضو جديد</h2>
@@ -399,6 +469,8 @@
                     </div>
 
 
+
+
                     <div class="input-wrapper md:col-span-2 relative" id="levelDropdownContainer">
                         <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                         <input type="text" id="stdLevelDisplay" readonly class="w-full p-2 text-xs md:text-sm h-full cursor-pointer bg-white" placeholder="اختر اللجنة..." onclick="toggleCustomDropdown(event, 'levelMenu')">
@@ -413,9 +485,13 @@
                     </div>
 
 
+
+
                     <button onclick="registerStudent()" class="w-full bg-blue-900 text-white py-2 rounded font-bold shadow hover:bg-blue-800 text-xs transition md:text-sm md:col-span-2 md:py-3">حفظ العضو</button>
                 </div>
             </div>
+
+
 
 
             <div class="glass-card border-r-4 border-red-600 no-print mb-4">
@@ -426,6 +502,8 @@
                     <button onclick="stopCheckScanner()" id="btnStopCheck" class="flex-1 bg-red-100 text-red-600 py-1.5 rounded font-bold text-xs hidden">إيقاف</button>
                 </div>
             </div>
+
+
 
 
             <div class="glass-card">
@@ -443,6 +521,8 @@
             <div class="p-2 text-xs hover:bg-blue-50 cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('studentListFilter', 'studentListFilterDisplay', 'studentListFilterMenu', 'SM', 'SM', renderStudents)">SM</div>
         </div>
     </div>
+
+
 
 
     <div class="input-wrapper flex-1 min-w-0">
@@ -473,6 +553,8 @@
         </section>
 
 
+
+
         <section id="attendance" class="tab-content">
             <div class="glass-card text-center">
                 <h2 class="text-sm font-bold text-gray-900 mb-2 md:text-lg">سجل حضور الفعاليات</h2>
@@ -482,12 +564,16 @@
                 </div>
 
 
+
+
                 <div class="mb-2 bg-white p-2 rounded border border-gray-300 shadow-sm">
                     <div class="grid grid-cols-2 gap-2">
                         <div class="input-wrapper">
                             <label class="text-[9px] text-gray-600 font-bold block mb-1">تاريخ اليوم</label>
                             <div class="relative"><input type="date" id="attendanceDate" onchange="changeAttendanceDate()" class="w-full p-1 text-right font-bold text-gray-900 text-xs bg-white"></div>
                         </div>
+
+
 
 
                         <div class="input-wrapper">
@@ -508,10 +594,14 @@
                 </div>
 
 
+
+
                 <div class="flex bg-gray-100 p-1 rounded mb-2 no-print border border-gray-300">
                     <button onclick="setAttMode('scan')" id="btnAttScan" class="sub-nav-item flex-1 rounded text-[10px] active transition-all">📷 قارئ الباركود</button>
                     <button onclick="setAttMode('manual')" id="btnAttManual" class="sub-nav-item flex-1 rounded text-[10px] transition-all">⌨️ إدخال يدوي</button>
                 </div>
+
+
 
 
                 <div id="attScanArea" class="relative">
@@ -525,6 +615,8 @@
                 </div>
 
 
+
+
                 <div id="attManualArea" class="hidden">
                     <div class="input-wrapper mb-2">
                         <input type="number" id="manualAttID" placeholder="كود العضو" class="w-full text-center text-xl font-bold p-2 font-mono md:text-2xl md:p-3">
@@ -533,10 +625,14 @@
                 </div>
 
 
+
+
                 <div class="grid grid-cols-2 gap-2 mt-3 no-print md:gap-4">
                     <div onclick="openAttendanceModal('present')" class="bg-green-50 p-2 rounded border border-green-200 cursor-pointer hover:bg-green-100 transition"><span class="block text-lg font-bold text-green-600 md:text-2xl" id="presentCount">0</span><span class="text-[10px] text-green-800 font-bold md:text-sm">تم الحضور</span></div>
                     <div onclick="openAttendanceModal('absent')" class="bg-red-50 p-2 rounded border border-red-200 cursor-pointer hover:bg-red-100 transition"><span class="block text-lg font-bold text-red-600 md:text-2xl" id="absentCount">0</span><span class="text-[10px] text-red-800 font-bold md:text-sm">غياب اليوم</span></div>
                 </div>
+
+
 
 
                 <div class="flex flex-col items-center gap-2 mt-5 border-t border-gray-200 pt-5 no-print">
@@ -547,9 +643,13 @@
         </section>
 
 
+
+
         <section id="accounting" class="tab-content">
             <div class="glass-card border-t-4 border-blue-600">
                 <h3 class="font-bold text-blue-900 mb-2 text-xs md:text-base">⭐ إضافة نقاط وتقييمات الأعضاء</h3>
+
+
 
 
                 <div id="defaultPaymentBar" class="bg-blue-50 p-2 rounded mb-2 border border-blue-200">
@@ -570,15 +670,21 @@
                         </div>
 
 
+
+
                         <input type="text" id="defScoreNote" class="w-2/4 p-1 text-[10px]" placeholder="تفاصيل (اختياري)">
                     </div>
                 </div>
+
+
 
 
                 <div class="flex bg-gray-100 p-1 rounded mb-2 no-print border border-gray-300">
                     <button onclick="togglePayMethod('scan')" id="btnPayScan" class="sub-nav-item flex-1 rounded text-[10px] active font-bold md:text-sm md:py-2">📷 قارئ الباركود</button>
                     <button onclick="togglePayMethod('manual')" id="btnPayManual" class="sub-nav-item flex-1 rounded text-[10px] font-bold md:text-sm md:py-2">⌨️ إدخال يدوي</button>
                 </div>
+
+
 
 
                 <div id="payScanDiv" class="mb-2">
@@ -590,12 +696,16 @@
                 </div>
 
 
+
+
                 <div id="payManualDiv" class="hidden flex gap-2 mb-2">
                     <div class="input-wrapper flex-1">
                         <input type="number" id="paySearchID" placeholder="كود العضو" class="w-full p-1 text-center font-bold text-xs md:text-sm md:p-2">
                     </div>
                     <button onclick="searchStudentForPay()" class="bg-blue-700 text-white px-2 rounded text-xs md:text-sm md:px-4">🔍 بحث</button>
                 </div>
+
+
 
 
                 <div id="paymentForm" class="hidden bg-yellow-50 p-2 rounded border border-yellow-200">
@@ -616,6 +726,8 @@
                         </div>
 
 
+
+
                     </div>
                     <input type="text" id="payNote" class="w-full p-1 text-[10px] mb-1" placeholder="تفاصيل إضافية (اسم الكويز أو المهمة)">
                     <div class="flex gap-2 mt-2">
@@ -624,6 +736,8 @@
                     </div>
                 </div>
             </div>
+
+
 
 
             <div class="bg-sky-50 text-sky-950 p-3 rounded-xl shadow-sm mt-4 md:p-5 border-2 border-sky-200">
@@ -651,6 +765,8 @@
         </section>
 
 
+
+
         <section id="reports" class="tab-content">
             <div class="glass-card border-t-4 border-gray-600 mb-4">
                 <h3 class="font-bold mb-1 text-gray-900 flex items-center gap-2 text-xs md:text-base"><span>👤</span> استعلام عن تقرير عضو</h3>
@@ -669,6 +785,8 @@
                     </div>
 
 
+
+
                     <div class="input-wrapper flex-1">
                         <input type="text" id="reportStudentSearch" placeholder="ابحث بالاسم أو الكود" class="w-full p-1 text-xs md:text-sm md:p-2">
                     </div>
@@ -676,6 +794,8 @@
                 </div>
                 <div id="studentReportResult" class="hidden bg-gray-50 p-2 rounded border border-gray-200 text-[10px] md:text-sm"></div>
             </div>
+
+
 
 
             <div class="glass-card border-t-4 border-blue-800 mb-4">
@@ -694,6 +814,8 @@
                         </div>
 
 
+
+
                     </div>
                     <div>
                         <label class="text-[9px] text-gray-500 block mb-0.5 md:text-xs">اللجنة المستهدفة</label>
@@ -709,6 +831,8 @@
                                 <div class="p-2 text-xs hover:bg-blue-50 cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('reportStage', 'reportStageDisplay', 'reportStageMenu', 'SM', 'السوشيال ميديا (SM)')">السوشيال ميديا (SM)</div>
                             </div>
                         </div>
+
+
 
 
                     </div>
@@ -734,6 +858,8 @@
                         </div>
 
 
+
+
                     </div>
                 </div>
                 <button id="btnGenerateReport" onclick="toggleAdvancedReport()" class="w-full bg-blue-900 text-white py-1.5 rounded font-bold shadow hover:bg-blue-950 text-[10px] md:text-sm md:py-2 transition-all">توليد التقرير</button>
@@ -755,6 +881,8 @@
 </div>
 
 
+
+
 <div id="studentModal" class="fixed inset-0 bg-black/80 hidden z-[150] flex items-center justify-center p-4 no-print">
     <div class="bg-white rounded-xl w-full max-w-xs p-4 text-center relative shadow-2xl md:max-w-sm">
         <button onclick="closeModal('studentModal')" class="close-btn-modern" style="top: 10px; right: 10px; position: absolute;">&times;</button>
@@ -766,6 +894,8 @@
         <button onclick="closeModal('studentModal')" class="w-full bg-gray-200 text-gray-800 py-1.5 rounded font-bold text-[11px] hover:bg-gray-300 transition border border-gray-300">إغلاق النافذة</button>
     </div>
 </div>
+
+
 
 
 <div id="detailsModal" class="fixed inset-0 bg-black/80 hidden z-[100] flex items-center justify-center p-4 no-print">
@@ -785,6 +915,8 @@
 </div>
 
 
+
+
 <div id="pwaInstallBanner" class="fixed bottom-4 left-4 z-[999999] translate-y-24 opacity-0 transition-all duration-500 ease-out hidden w-auto max-w-[280px]">
     <div class="bg-blue-900/95 backdrop-blur-md border border-blue-700 rounded-2xl p-3 shadow-2xl flex items-center justify-between gap-3">
         <div class="flex items-center gap-2"><div class="bg-blue-800 p-1.5 rounded-xl border border-blue-600"><span class="text-xl">📲</span></div><div><h4 class="text-white font-bold text-xs">تثبيت التطبيق</h4><p class="text-blue-200 text-[9px]">YLY System</p></div></div>
@@ -794,14 +926,20 @@
 </div>
 
 
+
+
 <div id="pdf-generator-container" style="position: fixed; left: -5000px; top: 0; width: 210mm; min-height: 297mm; background: white; z-index: -100; visibility: hidden;"></div>
 <div id="toast" class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-full shadow-xl z-[200] hidden font-bold text-[10px] max-w-[90%] w-auto text-center whitespace-nowrap"></div>
+
+
 
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, onSnapshot, query, where, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+
 
 
     const firebaseConfig = {
@@ -815,13 +953,19 @@
     };
 
 
+
+
     const app = initializeApp(firebaseConfig); 
     const db = getFirestore(app);
     const auth = getAuth(app);
 
 
+
+
     window.db = db; window.auth = auth; window.collection = collection; window.addDoc = addDoc; window.getDocs = getDocs; window.doc = doc; window.deleteDoc = deleteDoc; window.onSnapshot = onSnapshot; window.query = query; window.where = where; window.setDoc = setDoc; window.updateDoc = updateDoc;
     window.signInWithEmailAndPassword = signInWithEmailAndPassword; window.createUserWithEmailAndPassword = createUserWithEmailAndPassword; window.signOut = signOut;
+
+
 
 
     const loading = document.getElementById('loadingOverlay');
@@ -838,6 +982,8 @@
     let unsubAccounting = null;
 
 
+
+
     function clearAllListeners() {
         if (unsubMembers) { unsubMembers(); unsubMembers = null; }
         if (unsubAttendance) { unsubAttendance(); unsubAttendance = null; }
@@ -845,9 +991,13 @@
     }
 
 
+
+
     onAuthStateChanged(auth, (user) => {
         clearTimeout(failSafeTimer); 
         clearAllListeners(); 
+
+
 
 
         const savedMode = localStorage.getItem('loginMode');
@@ -860,12 +1010,16 @@
                 });
 
 
+
+
                 // تحسين الأداء: استعلام لسجلات الحضور والتقييمات للـ 60 يوم الأخيرة للحد من استهلاك Firestore
                 const sixtyDaysAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
                 const attQuery = query(collection(db, "attendance"), where("date", ">=", sixtyDaysAgo));
                 unsubAttendance = onSnapshot(attQuery, (snapshot) => { 
                     window.attendance = []; snapshot.forEach(doc => window.attendance.push({ ...doc.data(), docId: doc.id })); window.updateCounters(); 
                 });
+
+
 
 
                 const accQuery = query(collection(db, "accounting"), where("date", ">=", sixtyDaysAgo));
@@ -900,6 +1054,8 @@
 </script>
 
 
+
+
 <script>
     function toggleCustomDropdown(event, menuId) {
         event.stopPropagation();
@@ -915,6 +1071,8 @@
     }
 
 
+
+
     function selectCustomOption(hiddenInputId, displayInputId, menuId, value, text, callback) {
         const hiddenInput = document.getElementById(hiddenInputId);
         const displayInput = document.getElementById(displayInputId);
@@ -927,11 +1085,15 @@
     }
 
 
+
+
     function selectLevel(value, text) {
         document.getElementById('stdLevel').value = value;
         document.getElementById('stdLevelDisplay').value = text;
         closeAllDropdowns();
     }
+
+
 
 
     function closeAllDropdowns(event) {
@@ -943,6 +1105,8 @@
     }
 
 
+
+
     function exportToExcelStyle(headers, rows, reportTitle, fileName) {
         if (typeof XLSX === 'undefined') {
             showToast('مكتبة Excel غير محملة', 'error');
@@ -950,8 +1114,12 @@
         }
 
 
+
+
         const wb = XLSX.utils.book_new();
         wb.Workbook = { Views: [{ RTL: true }] };
+
+
 
 
         const wsData = [
@@ -961,13 +1129,19 @@
         ];
 
 
+
+
         const ws = XLSX.utils.aoa_to_sheet(wsData);
         const colCount = headers.length;
+
+
 
 
         ws['!merges'] = [
             { s: { r: 0, c: 0 }, e: { r: 0, c: colCount - 1 } }
         ];
+
+
 
 
         const borderStyle = {
@@ -978,12 +1152,16 @@
         };
 
 
+
+
         const headerBorderStyle = {
             top: { style: "thin", color: { rgb: "000000" } },
             bottom: { style: "thin", color: { rgb: "000000" } },
             left: { style: "thin", color: { rgb: "000000" } },
             right: { style: "thin", color: { rgb: "000000" } }
         };
+
+
 
 
         if (ws['A1']) {
@@ -993,6 +1171,8 @@
                 fill: { fgColor: { rgb: "F9FAFB" } }
             };
         }
+
+
 
 
         for (let col = 0; col < colCount; col++) {
@@ -1008,6 +1188,8 @@
         }
 
 
+
+
         const totalRows = wsData.length;
         for (let r = 2; r < totalRows; r++) {
             for (let c = 0; c < colCount; c++) {
@@ -1021,6 +1203,8 @@
                     }
 
 
+
+
                     ws[cellRef].s = {
                         font: { name: 'Cairo', sz: 11 },
                         alignment: { horizontal: "center", vertical: "center", wrapText: true },
@@ -1029,6 +1213,8 @@
                 }
             }
         }
+
+
 
 
         const colWidths = headers.map((h, colIndex) => {
@@ -1044,8 +1230,12 @@
         });
 
 
+
+
         ws['!cols'] = colWidths;
         ws['!rows'] = [{ hpt: 35 }, { hpt: 26 }];
+
+
 
 
         XLSX.utils.book_append_sheet(wb, ws, "التقرير");
@@ -1053,9 +1243,13 @@
     }
 
 
+
+
     let deferredPrompt;
     const pwaBanner = document.getElementById('pwaInstallBanner');
     const installBtn = document.getElementById('pwaInstallBtn');
+
+
 
 
     window.dismissInstallBanner = function() {
@@ -1065,6 +1259,8 @@
     };
 
 
+
+
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
@@ -1072,6 +1268,8 @@
         setTimeout(() => { pwaBanner.classList.remove('translate-y-24', 'opacity-0'); pwaBanner.classList.add('translate-y-0', 'opacity-100'); }, 100);
         setTimeout(() => { dismissInstallBanner(); }, 6000);
     });
+
+
 
 
     installBtn.addEventListener('click', async () => {
@@ -1084,16 +1282,24 @@
     });
 
 
+
+
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => { navigator.serviceWorker.register('./service-worker.js').catch(()=>{}); });
     }
+
+
 
 
     const stageMap = { "HR": "الموارد البشرية (HR)", "PR": "العلاقات العامة (PR)", "OR": "التنظيم (OR)", "SM": "السوشيال ميديا (SM)" };
     window.members = []; window.attendance = []; window.accounting = [];
 
 
+
+
     function getEgyptDate() { return new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' }); }
+
+
 
 
     let today = getEgyptDate();
@@ -1104,7 +1310,11 @@
     const itemsPerPage = 10;
 
 
+
+
     function normalizeArabic(text) { return text.replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي'); }
+
+
 
 
     window.onload = () => {
@@ -1117,9 +1327,13 @@
         if(reportMonthEl) reportMonthEl.value = today.substring(0, 7);
 
 
+
+
         const savedLogin = localStorage.getItem('isLoggedIn');
         const savedMode = localStorage.getItem('loginMode');
         const savedTab = localStorage.getItem('activeTab');
+
+
 
 
         if (savedLogin === 'true') {
@@ -1137,6 +1351,8 @@
     };
 
 
+
+
     window.validatePhone = function(input) { let val = input.value.replace(/\D/g, ''); if (val.startsWith('0')) val = val.substring(1); if (val.length > 10) val = val.substring(0, 10); input.value = val; }
     
     window.setLoginMode = function(mode) { 
@@ -1151,6 +1367,8 @@
     }
 
 
+
+
     // إصلاح أمني وهندسي شامل لدخول الطلاب دون الاعتماد على مصفوفة الأعضاء بالذاكرة
     window.handleLogin = async function() { 
         const code = document.getElementById('loginCode').value.trim(); 
@@ -1158,11 +1376,15 @@
         const errorMsg = document.getElementById('loginError'); 
 
 
+
+
         if(!code || !pass) {
             errorMsg.innerText = "يرجى إدخال جميع البيانات المطلوب الدخول بها";
             errorMsg.classList.remove('hidden');
             return;
         }
+
+
 
 
         if (loginMode === 'admin') { 
@@ -1208,6 +1430,8 @@
     }
 
 
+
+
     function proceedLogin(mode) {
         localStorage.setItem('isLoggedIn', 'true'); 
         localStorage.setItem('loginMode', mode); 
@@ -1220,6 +1444,8 @@
             document.getElementById('navBar').classList.add('hidden'); 
         }
     }
+
+
 
 
     window.logout = async function() { 
@@ -1242,16 +1468,22 @@
     }
 
 
+
+
     function getStudentStatusForDate(member, dateStr) {
         const attendanceRecord = window.attendance.find(r => r.date === dateStr && r.studentId === member.id);
         const eventRec = window.attendance.find(r => r.studentId === "EVENT_MARKER" && r.date === dateStr);
         const isExpectedToAttend = eventRec && (!eventRec.levels || eventRec.levels.includes('all') || eventRec.levels.includes(member.level));
 
 
+
+
         if (attendanceRecord) { return { status: 'present', time: attendanceRecord.time }; }
         if (isExpectedToAttend) { return { status: 'absent' }; }
         return { status: 'none' };
     }
+
+
 
 
     function calculateStudentStats(member) {
@@ -1273,6 +1505,8 @@
         });
 
 
+
+
         Array.from(relevantDates).forEach(dateStr => {
             const statusObj = getStudentStatusForDate(member, dateStr);
             if (statusObj.status === 'present') present++;
@@ -1286,6 +1520,8 @@
         history.sort((a, b) => new Date(b.date) - new Date(a.date));
         return { present, absent, history };
     }
+
+
 
 
     window.updateStudentDashboardData = function(member) {
@@ -1317,9 +1553,13 @@
     }
 
 
+
+
     function loadStudentDashboard(member) {
         if(!member) return;
         if (localStorage.getItem('loginMode') === 'admin') return;
+
+
 
 
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -1328,18 +1568,20 @@
     }
 
 
+
+
     function getPrintTemplate(title, content) {
-        const date = new Date().toLocaleDateString('ar-EG');
+        const todayPrintDate = new Date().toLocaleDateString('ar-EG');
         return `
             <style>
                 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
                 body { font-family: 'Cairo', sans-serif; direction: rtl; }
                 .print-page { width: 100%; max-width: 100%; margin: 0 auto; padding: 20px; background: white; color: #000; }
                 .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #1e3a8a; padding-bottom: 15px; margin-bottom: 20px; }
-                .print-meta-area { text-align: left; font-size: 10pt; }
+                .print-meta-area { text-align: left; font-size: 9pt; color: #555; }
                 .print-title-area { text-align: center; flex: 1; }
-                .print-title-area h1 { font-size: 24pt; font-weight: 900; margin: 0; color: #1e3a8a; }
-                .print-title-area h2 { font-size: 16pt; font-weight: bold; margin: 5px 0 0 0; color: #333; }
+                .print-title-area h1 { font-size: 22pt; font-weight: 900; margin: 0; color: #1e3a8a; }
+                .print-title-area h2 { font-size: 14pt; font-weight: 800; margin: 5px 0 0 0; color: #dc2626; border-bottom: 1px solid #ddd; padding-bottom: 5px; display: inline-block; }
                 .print-logo-area { font-size: 40px; }
                 table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 11pt; table-layout: fixed; page-break-inside: auto; }
                 tr { page-break-inside: avoid; page-break-after: auto; }
@@ -1358,13 +1600,15 @@
             </style>
             <div class="print-page">
                 <div class="print-header">
-                    <div class="print-meta-area"><div>التاريخ: ${date}</div><div>YLY System</div></div>
+                    <div class="print-meta-area"><div>تاريخ الطباعة: ${todayPrintDate}</div><div>YLY System</div></div>
                     <div class="print-title-area"><h1>YLY Leaders</h1><h2>${title}</h2></div>
                     <div class="print-logo-area"><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" style="width:50px; height:50px; object-fit:contain;"></div>
                 </div>
                 <div class="print-body">${content}</div>
             </div>`;
     }
+
+
 
 
     window.printHTML = async function(title, content) {
@@ -1380,6 +1624,8 @@
             setTimeout(() => { printContainer.innerHTML = ''; }, 1000);
         } catch (e) { showToast('حدث خطأ أثناء الطباعة', 'error'); } finally { isPrinting = false; }
     };
+
+
 
 
     window.savePDF = function(title, content) {
@@ -1400,6 +1646,8 @@
     }
 
 
+
+
     function generateQRBase64(text) {
         return new Promise((resolve) => {
             const holder = document.createElement('div');
@@ -1411,6 +1659,8 @@
             }, 300);
         });
     }
+
+
 
 
     window.printStudentDashboard = async function() {
@@ -1432,6 +1682,8 @@
     }
 
 
+
+
     window.pdfStudentDashboard = async function() {
         const name = document.getElementById('dashName').innerText;
         const code = document.getElementById('dashCode').innerText;
@@ -1451,12 +1703,16 @@
     }
 
 
+
+
     window.exportStudentsListExcel = function() {
         const filterStage = document.getElementById('studentListFilter').value;
         const queryVal = normalizeArabic(document.getElementById('searchStd').value.toLowerCase());
         let filtered = window.members;
         if(filterStage !== 'all') { filtered = filtered.filter(s => s.level === filterStage); }
         if(queryVal !== '') { filtered = filtered.filter(s => normalizeArabic(s.name.toLowerCase()).includes(queryVal) || s.id.includes(queryVal)); }
+
+
 
 
         const headers = ["م", "الكود", "الاسم", "اللجنة", "رقم الهاتف", "تاريخ الانضمام"];
@@ -1470,8 +1726,12 @@
         ]);
 
 
+
+
         exportToExcelStyle(headers, rows, "قائمة الأعضاء المسجلين YLY", "قائمة_الأعضاء_YLY");
     }
+
+
 
 
     window.printStudentsList = function() {
@@ -1487,6 +1747,8 @@
     }
 
 
+
+
     window.pdfStudentsList = function() {
         let rows = '';
         const filterStage = document.getElementById('studentListFilter').value;
@@ -1500,6 +1762,8 @@
     }
 
 
+
+
     async function showTab(id, btn) { 
         if(isScannerRunning) await stopScanner(); 
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active')); 
@@ -1509,6 +1773,8 @@
         localStorage.setItem('activeTab', id); 
         window.scrollTo(0, 0);
     }
+
+
 
 
     async function registerStudent() { 
@@ -1521,10 +1787,14 @@
         ownPhone = ownPhone.replace(/\D/g, ''); if(ownPhone.startsWith('0')) ownPhone = ownPhone.substring(1); 
 
 
+
+
         let id; 
         do { id = Math.floor(1000 + Math.random() * 9000).toString(); } while (window.members.some(s => s.id === id)); 
         const password = Math.floor(100000 + Math.random() * 900000).toString(); 
         const createdAt = new Date().toISOString(); 
+
+
 
 
         try { 
@@ -1543,6 +1813,8 @@
     }
 
 
+
+
     window.renderStudents = function() {
         const query = normalizeArabic(document.getElementById('searchStd').value.toLowerCase());
         const filterStage = document.getElementById('studentListFilter').value;
@@ -1557,9 +1829,13 @@
         document.getElementById('stdCount').innerText = filtered.length;
 
 
+
+
         const totalPages = Math.ceil(filtered.length / itemsPerPage);
         if (currentPage > totalPages) currentPage = totalPages || 1;
         if (currentPage < 1) currentPage = 1;
+
+
 
 
         const start = (currentPage - 1) * itemsPerPage;
@@ -1567,13 +1843,19 @@
         const pageItems = filtered.slice(start, end);
 
 
+
+
         tbody.innerHTML = pageItems.map((s, index) => `<tr class="cursor-pointer" onclick="openStudentModal('${s.id}')"><td class="col-index">${start + index + 1}</td><td class="col-code font-mono font-bold text-gray-900">${s.id}</td><td class="font-bold">${s.name}</td><td>${stageMap[s.level] || s.level}</td><td class="col-date text-gray-500">${s.date || '-'}</td><td class="no-print col-action" onclick="event.stopPropagation()"><button onclick="delStudent('${s.docId}', '${s.id}')" class="text-red-500 text-[10px] font-bold">حذف</button></td></tr>`).join('');
         document.getElementById('pageIndicator').innerText = `صفحة ${currentPage} من ${totalPages || 1}`;
     }
 
 
+
+
     window.nextPage = function() { currentPage++; renderStudents(); }
     window.prevPage = function() { currentPage--; renderStudents(); }
+
+
 
 
     function openStudentModal(id) { 
@@ -1595,6 +1877,8 @@
         document.getElementById('studentModal').classList.remove('hidden'); 
         document.body.classList.add('modal-open'); 
     }
+
+
 
 
     let html5QrCode = null; let isScannerRunning = false; let isPaused = false;
@@ -1639,6 +1923,8 @@
     }
 
 
+
+
     async function startScanner(elemId, mode) { 
         if(isScannerRunning && html5QrCode) { return; }
         html5QrCode = new Html5Qrcode(elemId); 
@@ -1663,14 +1949,20 @@
     }
 
 
+
+
     async function stopScanner() { 
         if(html5QrCode) { try { await html5QrCode.stop(); html5QrCode.clear(); } catch(e) {} html5QrCode = null; isScannerRunning = false; isPaused = false; } 
     }
 
 
+
+
     document.addEventListener('visibilitychange', () => { if (document.hidden) stopScanner(); });
     window.addEventListener('beforeunload', () => { stopScanner(); });
     window.addEventListener('pagehide', () => { stopScanner(); });
+
+
 
 
     window.startCheckScanner = function() { document.getElementById('checkReader').classList.remove('hidden'); document.getElementById('btnStartCheck').classList.add('hidden'); document.getElementById('btnStopCheck').classList.remove('hidden'); startScanner('checkReader', 'check'); }
@@ -1694,6 +1986,8 @@
     }
 
 
+
+
     function togglePayMethod(method) { 
         const btnScan = document.getElementById('btnPayScan'); 
         const btnManual = document.getElementById('btnPayManual'); 
@@ -1711,6 +2005,8 @@
     }
 
 
+
+
     async function handleCheckScan(id) {
         if(html5QrCode) html5QrCode.pause();
         const member = window.members.find(s => s.id === id);
@@ -1722,6 +2018,8 @@
             document.getElementById('checkResPass').innerText = member.password || '---';
             document.getElementById('checkResultQr').innerHTML = '';
             new QRCode(document.getElementById("checkResultQr"), { text: member.id, width: 60, height: 60 });
+
+
 
 
             // استعلام مباشر لسجلات العضو للتأكد من الدقة دون إثقال ذاكرة متصفح الهاتف
@@ -1739,10 +2037,14 @@
             }
 
 
+
+
             const points = memberPoints.filter(a => a.category === 'points').sort((a,b) => new Date(b.date) - new Date(a.date));
             const totalPoints = points.reduce((sum, p) => sum + p.amount, 0);
             document.getElementById('checkResTotalPay').innerText = totalPoints + ' نقطة';
             document.getElementById('checkResPayTable').innerHTML = points.length ? points.map(p => `<tr><td>${p.date}</td><td>${p.type}</td><td class="text-blue-600 font-bold">${p.amount}</td></tr>`).join('') : '<tr><td colspan="3">لا يوجد</td></tr>';
+
+
 
 
             // حساب الإحصائيات
@@ -1752,12 +2054,16 @@
             let absentRows = '';
 
 
+
+
             const eventDates = new Set(memberAtt.map(a => a.date));
             Array.from(eventDates).forEach(d => {
                 const attRec = memberAtt.find(a => a.date === d && a.studentId === id);
                 const eventRec = memberAtt.find(a => a.date === d && a.studentId === "EVENT_MARKER");
                 const isExpected = eventRec && (!eventRec.levels || eventRec.levels.includes('all') || eventRec.levels.includes(member.level));
                 const dayAr = new Date(d + "T12:00:00").toLocaleDateString('ar-EG', {weekday: 'long'});
+
+
 
 
                 if (attRec) {
@@ -1770,12 +2076,18 @@
             });
 
 
+
+
             document.getElementById('checkResPresentCount').innerText = presentCount;
             document.getElementById('checkResPresentTable').innerHTML = presentRows || '<tr><td colspan="2">لا يوجد</td></tr>';
 
 
+
+
             document.getElementById('checkResAbsentCount').innerText = absentCount;
             document.getElementById('checkResAbsentTable').innerHTML = absentRows || '<tr><td colspan="2">لا يوجد</td></tr>';
+
+
 
 
             document.getElementById('checkResultModal').classList.remove('hidden');
@@ -1788,6 +2100,8 @@
     }
 
 
+
+
     window.closeModal = function(id) { 
         document.getElementById(id).classList.add('hidden'); 
         document.body.classList.remove('modal-open'); 
@@ -1795,8 +2109,12 @@
     }
 
 
+
+
     function showCustomAlert(title, message) { document.getElementById('alertTitle').innerText = title; document.getElementById('alertMessage').innerText = message; document.getElementById('customAlertModal').style.display = 'flex'; playSound('error'); }
     window.closeCustomAlert = function() { document.getElementById('customAlertModal').style.display = 'none'; isPaused = false; }
+
+
 
 
     async function handleAttendanceScan(id) {
@@ -1852,6 +2170,8 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
     }
 
 
+
+
     window.updateCounters = function() {
         const selectedLevel = document.getElementById('attendanceStage').value;
         const date = selectedAttendanceDate;
@@ -1883,10 +2203,14 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
     }
 
 
+
+
     window.toggleStudentReportSearch = function() {
         const btn = document.getElementById('btnSearchStudentReport');
         const input = document.getElementById('reportStudentSearch');
         const resDiv = document.getElementById('studentReportResult');
+
+
 
 
         if (btn.innerText === 'بحث') {
@@ -1904,6 +2228,8 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
     }
 
 
+
+
     function generateStudentReport() {
         const query = normalizeArabic(document.getElementById('reportStudentSearch').value.toLowerCase());
         const stage = document.getElementById('searchStage').value;
@@ -1914,10 +2240,14 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
     }
 
 
+
+
     // تقارير خفيفة ومباشرة للعضو
     window.showSingleReport = async function(studentId) {
         const member = window.members.find(s => s.id === studentId);
         if (!member) return;
+
+
 
 
         const resDiv = document.getElementById('studentReportResult');
@@ -1936,6 +2266,8 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
         }
 
 
+
+
         let present = 0; let absent = 0;
         const relevantDates = new Set(studentAtt.map(a => a.date));
         
@@ -1947,6 +2279,8 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
             if (attRec) present++;
             else if (isExpected && dateStr <= today) absent++;
         });
+
+
 
 
         const points = studentAcc.filter(r => r.category === 'points' && r.stdId === member.id);
@@ -1974,6 +2308,8 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
     }
 
 
+
+
     window.excelDetailedStudentReport = function(studentId) {
         const s = window.members.find(st => st.id === studentId); if(!s) return;
         const stats = calculateStudentStats(s);
@@ -1983,9 +2319,13 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
         const rows = [];
 
 
+
+
         points.forEach(p => {
             rows.push(["نقاط وتقييمات", p.date, p.type, p.amount]);
         });
+
+
 
 
         stats.history.forEach(h => {
@@ -1993,8 +2333,12 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
         });
 
 
+
+
         exportToExcelStyle(headers, rows, `تقرير متابعة عضو - ${s.name} (${s.id})`, `تقرير_العضو_${s.name}`);
     }
+
+
 
 
     window.printDetailedStudentReport = async function(studentId) {
@@ -2004,6 +2348,8 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
         const stats = calculateStudentStats(s);
         const points = window.accounting.filter(r => r.category === 'points' && r.stdId === s.id);
         const totalPoints = points.reduce((sum, p) => sum + p.amount, 0);
+
+
 
 
         const content = `
@@ -2023,6 +2369,8 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
     }
 
 
+
+
     window.pdfDetailedStudentReport = async function(studentId) {
         const s = window.members.find(st => st.id === studentId); if(!s) return;
         showToast('جاري إنشاء PDF...', 'success');
@@ -2030,6 +2378,8 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
         const stats = calculateStudentStats(s);
         const points = window.accounting.filter(r => r.category === 'points' && r.stdId === s.id);
         const totalPoints = points.reduce((sum, p) => sum + p.amount, 0);
+
+
 
 
         const content = `
@@ -2049,6 +2399,8 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
     }
 
 
+
+
     let currentPayStudent = null;
     function handlePaymentScan(id) { 
         if(!document.getElementById('paymentForm').classList.contains('hidden')) return; 
@@ -2056,6 +2408,8 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
         if(member) { 
             currentPayStudent = member;
             const lastPoints = window.accounting.filter(a => a.stdId === id && a.date === today && a.category === 'points').sort((a,b) => b.timestamp - a.timestamp)[0];
+
+
 
 
             if (lastPoints && (Date.now() - (lastPoints.timestamp || 0)) < 120000) { 
@@ -2069,9 +2423,13 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
     }
 
 
+
+
     window.proceedWithPayment = function() { document.getElementById('paymentConfirmModal').style.display = 'none'; isPaused = false; showPaymentForm(); }
     window.closePaymentConfirm = function() { document.getElementById('paymentConfirmModal').style.display = 'none'; isPaused = false; }
     window.cancelPayment = function() { document.getElementById('paymentForm').classList.add('hidden'); document.getElementById('paySearchID').value = ''; currentPayStudent = null; isPaused = false; }
+
+
 
 
     function showPaymentForm() {
@@ -2080,13 +2438,19 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
         document.getElementById('payStdID').innerText = currentPayStudent.id; 
 
 
+
+
         document.getElementById('payAmount').value = document.getElementById('defScoreAmount').value;
         document.getElementById('payType').value = document.getElementById('defScoreType').value;
         document.getElementById('payNote').value = document.getElementById('defScoreNote').value;
 
 
+
+
         playSound('success'); isPaused = true; 
     }
+
+
 
 
     function searchStudentForPay() { handlePaymentScan(document.getElementById('paySearchID').value); }
@@ -2101,8 +2465,12 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
         const time = new Date().toLocaleTimeString('ar-EG'); 
 
 
+
+
         let typeText = type;
         if(note) typeText += ` (${note})`;
+
+
 
 
         await window.addDoc(window.collection(window.db, "accounting"), { 
@@ -2116,12 +2484,16 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
     }
 
 
+
+
     window.updateFinance = function() { 
         const points = window.accounting.filter(a => a.category === 'points'); 
         const todayPoints = points.filter(r => r.date === today); 
         
         const totalPointsToday = todayPoints.reduce((sum, r) => sum + r.amount, 0); 
         document.getElementById('totalRev').innerText = totalPointsToday; 
+
+
 
 
         const todayRevBody = document.getElementById('todayRevListBody');
@@ -2143,12 +2515,18 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
     }
 
 
+
+
     function toggleReportInputs() { const type = document.getElementById('reportType').value; if(type === 'daily') { document.getElementById('divDateInput').classList.remove('hidden'); document.getElementById('divMonthInput').classList.add('hidden'); } else { document.getElementById('divDateInput').classList.add('hidden'); document.getElementById('divMonthInput').classList.remove('hidden'); } }
+
+
 
 
     window.toggleAdvancedReport = function() {
         const btn = document.getElementById('btnGenerateReport');
         const resDiv = document.getElementById('reportResult');
+
+
 
 
         if (btn.innerText === 'توليد التقرير') {
@@ -2166,6 +2544,8 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
     }
 
 
+
+
     // توليد تقارير سريعة ومستقلة مباشرة من البيانات لضمان أقصى كفاءة للأعداد الكبيرة
     async function generateAdvancedReport() {
         const type = document.getElementById('reportType').value;
@@ -2176,11 +2556,17 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
         const resDiv = document.getElementById('reportResult');
 
 
+
+
         currentReportData = { present: [], absent: [], points: [], combined: [] };
+
+
 
 
         let targetMembers = window.members;
         if(stage !== 'all') targetMembers = window.members.filter(s => s.level === stage);
+
+
 
 
         let datesArray = [];
@@ -2200,8 +2586,12 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
         }
 
 
+
+
         let periodAttendance = [];
         let periodAccounting = [];
+
+
 
 
         try {
@@ -2226,10 +2616,14 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
         }
 
 
+
+
         function getStudentReportStatus(member, dateStr) {
             const attendanceRecord = periodAttendance.find(r => r.date === dateStr && r.studentId === member.id);
             const eventRec = periodAttendance.find(r => r.studentId === "EVENT_MARKER" && r.date === dateStr);
             const isExpectedToAttend = eventRec && (!eventRec.levels || eventRec.levels.includes('all') || eventRec.levels.includes(member.level));
+
+
 
 
             if (attendanceRecord) { return { status: 'present', time: attendanceRecord.time }; }
@@ -2238,14 +2632,20 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
         }
 
 
+
+
         let totalPointsForPeriod = 0;
         let pointsForPeriod = periodAccounting.filter(a => a.category === 'points' && datesArray.includes(a.date));
+
+
 
 
         targetMembers.forEach(member => {
             let presentCount = 0; let absentCount = 0;
             let presentDates = [];
             let absentDates = [];
+
+
 
 
             datesArray.forEach(d => {
@@ -2260,6 +2660,8 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
                     }
                 }
             });
+
+
 
 
             const memberPoints = pointsForPeriod.filter(p => p.stdId === member.id).reduce((sum, p) => sum + p.amount, 0);
@@ -2280,10 +2682,16 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
         });
 
 
+
+
         currentReportData.points = pointsForPeriod;
 
 
+
+
         let html = `<h4 class="font-bold text-center border-b pb-2 mb-2 text-blue-900">تقرير ${dateLabel} - لجنة (${stageMap[stage] || 'كل اللجان'})</h4>`;
+
+
 
 
         if (category === 'combined') {
@@ -2316,7 +2724,11 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
                         </tbody>
                     </table>
                 </div>
-                <button onclick="exportCombinedExcel()" class="w-full bg-green-700 text-white py-1.5 rounded font-bold shadow text-[10px] md:text-sm">📥 تصدير التقرير الشامل (Excel)</button>
+                <div class="grid grid-cols-3 gap-2 mt-2">
+    <button onclick="exportCombinedExcel()" class="bg-green-700 text-white py-1.5 rounded font-bold shadow text-[10px] md:text-sm flex items-center justify-center gap-1">📊 Excel</button>
+    <button onclick="pdfCombinedReport()" class="bg-red-700 text-white py-1.5 rounded font-bold shadow text-[10px] md:text-sm flex items-center justify-center gap-1">📄 PDF</button>
+    <button onclick="printCombinedReport()" class="bg-gray-800 text-white py-1.5 rounded font-bold shadow text-[10px] md:text-sm flex items-center justify-center gap-1">🖨️ طباعة</button>
+</div>
             `;
         }
         else if (category === 'attendance') {
@@ -2344,11 +2756,17 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
         }
 
 
+
+
         resDiv.innerHTML = html; resDiv.classList.remove('hidden');
     }
 
 
+
+
     window.toggleReportView = function() { if (!document.getElementById('reportResult').classList.contains('hidden')) { generateAdvancedReport(); } }
+
+
 
 
     function getReportTitleHeader(baseTitle) {
@@ -2356,10 +2774,19 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
         const stage = document.getElementById('reportStage').value;
         const dateInput = document.getElementById('reportDate').value;
         const monthInput = document.getElementById('reportMonth').value;
-        const periodText = type === 'daily' ? `تقرير يومي بتاريخ (${dateInput})` : `تقرير شهري لشهر (${monthInput})`;
+        
+        let periodText = '';
+        if(type === 'daily') {
+            periodText = `يوم (${dateInput || today})`;
+        } else {
+            const [year, month] = (monthInput || today.substring(0,7)).split('-');
+            periodText = `شهر (${month ? parseInt(month) : ''} - ${year})`;
+        }
         const stageText = stageMap[stage] || 'كل اللجان';
-        return `${baseTitle} - ${periodText} - لجنة: ${stageText}`;
+        return `${baseTitle} - ${periodText} - ${stageText}`;
     }
+
+
 
 
     window.exportCombinedExcel = function() {
@@ -2381,12 +2808,18 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
         ]);
 
 
+
+
         exportToExcelStyle(headers, rows, titleHeader, "تقرير_شامل_YLY");
     }
 
 
+
+
     window.exportAttendanceReportExcel = function() {
         if(!currentReportData.combined || currentReportData.combined.length === 0) return showToast('لا توجد بيانات للتصدير', 'error');
+
+
 
 
         const titleHeader = getReportTitleHeader("تقرير الحضور والغياب التفصيلي YLY");
@@ -2404,12 +2837,18 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
         ]);
 
 
+
+
         exportToExcelStyle(headers, rows, titleHeader, "تقرير_الحضور_والغياب_YLY");
     }
 
 
+
+
     window.exportPointsReportExcel = function() {
         if(!currentReportData.points || currentReportData.points.length === 0) return showToast('لا توجد بيانات للتصدير', 'error');
+
+
 
 
         const titleHeader = getReportTitleHeader("تقرير النقاط والمهام YLY");
@@ -2425,19 +2864,90 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
         ]);
 
 
+
+
         exportToExcelStyle(headers, rows, titleHeader, "تقرير_النقاط_والمهام_YLY");
+    }
+
+
+window.printCombinedReport = function() {
+        if(!currentReportData.combined || currentReportData.combined.length === 0) return showToast('لا توجد بيانات للطباعة', 'error');
+        const title = getReportTitleHeader("التقرير الشامل");
+        let rows = currentReportData.combined.map((c, i) => `
+            <tr>
+                <td style="width:30px;">${i+1}</td>
+                <td style="width:70px;">${c.id}</td>
+                <td style="font-weight:bold;">${c.name}</td>
+                <td>${stageMap[c.level]||c.level}</td>
+                <td style="color:blue; font-weight:bold;">${c.totalPoints}</td>
+                <td style="color:green; font-weight:bold;">${c.presentCount}</td>
+                <td style="color:red; font-weight:bold;">${c.absentCount}</td>
+            </tr>
+        `).join('');
+        const content = `
+            <table class="print-table">
+                <thead>
+                    <tr>
+                        <th>م</th>
+                        <th>الكود</th>
+                        <th>الاسم</th>
+                        <th>اللجنة</th>
+                        <th>النقاط</th>
+                        <th>حضور</th>
+                        <th>غياب</th>
+                    </tr>
+                </thead>
+                <tbody>${rows}</tbody>
+            </table>`;
+        printHTML(title, content);
+    }
+
+
+    window.pdfCombinedReport = function() {
+        if(!currentReportData.combined || currentReportData.combined.length === 0) return showToast('لا توجد بيانات للتحميل', 'error');
+        const title = getReportTitleHeader("التقرير الشامل");
+        let rows = currentReportData.combined.map((c, i) => `
+            <tr>
+                <td style="width:30px;">${i+1}</td>
+                <td style="width:70px;">${c.id}</td>
+                <td style="font-weight:bold;">${c.name}</td>
+                <td>${stageMap[c.level]||c.level}</td>
+                <td style="color:blue; font-weight:bold;">${c.totalPoints}</td>
+                <td style="color:green; font-weight:bold;">${c.presentCount}</td>
+                <td style="color:red; font-weight:bold;">${c.absentCount}</td>
+            </tr>
+        `).join('');
+        const content = `
+            <table class="print-table">
+                <thead>
+                    <tr>
+                        <th>م</th>
+                        <th>الكود</th>
+                        <th>الاسم</th>
+                        <th>اللجنة</th>
+                        <th>النقاط</th>
+                        <th>حضور</th>
+                        <th>غياب</th>
+                    </tr>
+                </thead>
+                <tbody>${rows}</tbody>
+            </table>`;
+        savePDF(title, content);
     }
 
 
     function openReportDetails(key) { 
         const list = currentReportData[key]; 
-        let title = ''; 
-        if(key === 'present') title = 'تفاصيل الحضور'; 
-        else if(key === 'absent') title = 'تفاصيل الغياب'; 
-        else if(key === 'points') title = 'تفاصيل النقاط والمهام'; 
+        let baseTitle = ''; 
+        if(key === 'present') baseTitle = 'تقرير الحضور التفصيلي'; 
+        else if(key === 'absent') baseTitle = 'تقرير الغياب التفصيلي'; 
+        else if(key === 'points') baseTitle = 'تقرير النقاط والمهام التفصيلي'; 
 
 
-        document.getElementById('detailsTitle').innerText = title; 
+        const fullTitle = getReportTitleHeader(baseTitle);
+
+
+        document.getElementById('detailsTitle').innerText = fullTitle; 
         const thead = document.getElementById('detailsTableHead'); 
         const tbody = document.getElementById('detailsTableBody'); 
 
@@ -2495,6 +3005,8 @@ function playSound(type) {
         const stdPhone = s.ownPhone ? (s.ownPhone.startsWith('0') ? s.ownPhone : '0' + s.ownPhone) : (s.phone ? (s.phone.startsWith('0') ? s.phone : '0'+s.phone) : 'غير مسجل');
 
 
+
+
         const content = `
             <div class="print-student-card">
                 <div class="print-card-title">بطاقة عضو YLY</div>
@@ -2510,11 +3022,15 @@ function playSound(type) {
     }
 
 
+
+
     window.shareStudentPdf = async function() { 
         const s = window.members.find(st => st.id === currentModalStudentId); if(!s) return; 
         showToast('جاري إنشاء PDF...', 'success');
         const qrImageHtml = await generateQRBase64(s.id);
         const stdPhone = s.ownPhone ? (s.ownPhone.startsWith('0') ? s.ownPhone : '0' + s.ownPhone) : (s.phone ? (s.phone.startsWith('0') ? s.phone : '0'+s.phone) : 'غير مسجل');
+
+
 
 
         const content = `

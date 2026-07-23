@@ -1576,25 +1576,34 @@
             <style>
                 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
                 @page { size: A4 ${isLandscape ? 'landscape' : 'portrait'}; margin: 8mm; }
-                body { font-family: 'Cairo', sans-serif; direction: rtl; background: white; }
-                .print-page { width: 100%; max-width: 100%; margin: 0 auto; padding: 5px; background: white; color: #000; }
-                .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 8px; margin-bottom: 12px; }
+                body { font-family: 'Cairo', sans-serif; direction: rtl; }
+                .print-page { width: 100%; max-width: 100%; margin: 0 auto; padding: 10px; background: white; color: #000; }
+                .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; margin-bottom: 15px; }
                 .print-meta-area { text-align: left; font-size: 8pt; color: #555; }
                 .print-title-area { text-align: center; flex: 1; padding: 0 10px; }
-                .print-title-area h1 { font-size: 18pt; font-weight: 900; margin: 0; color: #1e3a8a; }
-                .print-title-area h2 { font-size: 11pt; font-weight: 800; margin: 3px 0 0 0; color: #dc2626; border-bottom: 1px solid #ddd; padding-bottom: 3px; display: inline-block; white-space: normal; line-height: 1.3; }
+                .print-title-area h1 { font-size: 20pt; font-weight: 900; margin: 0; color: #1e3a8a; }
+                .print-title-area h2 { font-size: 12pt; font-weight: 800; margin: 3px 0 0 0; color: #dc2626; border-bottom: 1px solid #ddd; padding-bottom: 3px; display: inline-block; white-space: normal; line-height: 1.3; }
                 .print-logo-area { font-size: 30px; }
-                table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 8pt; table-layout: fixed; }
-                tr { page-break-inside: avoid !important; page-break-after: auto; }
+                table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 9pt; table-layout: fixed; page-break-inside: auto; }
+                tr { page-break-inside: avoid; page-break-after: auto; }
                 thead { display: table-header-group; }
-                th { background-color: #1e3a8a !important; color: #fff !important; font-weight: 900; border: 1px solid #000; padding: 5px 2px; text-align: center; -webkit-print-color-adjust: exact; }
-                td { border: 1px solid #000; padding: 4px 2px; text-align: center; vertical-align: middle; word-break: break-word; overflow-wrap: break-word; }
+                th { background-color: #1e3a8a !important; color: #fff !important; font-weight: 900; border: 1px solid #000; padding: 6px 4px; text-align: center; -webkit-print-color-adjust: exact; }
+                td { border: 1px solid #000; padding: 5px 4px; text-align: center; vertical-align: middle; word-wrap: break-words; }
+                .print-student-card { border: 4px double #1e3a8a !important; border-radius: 15px; padding: 20px; width: 350px; margin: 20px auto; text-align: center; page-break-inside: avoid; background: #fff; }
+                .print-card-title { font-size: 16pt; font-weight: bold; margin-bottom: 10px; color: #dc2626; }
+                .print-card-name { font-size: 20pt; font-weight: 900; margin: 10px 0; border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; color: #000; }
+                .print-card-row { font-size: 12pt; font-weight: bold; margin: 5px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding: 2px 0; color: #000; }
+                .print-card-footer { margin-top: 15px; font-size: 10pt; color: #555; font-weight: bold; border-top: 1px solid #1e3a8a; padding-top: 5px; }
+                .print-stats-table { width: 100%; margin-bottom: 20px; border-collapse: separate; border-spacing: 10px 0; page-break-inside: avoid; }
+                .print-stats-cell { border: 1px solid #1e3a8a; padding: 10px; text-align: center; border-radius: 8px; width: 33%; vertical-align: middle; }
+                .print-box-title { font-size: 12pt; font-weight: bold; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 5px; }
+                .print-box-val { font-size: 16pt; font-weight: 900; }
             </style>
             <div class="print-page">
                 <div class="print-header">
                     <div class="print-meta-area"><div>تاريخ الطباعة: ${todayPrintDate}</div><div>YLY System</div></div>
                     <div class="print-title-area"><h1>YLY Leaders</h1><h2>${title}</h2></div>
-                    <div class="print-logo-area"><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" style="width:40px; height:40px; object-fit:contain;"></div>
+                    <div class="print-logo-area"><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" style="width:45px; height:45px; object-fit:contain;"></div>
                 </div>
                 <div class="print-body">${content}</div>
             </div>`;
@@ -1607,6 +1616,7 @@
         showToast('جاري تحضير الطباعة...', 'success');
         try {
             const printContainer = document.getElementById('print-container');
+            printContainer.innerHTML = '';
             printContainer.innerHTML = getPrintTemplate(title, content, isLandscape);
             await new Promise(resolve => setTimeout(resolve, 300));
             window.print();
@@ -1618,53 +1628,31 @@
     window.savePDF = function(title, content, isLandscape = false) {
         if(isPrinting) return;
         isPrinting = true;
-        showToast('جاري إنشاء PDF... برجاء الانتظار', 'success');
+        showToast('جاري إنشاء PDF...', 'success');
         const pdfContainer = document.getElementById('pdf-generator-container');
-        if(!pdfContainer) return;
-
-
-        pdfContainer.innerHTML = getPrintTemplate(title, content, isLandscape);
-        
-        pdfContainer.style.position = 'fixed';
-        pdfContainer.style.top = '0';
-        pdfContainer.style.left = '0';
-        pdfContainer.style.width = isLandscape ? '297mm' : '210mm';
-        pdfContainer.style.zIndex = '999999';
-        pdfContainer.style.visibility = 'visible';
-        pdfContainer.style.opacity = '1';
-        pdfContainer.style.background = 'white';
-
-
-        setTimeout(() => {
-            const element = pdfContainer.firstElementChild || pdfContainer;
-            const opt = { 
-                margin: [6, 6, 6, 6], 
-                filename: `${title}_${today}.pdf`, 
-                image: { type: 'jpeg', quality: 0.98 }, 
-                html2canvas: { scale: 2, useCORS: true, logging: false, scrollY: 0 }, 
-                jsPDF: { unit: 'mm', format: 'a4', orientation: isLandscape ? 'landscape' : 'portrait' },
-                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-            };
-
-
-            html2pdf().set(opt).from(element).save().then(() => { 
-                pdfContainer.style.visibility = 'hidden'; 
-                pdfContainer.style.opacity = '0';
-                pdfContainer.style.zIndex = '-100';
-                pdfContainer.style.left = '-5000px';
-                pdfContainer.innerHTML = ''; 
-                isPrinting = false; 
-            }).catch(err => { 
-                showToast('حدث خطأ أثناء حفظ الـ PDF', 'error'); 
-                pdfContainer.style.visibility = 'hidden';
-                pdfContainer.style.opacity = '0';
-                pdfContainer.style.zIndex = '-100';
-                pdfContainer.style.left = '-5000px';
-                pdfContainer.innerHTML = '';
-                isPrinting = false; 
-            });
-        }, 500);
+        try {
+            pdfContainer.style.direction = 'ltr';
+            pdfContainer.innerHTML = `<div style="direction: rtl; width: 100%; margin: 0 auto;">${getPrintTemplate(title, content, isLandscape)}</div>`;
+            pdfContainer.style.visibility = 'visible';
+            setTimeout(() => {
+                const element = pdfContainer.firstElementChild;
+                const opt = { 
+                    margin: [8, 8, 8, 8], 
+                    filename: `${title}_${new Date().toLocaleDateString('en-CA')}.pdf`, 
+                    image: { type: 'jpeg', quality: 0.98 }, 
+                    html2canvas: { scale: 2, useCORS: true, logging: false }, 
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: isLandscape ? 'landscape' : 'portrait' } 
+                };
+                html2pdf().set(opt).from(element).save().then(() => { 
+                    pdfContainer.style.visibility = 'hidden'; 
+                    pdfContainer.innerHTML = ''; 
+                    isPrinting = false; 
+                }).catch(err => { showToast('فشل الحفظ', 'error'); isPrinting = false; });
+            }, 500);
+        } catch (e) { isPrinting = false; }
     }
+
+
 
 
     function generateQRBase64(text) {
@@ -2868,35 +2856,35 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
         const title = getReportTitleHeader("التقرير الشامل");
         let rows = currentReportData.combined.map((c, i) => `
             <tr>
-                <td style="width:20px;">${i+1}</td>
-                <td style="width:40px;">${c.id}</td>
+                <td style="width:25px;">${i+1}</td>
+                <td style="width:50px;">${c.id}</td>
                 <td style="font-weight:bold;">${c.name}</td>
-                <td style="width:75px;">${stageMap[c.level]||c.level}</td>
-                <td style="color:blue; font-weight:bold; width:35px;">${c.totalPoints}</td>
-                <td style="color:green; font-weight:bold; width:30px;">${c.presentCount}</td>
-                <td style="color:red; font-weight:bold; width:30px;">${c.absentCount}</td>
-                <td style="font-size:7.5pt; color:green; text-align:right;">${(c.presentDates || []).join('، ') || 'لا يوجد'}</td>
-                <td style="font-size:7.5pt; color:red; text-align:right;">${(c.absentDates || []).join('، ') || 'لا يوجد'}</td>
+                <td style="width:90px;">${stageMap[c.level]||c.level}</td>
+                <td style="color:blue; font-weight:bold; width:45px;">${c.totalPoints}</td>
+                <td style="color:green; font-weight:bold; width:40px;">${c.presentCount}</td>
+                <td style="color:red; font-weight:bold; width:40px;">${c.absentCount}</td>
+                <td style="font-size:8pt; color:green; text-align:right;">${c.presentDates.join(', ') || 'لا يوجد'}</td>
+                <td style="font-size:8pt; color:red; text-align:right;">${c.absentDates.join(', ') || 'لا يوجد'}</td>
             </tr>
         `).join('');
         const content = `
             <table class="print-table">
                 <thead>
                     <tr>
-                        <th style="width:20px;">م</th>
-                        <th style="width:40px;">الكود</th>
+                        <th style="width:25px;">م</th>
+                        <th style="width:50px;">الكود</th>
                         <th>الاسم</th>
-                        <th style="width:75px;">اللجنة</th>
-                        <th style="width:35px;">النقاط</th>
-                        <th style="width:30px;">حضور</th>
-                        <th style="width:30px;">غياب</th>
+                        <th style="width:90px;">اللجنة</th>
+                        <th style="width:45px;">النقاط</th>
+                        <th style="width:40px;">حضور</th>
+                        <th style="width:40px;">غياب</th>
                         <th>تواريخ الحضور</th>
                         <th>تواريخ الغياب</th>
                     </tr>
                 </thead>
                 <tbody>${rows}</tbody>
             </table>`;
-        printHTML(title, content, false);
+        printHTML(title, content, true);
     }
 
 
@@ -2905,41 +2893,40 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
         const title = getReportTitleHeader("التقرير الشامل");
         let rows = currentReportData.combined.map((c, i) => `
             <tr>
-                <td style="width:20px;">${i+1}</td>
-                <td style="width:40px;">${c.id}</td>
+                <td style="width:25px;">${i+1}</td>
+                <td style="width:50px;">${c.id}</td>
                 <td style="font-weight:bold;">${c.name}</td>
-                <td style="width:75px;">${stageMap[c.level]||c.level}</td>
-                <td style="color:blue; font-weight:bold; width:35px;">${c.totalPoints}</td>
-                <td style="color:green; font-weight:bold; width:30px;">${c.presentCount}</td>
-                <td style="color:red; font-weight:bold; width:30px;">${c.absentCount}</td>
-                <td style="font-size:7.5pt; color:green; text-align:right;">${(c.presentDates || []).join('، ') || 'لا يوجد'}</td>
-                <td style="font-size:7.5pt; color:red; text-align:right;">${(c.absentDates || []).join('، ') || 'لا يوجد'}</td>
+                <td style="width:90px;">${stageMap[c.level]||c.level}</td>
+                <td style="color:blue; font-weight:bold; width:45px;">${c.totalPoints}</td>
+                <td style="color:green; font-weight:bold; width:40px;">${c.presentCount}</td>
+                <td style="color:red; font-weight:bold; width:40px;">${c.absentCount}</td>
+                <td style="font-size:8pt; color:green; text-align:right;">${c.presentDates.join(', ') || 'لا يوجد'}</td>
+                <td style="font-size:8pt; color:red; text-align:right;">${c.absentDates.join(', ') || 'لا يوجد'}</td>
             </tr>
         `).join('');
         const content = `
             <table class="print-table">
                 <thead>
                     <tr>
-                        <th style="width:20px;">م</th>
-                        <th style="width:40px;">الكود</th>
+                        <th style="width:25px;">م</th>
+                        <th style="width:50px;">الكود</th>
                         <th>الاسم</th>
-                        <th style="width:75px;">اللجنة</th>
-                        <th style="width:35px;">النقاط</th>
-                        <th style="width:30px;">حضور</th>
-                        <th style="width:30px;">غياب</th>
+                        <th style="width:90px;">اللجنة</th>
+                        <th style="width:45px;">النقاط</th>
+                        <th style="width:40px;">حضور</th>
+                        <th style="width:40px;">غياب</th>
                         <th>تواريخ الحضور</th>
                         <th>تواريخ الغياب</th>
                     </tr>
                 </thead>
                 <tbody>${rows}</tbody>
             </table>`;
-        savePDF(title, content, false);
+        savePDF(title, content, true);
     }
 
 
     function openReportDetails(key) { 
         const list = currentReportData[key]; 
-        const reportType = document.getElementById('reportType').value;
         let baseTitle = ''; 
         if(key === 'present') baseTitle = 'تقرير الحضور التفصيلي'; 
         else if(key === 'absent') baseTitle = 'تقرير الغياب التفصيلي'; 
@@ -2955,15 +2942,9 @@ await window.addDoc(window.collection(window.db, "attendance"), { date: date, st
 
 
         if(key === 'present' || key === 'absent') { 
-            if (reportType === 'daily') {
-                thead.innerHTML = `<tr><th class="col-index">م</th><th>الاسم</th><th>الكود</th><th>اللجنة</th><th>${key === 'present' ? 'وقت الحضور' : 'الحالة'}</th></tr>`; 
-                if(!list || list.length === 0) tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4">لا توجد بيانات</td></tr>`; 
-                else tbody.innerHTML = list.map((s, i) => `<tr class="hover:bg-gray-50"><td class="text-gray-500">${i + 1}</td><td class="font-bold">${s.name}</td><td class="font-mono">${s.id}</td><td>${stageMap[s.level] || s.level}</td><td class="font-bold ${key === 'absent' ? 'text-red-600' : 'text-green-600'}">${key === 'present' ? (s.presentTime || 'حاضر') : 'غياب'}</td></tr>`).join('');
-            } else {
-                thead.innerHTML = `<tr><th class="col-index">م</th><th>الاسم</th><th>اللجنة</th><th>العدد</th><th>${key === 'present' ? 'تواريخ الحضور' : 'تواريخ الغياب'}</th></tr>`; 
-                if(!list || list.length === 0) tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4">لا توجد بيانات</td></tr>`; 
-                else tbody.innerHTML = list.map((s, i) => `<tr class="hover:bg-gray-50"><td class="text-gray-500">${i + 1}</td><td class="font-bold">${s.name}</td><td>${stageMap[s.level] || s.level}</td><td class="font-bold ${key === 'absent' ? 'text-red-600' : 'text-green-600'}">${s[key + 'Count']} يوم</td><td class="text-xs font-bold ${key === 'absent' ? 'text-red-700' : 'text-green-700'} align-top p-1" style="line-height: 1.6;">${(s[key + 'Dates'] || []).join('، ') || 'لا يوجد'}</td></tr>`).join('');
-            }
+            thead.innerHTML = `<tr><th class="col-index">م</th><th>الاسم</th><th>اللجنة</th><th>العدد</th><th>التواريخ</th></tr>`; 
+            if(!list || list.length === 0) tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4">لا توجد بيانات</td></tr>`; 
+            else tbody.innerHTML = list.map((s, i) => `<tr class="hover:bg-gray-50"><td class="text-gray-500">${i + 1}</td><td class="font-bold">${s.name}</td><td>${stageMap[s.level] || s.level}</td><td class="font-bold ${key === 'absent' ? 'text-red-600' : 'text-green-600'}">${s[key + 'Count']} يوم</td><td class="text-[9px] text-gray-600 align-top" style="line-height: 1.6;">${(s[key + 'Dates'] || []).join('<br>') || 'لا يوجد'}</td></tr>`).join('');
         } else if (key === 'points') {
             thead.innerHTML = `<tr><th class="col-index">م</th><th>الاسم</th><th>النقاط</th><th>المهمة</th><th>التاريخ</th></tr>`; 
             if(!list || list.length === 0) tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4">لا توجد بيانات</td></tr>`; 

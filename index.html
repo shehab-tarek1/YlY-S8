@@ -453,16 +453,14 @@
     window.closeInternalPage = function(id) { document.getElementById(id).classList.remove('active'); document.body.classList.remove('internal-open'); }
 
 
-// 1. قوالب التنسيق المحدثة والمجهزة للطباعة والـ PDF مع ضبط الخط العربي
 function getPrintTemplate(title, content, isLandscape = false) {
     const todayPrintDate = new Date().toLocaleDateString('ar-EG');
     return `
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
-        @page { size: A4 ${isLandscape ? 'landscape' : 'portrait'}; margin: 8mm; }
         
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif !important; direction: rtl !important; }
-        body { font-family: 'Cairo', sans-serif !important; direction: rtl !important; text-align: right; background: #fff; color: #000; margin: 0; padding: 10px; unicode-bidi: embed; }
+        body { font-family: 'Cairo', sans-serif !important; direction: rtl !important; text-align: right; background: #fff; color: #000; margin: 0; padding: 5px; }
         
         .print-page { width: 100%; max-width: 100%; margin: 0 auto; background: white; color: #000; }
         .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; margin-bottom: 15px; }
@@ -472,12 +470,12 @@ function getPrintTemplate(title, content, isLandscape = false) {
         .print-title-area h2 { font-size: 12pt; font-weight: 800; margin: 4px 0 0 0; color: #dc2626; border-bottom: 1px solid #ddd; padding-bottom: 3px; display: inline-block; }
         .print-logo-area { text-align: left; }
         
-        table { width: 100% !important; border-collapse: collapse; margin-top: 10px; font-size: 11px !important; table-layout: fixed; }
+        table { width: 100% !important; border-collapse: collapse; margin-top: 10px; font-size: 11px !important; table-layout: fixed; direction: rtl !important; }
         tr { page-break-inside: avoid; }
         thead { display: table-header-group; }
         
-        .ultra-compact-table th { background-color: #1e3a8a !important; color: #fff !important; font-weight: 800 !important; border: 1px solid #374151 !important; padding: 6px 3px !important; text-align: center !important; -webkit-print-color-adjust: exact; }
-        .ultra-compact-table td { border: 1px solid #d1d5db !important; padding: 6px 3px !important; font-size: 11px !important; font-weight: 700 !important; text-align: center !important; vertical-align: middle !important; word-wrap: break-word !important; overflow-wrap: break-word !important; white-space: normal !important; line-height: 1.3 !important; }
+        .ultra-compact-table th { background-color: #1e3a8a !important; color: #fff !important; font-weight: 800 !important; border: 1px solid #374151 !important; padding: 6px 4px !important; text-align: center !important; }
+        .ultra-compact-table td { border: 1px solid #d1d5db !important; padding: 6px 4px !important; font-size: 11px !important; font-weight: 700 !important; text-align: center !important; vertical-align: middle !important; word-wrap: break-word !important; overflow-wrap: break-word !important; white-space: normal !important; line-height: 1.4 !important; }
         
         .print-student-card { border: 4px double #1e3a8a !important; border-radius: 15px; padding: 15px; width: 330px; margin: 10px auto; text-align: center; page-break-inside: avoid; background: #fff; }
         .print-card-title { font-size: 14pt; font-weight: bold; margin-bottom: 8px; color: #dc2626; }
@@ -545,93 +543,57 @@ window.printHTML = async function(title, content, isLandscape = false) {
     }
 };
 
-// الكود الحالي الموجود في ملفك (القديم)
-// استبدله بالكامل بهذا الكود الجديد المعالج لمشكلة الإزاحة والصفحات الداخلية:
-
 window.savePDF = async function(title, content, isLandscape = false) {
     if (isPrinting) return;
     isPrinting = true;
-    showToast('جاري إنشاء PDF...', 'success');
+    showToast('جاري تحضير ملف الـ PDF...', 'success');
 
-    const pdfContainer = document.getElementById('pdf-generator-container');
     try {
-        const targetWidthPx = isLandscape ? 1122 : 794;
+        // 1. إنشاء iframe معزول مخفي تماماً خارج نطاق الشاشة لمنع زحف الصفحة الرئيسية
+        let pdfIframe = document.getElementById('pdf-render-iframe');
+        if (!pdfIframe) {
+            pdfIframe = document.createElement('iframe');
+            pdfIframe.id = 'pdf-render-iframe';
+            pdfIframe.style.cssText = 'position: fixed; right: -9999px; bottom: -9999px; width: 1024px; height: 1400px; border: none; visibility: hidden; z-index: -9999;';
+            document.body.appendChild(pdfIframe);
+        }
 
-        pdfContainer.style.cssText = `
-            position: absolute !important;
-            top: 0 !important;
-            left: -9999px !important;
-            width: ${targetWidthPx}px !important;
-            height: auto !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-            z-index: -9999 !important;
-            direction: rtl !important;
-            background: white !important;
-        `;
+        const iframeDoc = pdfIframe.contentWindow.document;
+        iframeDoc.open();
+        iframeDoc.write(`
+            <!DOCTYPE html>
+            <html dir="rtl" lang="ar">
+            <head>
+                <meta charset="UTF-8">
+                <title>${title}</title>
+                <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+                <style>
+                    @page { size: A4 ${isLandscape ? 'landscape' : 'portrait'}; margin: 8mm; }
+                    * { box-sizing: border-box; font-family: 'Cairo', sans-serif !important; direction: rtl !important; }
+                    body { background: white !important; color: black !important; margin: 0; padding: 10px; direction: rtl; text-align: right; }
+                </style>
+            </head>
+            <body>
+                ${getPrintTemplate(title, content, isLandscape)}
+            </body>
+            </html>
+        `);
+        iframeDoc.close();
 
-        pdfContainer.innerHTML = `<div id="pdf-export-wrapper">${getPrintTemplate(title, content, isLandscape)}</div>`;
-
-        if (document.fonts) await document.fonts.ready;
+        // 2. الانتظار حتى استكمال تحميل الخطوط العربية داخل الـ iframe
+        if (pdfIframe.contentWindow.document.fonts) {
+            await pdfIframe.contentWindow.document.fonts.ready;
+        }
         await new Promise(resolve => setTimeout(resolve, 300));
 
-        const element = pdfContainer.firstElementChild;
-
-        const opt = {
-            margin: [5, 5, 5, 5],
-            filename: `${title}_${new Date().toLocaleDateString('en-CA')}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: {
-                scale: 2,
-                useCORS: true,
-                logging: false,
-                letterRendering: true,
-                allowTaint: true,
-                windowWidth: targetWidthPx,
-                scrollX: 0,
-                scrollY: 0,
-                // التدخل الجراحي في النسخة المستنسخة لإزالة أي تداخل مع الصفحات الداخلية أو الـ Scroll
-                onclone: (clonedDoc) => {
-                    // 1. إخفاء جميع العناصر والصفحات الداخلية والمودالات العائمة في المستند المستنسخ
-                    const selectorsToHide = '.internal-page, #appContent, #studentModal, #checkResultModal, #customAlertModal, #paymentConfirmModal, #mainHeader, #loginOverlay, #loadingOverlay, #pwaInstallBanner, #toast, .fixed';
-                    clonedDoc.querySelectorAll(selectorsToHide).forEach(el => {
-                        if (el.id !== 'pdf-generator-container') {
-                            el.style.setProperty('display', 'none', 'important');
-                        }
-                    });
-
-                    // 2. إعادة ضبط مكان صندوق الـ PDF داخل النسخة المنسوخة ليكون في النقطة (0,0) بدون أي إزاحة
-                    const clonedPdfContainer = clonedDoc.getElementById('pdf-generator-container');
-                    if (clonedPdfContainer) {
-                        clonedPdfContainer.style.cssText = `
-                            position: relative !important;
-                            top: 0 !important;
-                            left: 0 !important;
-                            width: ${targetWidthPx}px !important;
-                            height: auto !important;
-                            visibility: visible !important;
-                            display: block !important;
-                            opacity: 1 !important;
-                            z-index: 9999999 !important;
-                            background: white !important;
-                            margin: 0 !important;
-                            padding: 0 !important;
-                        `;
-                    }
-                }
-            },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: isLandscape ? 'landscape' : 'portrait' },
-            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-        };
-
-        await html2pdf().set(opt).from(element).save();
+        // 3. استدعاء محرك الـ PDF الأصلي بالنظام (حفظ كـ PDF بدون تشويه الحروف أو زحف للشاشة)
+        pdfIframe.contentWindow.focus();
+        pdfIframe.contentWindow.print();
 
     } catch (err) {
-        console.error("PDF Error: ", err);
-        showToast('فشل حفظ ملف الـ PDF', 'error');
+        console.error("PDF Export Error: ", err);
+        showToast('حدث خطأ أثناء تجهيز الـ PDF', 'error');
     } finally {
-        pdfContainer.style.cssText = 'position: fixed; left: -5000px; top: 0; width: 210mm; min-height: 297mm; background: white; z-index: -100; visibility: hidden;';
-        pdfContainer.innerHTML = '';
         isPrinting = false;
     }
 };

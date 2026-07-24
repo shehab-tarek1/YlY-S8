@@ -556,7 +556,7 @@
     window.confirmEventDay = async function() {
         const date = document.getElementById('attendanceDate').value; const selectedLevel = document.getElementById('attendanceStage').value; if(!selectedLevel) { showToast('يجب اختيار اللجنة أولاً!', 'error'); return; }
         const eventQuery = window.query(window.collection(window.db, "attendance"), window.where("studentId", "==", "EVENT_MARKER"), window.where("date", "==", date)); const snapshot = await window.getDocs(eventQuery); let newLevels = [];
-        if (!snapshot.empty) { const docRef = snapshot.docs[0].ref; const currentData = snapshot.docs[0].data(); let currentLevels = currentData.levels || []; if (selectedLevel === 'all') { newLevels = ['all']; } else { if (currentLevels.includes('all')) currentLevels = []; if (!currentLevels.includes(selectedLevel)) currentLevels.push(selectedLevel); newLevels = currentLevels; } await window.updateDoc(docRef, { levels: newLevels }); } else { newLevels = selectedLevel === 'all' ? ['all'] : [selectedLevel]; await window.addDoc(window.collection(window.db, "attendance"), { date: date, studentId: "EVENT_MARKER", time: new Date().toLocaleTimeString('ar-EG'), levels: newLevels }); }
+        if (!snapshot.empty) { const docRef = snapshot.docs[0].ref; const currentData = snapshot.docs[0].data(); let currentLevels = currentData.levels || []; if (selectedLevel === 'all') { newLevels = ['all']; } else { if (currentLevels.includes('all')) currentLevels = []; if (!currentLevels.includes(selectedLevel)) currentLevels.push(selectedLevel); newLevels = currentLevels; } await window.updateDoc(docRef, { levels: newLevels }); } else { newLevels = selectedLevel === 'all' ? ['all'] : [selectedLevel]; await window.addDoc(window.collection(window.db, "attendance"), { date: date, studentId: "EVENT_MARKER", time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }), levels: newLevels }); }
         showToast(`تم تفعيل يوم الحضور بنجاح`, 'success'); window.updateCounters();
     }
     
@@ -619,7 +619,7 @@
             const statusObj = getStudentStatusForDate(member, date); if (statusObj.status === 'present') { showToast('مسجل مسبقاً', 'warning'); playSound('error'); setTimeout(() => { isPaused = false; }, 2000); return; }
             const eventRec = window.attendance.find(r => r.studentId === "EVENT_MARKER" && r.date === date); const isExpectedToAttend = eventRec && (!eventRec.levels || eventRec.levels.includes('all') || eventRec.levels.includes(member.level));
             if (!isExpectedToAttend) { showCustomAlert("غير مفعل", `لم يتم تفعيل هذا اليوم للجنة الخاصة بالعضو (${stageMap[member.level]})!`); return; }
-            playSound('success'); showScanFeedback(true); await window.addDoc(window.collection(window.db, "attendance"), { date: date, studentId: id, time: new Date().toLocaleTimeString('ar-EG') }); 
+            playSound('success'); showScanFeedback(true); await window.addDoc(window.collection(window.db, "attendance"), { date: date, studentId: id, time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) }); 
         } else { showToast('كود غير صحيح', 'error'); playSound('error'); }
         setTimeout(() => { isPaused = false; showScanFeedback(false); }, 2000);
     }
@@ -637,7 +637,7 @@
         const title = type === 'present' ? `قائمة الحضور` : `قائمة الغياب`; 
         document.getElementById('intAttTitle').innerText = title; document.getElementById('intAttDate').innerText = selectedAttendanceDate;
         const thead = document.getElementById('intAttHead'); 
-        thead.innerHTML = `<tr><th style="width: 25px;">م</th><th style="min-width: 110px;">الاسم</th><th style="width: 45px;">الكود</th><th style="width: 45px;">اللجنة</th><th style="width: 55px;">${type === 'present' ? 'وقت' : 'تاريخ'}</th></tr>`; 
+        thead.innerHTML = `<tr><th style="width: 25px;">م</th><th style="min-width: 110px;">الاسم</th><th style="width: 45px;">الكود</th><th style="width: 45px;">اللجنة</th><th style="width: 55px;">${type === 'present' ? 'وقت' : 'الحالة'}</th></tr>`; 
         dayAttForInternal = window.attendance;
         if(selectedAttendanceDate !== today) { const attQ = window.query(window.collection(window.db, "attendance"), window.where("date", "==", selectedAttendanceDate)); const snap = await window.getDocs(attQ); dayAttForInternal = []; snap.forEach(d => dayAttForInternal.push(d.data())); }
         openInternalPage('internalAttendancePage'); applyInternalAttFilter(); 
@@ -652,7 +652,7 @@
         attCachedList = [];
         targetMembers.forEach(member => { 
             const attRec = dayAttForInternal.find(r => r.date === selectedAttendanceDate && r.studentId === member.id); const eventRec = dayAttForInternal.find(r => r.studentId === "EVENT_MARKER" && r.date === selectedAttendanceDate); const isExpected = eventRec && (!eventRec.levels || eventRec.levels.includes('all') || eventRec.levels.includes(member.level));
-            if (currentAttType === 'present' && attRec) { attCachedList.push({ ...member, time: attRec.time }); } else if (currentAttType === 'absent' && !attRec && isExpected) { attCachedList.push({ ...member, time: selectedAttendanceDate }); } 
+            if (currentAttType === 'present' && attRec) { attCachedList.push({ ...member, time: (attRec.time || '').replace(/(:\d{2}):\d{2}/, '$1') }); } else if (currentAttType === 'absent' && !attRec && isExpected) { attCachedList.push({ ...member, time: 'غياب' }); } 
         });
         attCurrentPage = 1; renderInternalAttendanceList();
     }
@@ -907,14 +907,15 @@
             datesArray.forEach(d => {
                 if (d >= (member.date || '2020-01-01') && d <= today) {
                     const attRec = attMap[`${d}_${member.id}`]; const eventRec = attMap[`${d}_EVENT_MARKER`]; let status = 'none';
-                    if (attRec) { status = 'present'; presentCount++; presentDates.push(d); if (type === 'daily') presentTime = attRec.time; }
-                    else if (eventRec && (!eventRec.levels || eventRec.levels.includes('all') || eventRec.levels.includes(member.level)) && d <= today) { status = 'absent'; absentCount++; absentDates.push(d); }
+                    const dateNoYear = d.replace(/^\d{4}-/, '');
+                    if (attRec) { status = 'present'; presentCount++; presentDates.push(dateNoYear); if (type === 'daily') presentTime = (attRec.time || '').replace(/(:\d{2}):\d{2}/, '$1'); }
+                    else if (eventRec && (!eventRec.levels || eventRec.levels.includes('all') || eventRec.levels.includes(member.level)) && d <= today) { status = 'absent'; absentCount++; absentDates.push(dateNoYear); }
                 }
             });
             const memberPoints = pointsForPeriod.filter(p => p.stdId === member.id).reduce((sum, p) => sum + p.amount, 0); const memberObj = { ...member, presentCount, absentCount, presentDates, absentDates, presentTime, totalPoints: memberPoints };
             if (presentCount > 0) currentReportData.present.push(memberObj); if (absentCount > 0) currentReportData.absent.push(memberObj); currentReportData.combined.push(memberObj);
         });
-        currentReportData.points = pointsForPeriod;
+        currentReportData.points = pointsForPeriod.map(p => ({ ...p, date: (p.date || '').replace(/^\d{4}-/, ''), time: (p.time || '').replace(/(:\d{2}):\d{2}/, '$1') }));
         
         const btn = document.getElementById('btnGenerateReport');
         btn.innerText = 'إلغاء التقرير';

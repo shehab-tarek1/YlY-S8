@@ -323,7 +323,15 @@
 
 
 <script>
-    let searchTimeout; window.handleSearch = function() { clearTimeout(searchTimeout); searchTimeout = setTimeout(() => { renderStudents(); }, 400); };
+    // الكود الجديد بالكامل
+    let searchTimeout = null; 
+    window.handleSearch = function() { 
+        if (searchTimeout) clearTimeout(searchTimeout); 
+        searchTimeout = setTimeout(() => { 
+            currentPage = 1; // إعادة تعيين الصفحة للأولى عند كل بحث جديد
+            renderStudents(); 
+        }, 300); 
+    };
     function toggleCustomDropdown(event, menuId) { event.stopPropagation(); const menu = document.getElementById(menuId); if (menu.classList.contains('hide')) { closeAllDropdowns(); menu.classList.remove('hide'); menu.classList.add('show'); } else { menu.classList.remove('show'); menu.classList.add('hide'); } }
     function selectCustomOption(hiddenInputId, displayInputId, menuId, value, text, callback) { const hiddenInput = document.getElementById(hiddenInputId); const displayInput = document.getElementById(displayInputId); if(hiddenInput) hiddenInput.value = value; if(displayInput) displayInput.value = text; closeAllDropdowns(); if(typeof callback === 'function') { callback(value); } }
     function selectLevel(value, text) { document.getElementById('stdLevel').value = value; document.getElementById('stdLevelDisplay').value = text; closeAllDropdowns(); }
@@ -537,8 +545,9 @@ window.printHTML = async function(title, content, isLandscape = false) {
     }
 };
 
-// الكود الجديد بالكامل
-// 3. دالة حفظ الـ PDF بدون تشويه للحروف ودون أي تأثير ظاهر على الشاشة
+// الكود الحالي الموجود في ملفك (القديم)
+// استبدله بالكامل بهذا الكود الجديد المعالج لمشكلة الإزاحة والصفحات الداخلية:
+
 window.savePDF = async function(title, content, isLandscape = false) {
     if (isPrinting) return;
     isPrinting = true;
@@ -548,7 +557,6 @@ window.savePDF = async function(title, content, isLandscape = false) {
     try {
         const targetWidthPx = isLandscape ? 1122 : 794;
 
-        // تعديل position ليكون absolute لمنع أخطاء html2canvas مع الـ Fixed Offset
         pdfContainer.style.cssText = `
             position: absolute !important;
             top: 0 !important;
@@ -562,13 +570,11 @@ window.savePDF = async function(title, content, isLandscape = false) {
             background: white !important;
         `;
 
-        // إحاطة التمبلت بـ div رئيسي لضمان عدم التقاط وسم <style> بشكل منفرد
         pdfContainer.innerHTML = `<div id="pdf-export-wrapper">${getPrintTemplate(title, content, isLandscape)}</div>`;
 
         if (document.fonts) await document.fonts.ready;
-        await new Promise(resolve => setTimeout(resolve, 400));
+        await new Promise(resolve => setTimeout(resolve, 300));
 
-        // اختيار العنصر المغلف الحقيقي لتصديره
         const element = pdfContainer.firstElementChild;
 
         const opt = {
@@ -582,8 +588,37 @@ window.savePDF = async function(title, content, isLandscape = false) {
                 letterRendering: true,
                 allowTaint: true,
                 windowWidth: targetWidthPx,
-                // تجاهل أي عنصر مخفي أو لا ينتمي للطباعة
-                ignoreElements: (node) => node.classList && node.classList.contains('no-print')
+                scrollX: 0,
+                scrollY: 0,
+                // التدخل الجراحي في النسخة المستنسخة لإزالة أي تداخل مع الصفحات الداخلية أو الـ Scroll
+                onclone: (clonedDoc) => {
+                    // 1. إخفاء جميع العناصر والصفحات الداخلية والمودالات العائمة في المستند المستنسخ
+                    const selectorsToHide = '.internal-page, #appContent, #studentModal, #checkResultModal, #customAlertModal, #paymentConfirmModal, #mainHeader, #loginOverlay, #loadingOverlay, #pwaInstallBanner, #toast, .fixed';
+                    clonedDoc.querySelectorAll(selectorsToHide).forEach(el => {
+                        if (el.id !== 'pdf-generator-container') {
+                            el.style.setProperty('display', 'none', 'important');
+                        }
+                    });
+
+                    // 2. إعادة ضبط مكان صندوق الـ PDF داخل النسخة المنسوخة ليكون في النقطة (0,0) بدون أي إزاحة
+                    const clonedPdfContainer = clonedDoc.getElementById('pdf-generator-container');
+                    if (clonedPdfContainer) {
+                        clonedPdfContainer.style.cssText = `
+                            position: relative !important;
+                            top: 0 !important;
+                            left: 0 !important;
+                            width: ${targetWidthPx}px !important;
+                            height: auto !important;
+                            visibility: visible !important;
+                            display: block !important;
+                            opacity: 1 !important;
+                            z-index: 9999999 !important;
+                            background: white !important;
+                            margin: 0 !important;
+                            padding: 0 !important;
+                        `;
+                    }
+                }
             },
             jsPDF: { unit: 'mm', format: 'a4', orientation: isLandscape ? 'landscape' : 'portrait' },
             pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
@@ -872,7 +907,17 @@ window.savePDF = async function(title, content, isLandscape = false) {
     }
     
     function showScanFeedback(show) { const el = document.getElementById('scanFeedback'); if(show) el.classList.remove('hidden'); else el.classList.add('hidden'); }
-    function manualAttendance() { const id = document.getElementById('manualAttID').value; handleAttendanceScan(id); document.getElementById('manualAttID').value = ''; }
+    // الكود الجديد بالكامل
+    async function manualAttendance() { 
+        const input = document.getElementById('manualAttID');
+        const id = input.value ? input.value.trim() : ''; 
+        if(!id) {
+            showToast('يرجى إدخال كود العضو أولاً', 'warning');
+            return;
+        }
+        input.value = ''; 
+        await handleAttendanceScan(id); 
+    }
     
     let currentAttType = 'present'; let attCurrentPage = 1; let attCachedList = []; let dayAttForInternal = [];
 
@@ -1014,8 +1059,48 @@ window.savePDF = async function(title, content, isLandscape = false) {
     window.closePaymentConfirm = function() { document.getElementById('paymentConfirmModal').style.display = 'none'; isPaused = false; }
     window.cancelPayment = function() { document.getElementById('paymentForm').classList.add('hidden'); document.getElementById('paySearchID').value = ''; currentPayStudent = null; isPaused = false; }
     function showPaymentForm() { document.getElementById('paymentForm').classList.remove('hidden'); document.getElementById('payStdName').innerText = currentPayStudent.name; document.getElementById('payStdID').innerText = currentPayStudent.id; document.getElementById('payAmount').value = document.getElementById('defScoreAmount').value; document.getElementById('payType').value = document.getElementById('defScoreType').value; document.getElementById('payNote').value = document.getElementById('defScoreNote').value; playSound('success'); isPaused = true; }
-    function searchStudentForPay() { handlePaymentScan(document.getElementById('paySearchID').value); }
-    async function confirmPayment() { const amountVal = document.getElementById('payAmount').value; if(!amountVal || isNaN(amountVal) || parseFloat(amountVal) <= 0) { showToast('⚠️ يجب إدخال الدرجة/النقاط', 'error'); return; } const amount = parseFloat(amountVal); const type = document.getElementById('payType').value; const note = document.getElementById('payNote').value; const time = new Date().toLocaleTimeString('ar-EG'); let typeText = type; if(note) typeText += ` (${note})`; await window.addDoc(window.collection(window.db, "accounting"), { date: today, time, stdId: currentPayStudent.id, name: currentPayStudent.name, amount, type: typeText, category: 'points', timestamp: Date.now() }); document.getElementById('paymentForm').classList.add('hidden'); document.getElementById('paySearchID').value = ''; showToast('تم إضافة النقاط بنجاح', 'success'); isPaused = false; }
+    function searchStudentForPay() { handlePaymentScan(document.getElementById('paySearchID').value); }// الكود الجديد بالكامل
+    async function confirmPayment() { 
+        const amountVal = document.getElementById('payAmount').value; 
+        if(!amountVal || isNaN(amountVal) || parseFloat(amountVal) <= 0) { 
+            showToast('⚠️ يجب إدخال الدرجة/النقاط بشكل صحيح', 'error'); 
+            return; 
+        } 
+        
+        // تعطيل الأزرار لمنع النقر المزدوج
+        const btnConfirm = document.querySelector('#paymentForm button[onclick="confirmPayment()"]');
+        if (btnConfirm) { btnConfirm.disabled = true; btnConfirm.style.opacity = '0.5'; }
+
+        try {
+            const amount = parseFloat(amountVal); 
+            const type = document.getElementById('payType').value; 
+            const note = document.getElementById('payNote').value; 
+            const time = new Date().toLocaleTimeString('ar-EG'); 
+            let typeText = type; 
+            if(note) typeText += ` (${note})`; 
+            
+            await window.addDoc(window.collection(window.db, "accounting"), { 
+                date: today, 
+                time, 
+                stdId: currentPayStudent.id, 
+                name: currentPayStudent.name, 
+                amount, 
+                type: typeText, 
+                category: 'points', 
+                timestamp: Date.now() 
+            }); 
+
+            document.getElementById('paymentForm').classList.add('hidden'); 
+            document.getElementById('paySearchID').value = ''; 
+            showToast('تم إضافة النقاط بنجاح', 'success'); 
+        } catch(err) {
+            console.error(err);
+            showToast('حدث خطأ أثناء حفظ التقييم', 'error');
+        } finally {
+            if (btnConfirm) { btnConfirm.disabled = false; btnConfirm.style.opacity = '1'; }
+            isPaused = false; 
+        }
+    }
 
 
 

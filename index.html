@@ -437,54 +437,157 @@
     window.closeInternalPage = function(id) { document.getElementById(id).classList.remove('active'); document.body.classList.remove('internal-open'); }
 
 
-
+// 1. قوالب التنسيق المحدثة والمجهزة للطباعة والـ PDF مع ضبط الخط العربي
 function getPrintTemplate(title, content, isLandscape = false) {
-        const todayPrintDate = new Date().toLocaleDateString('ar-EG');
-        return `<style>@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap'); @page { size: A4 ${isLandscape ? 'landscape' : 'portrait'}; margin: 8mm; } * { box-sizing: border-box; letter-spacing: normal !important; } body { font-family: 'Cairo', sans-serif; direction: rtl; -webkit-print-color-adjust: exact; } .print-page { width: 100%; max-width: 100%; margin: 0 auto; padding: 10px; background: white; color: #000; } .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; margin-bottom: 15px; } .print-meta-area { text-align: left; font-size: 9pt; color: #4b5563; font-weight: 600; } .print-title-area { text-align: center; flex: 1; padding: 0 10px; } .print-title-area h1 { font-size: 18pt; font-weight: 900; margin: 0; color: #1e3a8a; } .print-title-area h2 { font-size: 12pt; font-weight: 800; margin: 4px 0 0 0; color: #dc2626; border-bottom: 1px solid #ddd; padding-bottom: 3px; display: inline-block; white-space: normal; line-height: 1.3; } .print-logo-area { font-size: 30px; } table { width: 100% !important; border-collapse: collapse; margin-top: 10px; font-size: 12px !important; table-layout: fixed; page-break-inside: auto; } tr { page-break-inside: avoid; page-break-after: auto; } thead { display: table-header-group; } .ultra-compact-table { width: 100% !important; font-size: 12px !important; } .ultra-compact-table th { background-color: #1e3a8a !important; color: #fff !important; font-weight: 800 !important; border: 1px solid #374151 !important; padding: 6px 3px !important; font-size: 13px !important; text-align: center !important; -webkit-print-color-adjust: exact; } .ultra-compact-table td { border: 1px solid #d1d5db !important; padding: 6px 3px !important; font-size: 12px !important; font-weight: 700 !important; text-align: center !important; vertical-align: middle !important; word-wrap: break-word !important; overflow-wrap: break-word !important; white-space: normal !important; line-height: 1.3 !important; } .print-student-card { border: 4px double #1e3a8a !important; border-radius: 15px; padding: 20px; width: 350px; margin: 20px auto; text-align: center; page-break-inside: avoid; background: #fff; } .print-card-title { font-size: 16pt; font-weight: bold; margin-bottom: 10px; color: #dc2626; } .print-card-name { font-size: 20pt; font-weight: 900; margin: 10px 0; border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; color: #000; word-break: break-word; } .print-card-row { font-size: 12pt; font-weight: bold; margin: 5px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding: 2px 0; color: #000; } .print-card-footer { margin-top: 15px; font-size: 10pt; color: #555; font-weight: bold; border-top: 1px solid #1e3a8a; padding-top: 5px; } .print-stats-table { width: 100%; margin-bottom: 20px; border-collapse: separate; border-spacing: 10px 0; page-break-inside: avoid; } .print-stats-cell { border: 1px solid #1e3a8a; padding: 10px; text-align: center; border-radius: 8px; width: 33%; vertical-align: middle; } .print-box-title { font-size: 12pt; font-weight: bold; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 5px; } .print-box-val { font-size: 16pt; font-weight: 900; }</style><div class="print-page"><div class="print-header"><div class="print-meta-area"><div>تاريخ الطباعة: ${todayPrintDate}</div><div>YLY System</div></div><div class="print-title-area"><h1>YLY Leaders</h1><h2>${title}</h2></div><div class="print-logo-area"><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" style="width:45px; height:45px; object-fit:contain;"></div></div><div class="print-body">${content}</div></div>`;
+    const todayPrintDate = new Date().toLocaleDateString('ar-EG');
+    return `
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
+        @page { size: A4 ${isLandscape ? 'landscape' : 'portrait'}; margin: 8mm; }
+        
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif !important; direction: rtl !important; }
+        body { font-family: 'Cairo', sans-serif !important; direction: rtl !important; text-align: right; background: #fff; color: #000; margin: 0; padding: 10px; unicode-bidi: embed; }
+        
+        .print-page { width: 100%; max-width: 100%; margin: 0 auto; background: white; color: #000; }
+        .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; margin-bottom: 15px; }
+        .print-meta-area { text-align: right; font-size: 9pt; color: #4b5563; font-weight: 600; }
+        .print-title-area { text-align: center; flex: 1; padding: 0 10px; }
+        .print-title-area h1 { font-size: 18pt; font-weight: 900; margin: 0; color: #1e3a8a; }
+        .print-title-area h2 { font-size: 12pt; font-weight: 800; margin: 4px 0 0 0; color: #dc2626; border-bottom: 1px solid #ddd; padding-bottom: 3px; display: inline-block; }
+        .print-logo-area { text-align: left; }
+        
+        table { width: 100% !important; border-collapse: collapse; margin-top: 10px; font-size: 11px !important; table-layout: fixed; }
+        tr { page-break-inside: avoid; }
+        thead { display: table-header-group; }
+        
+        .ultra-compact-table th { background-color: #1e3a8a !important; color: #fff !important; font-weight: 800 !important; border: 1px solid #374151 !important; padding: 6px 3px !important; text-align: center !important; -webkit-print-color-adjust: exact; }
+        .ultra-compact-table td { border: 1px solid #d1d5db !important; padding: 6px 3px !important; font-size: 11px !important; font-weight: 700 !important; text-align: center !important; vertical-align: middle !important; word-wrap: break-word !important; overflow-wrap: break-word !important; white-space: normal !important; line-height: 1.3 !important; }
+        
+        .print-student-card { border: 4px double #1e3a8a !important; border-radius: 15px; padding: 15px; width: 330px; margin: 10px auto; text-align: center; page-break-inside: avoid; background: #fff; }
+        .print-card-title { font-size: 14pt; font-weight: bold; margin-bottom: 8px; color: #dc2626; }
+        .print-card-name { font-size: 18pt; font-weight: 900; margin: 8px 0; border-bottom: 2px solid #1e3a8a; padding-bottom: 8px; color: #000; word-break: break-word; }
+        .print-card-row { font-size: 11pt; font-weight: bold; margin: 4px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding: 2px 0; color: #000; }
+        .print-stats-table { width: 100%; margin-bottom: 15px; border-collapse: separate; border-spacing: 8px 0; }
+        .print-stats-cell { border: 1px solid #1e3a8a; padding: 8px; text-align: center; border-radius: 8px; width: 33%; }
+        .print-box-title { font-size: 11pt; font-weight: bold; border-bottom: 1px solid #ccc; padding-bottom: 4px; margin-bottom: 4px; }
+        .print-box-val { font-size: 15pt; font-weight: 900; }
+    </style>
+    <div class="print-page">
+        <div class="print-header">
+            <div class="print-meta-area">
+                <div>تاريخ الطباعة: ${todayPrintDate}</div>
+                <div>YLY System</div>
+            </div>
+            <div class="print-title-area">
+                <h1>YLY Leaders</h1>
+                <h2>${title}</h2>
+            </div>
+            <div class="print-logo-area">
+                <img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" style="width:45px; height:45px; object-fit:contain;">
+            </div>
+        </div>
+        <div class="print-body">${content}</div>
+    </div>`;
+}
+
+// 2. دالة الطباعة السريعة بدون أي اهتزاز للشاشة (Iframe Background Print)
+window.printHTML = async function(title, content, isLandscape = false) {
+    if (isPrinting) return;
+    isPrinting = true;
+    showToast('جاري تحضير الطباعة...', 'success');
+
+    try {
+        let printIframe = document.getElementById('silent-print-iframe');
+        if (!printIframe) {
+            printIframe = document.createElement('iframe');
+            printIframe.id = 'silent-print-iframe';
+            printIframe.style.position = 'fixed';
+            printIframe.style.right = '0';
+            printIframe.style.bottom = '0';
+            printIframe.style.width = '0px';
+            printIframe.style.height = '0px';
+            printIframe.style.border = 'none';
+            document.body.appendChild(printIframe);
+        }
+
+        const iframeDoc = printIframe.contentWindow.document;
+        iframeDoc.open();
+        iframeDoc.write(`<!DOCTYPE html><html dir="rtl" lang="ar"><head><title>${title}</title></head><body>${getPrintTemplate(title, content, isLandscape)}</body></html>`);
+        iframeDoc.close();
+
+        // الانتظار حتى تحميل الصور والخطوط داخل الـ Iframe
+        setTimeout(() => {
+            printIframe.contentWindow.focus();
+            printIframe.contentWindow.print();
+            isPrinting = false;
+        }, 400);
+
+    } catch (e) {
+        console.error(e);
+        showToast('حدث خطأ أثناء الطباعة', 'error');
+        isPrinting = false;
     }
+};
 
+// 3. دالة حفظ الـ PDF بدون تشويه للحروف ودون أي تأثير ظاهر على الشاشة
+window.savePDF = async function(title, content, isLandscape = false) {
+    if (isPrinting) return;
+    isPrinting = true;
+    showToast('جاري إنشاء PDF...', 'success');
 
-    window.printHTML = async function(title, content, isLandscape = false) { if(isPrinting) return; isPrinting = true; showToast('جاري تحضير الطباعة...', 'success'); try { document.body.classList.add('is-printing'); const printContainer = document.getElementById('print-container'); printContainer.innerHTML = ''; printContainer.innerHTML = getPrintTemplate(title, content, isLandscape); await new Promise(resolve => setTimeout(resolve, 300)); window.print(); setTimeout(() => { printContainer.innerHTML = ''; document.body.classList.remove('is-printing'); }, 1000); } catch (e) { document.body.classList.remove('is-printing'); showToast('حدث خطأ أثناء الطباعة', 'error'); } finally { isPrinting = false; } };
-    window.savePDF = async function(title, content, isLandscape = false) { 
-        if(isPrinting) return; 
-        isPrinting = true; 
-        showToast('جاري إنشاء PDF...', 'success'); 
-        const pdfContainer = document.getElementById('pdf-generator-container'); 
-        try { 
-            pdfContainer.style.position = 'fixed'; 
-            pdfContainer.style.left = '-9999px'; 
-            pdfContainer.style.top = '0'; 
-            pdfContainer.style.width = isLandscape ? '297mm' : '210mm'; 
-            pdfContainer.style.height = 'auto'; 
-            pdfContainer.style.direction = 'rtl'; 
-            pdfContainer.style.visibility = 'visible'; 
-            pdfContainer.style.opacity = '1'; 
-            pdfContainer.innerHTML = `<div style="direction: rtl; font-family: 'Cairo', sans-serif; letter-spacing: normal; width: 100%; margin: 0 auto; background: #fff;">${getPrintTemplate(title, content, isLandscape)}</div>`; 
-            
-            if (document.fonts) await document.fonts.ready;
-            await new Promise(resolve => setTimeout(resolve, 500));
-            
-            const element = pdfContainer.firstElementChild; 
-            const opt = { 
-                margin: [5, 5, 5, 5], 
-                filename: `${title}_${new Date().toLocaleDateString('en-CA')}.pdf`, 
-                image: { type: 'jpeg', quality: 0.98 }, 
-                html2canvas: { scale: 2, useCORS: true, logging: false, scrollY: 0, letterRendering: true, windowWidth: element.scrollWidth }, 
-                jsPDF: { unit: 'mm', format: 'a4', orientation: isLandscape ? 'landscape' : 'portrait' }, 
-                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] } 
-            }; 
-            
-            await html2pdf().set(opt).from(element).save();
-            pdfContainer.style.visibility = 'hidden'; 
-            pdfContainer.innerHTML = ''; 
-            isPrinting = false; 
-        } catch (err) { 
-            showToast('فشل الحفظ', 'error'); 
-            pdfContainer.style.visibility = 'hidden'; 
-            pdfContainer.innerHTML = ''; 
-            isPrinting = false; 
-        } 
-    };
+    const pdfContainer = document.getElementById('pdf-generator-container');
+    try {
+        // تحديد العرض القياسي بالبكسل للـ A4 لمنع تشوه النصوص العربية
+        const targetWidthPx = isLandscape ? 1122 : 794;
+
+        pdfContainer.style.cssText = `
+            position: fixed !important;
+            top: -20000px !important;
+            left: -20000px !important;
+            width: ${targetWidthPx}px !important;
+            height: auto !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            z-index: -9999 !important;
+            direction: rtl !important;
+            font-family: 'Cairo', sans-serif !important;
+        `;
+
+        pdfContainer.innerHTML = getPrintTemplate(title, content, isLandscape);
+
+        // تأكيد تحميل الخطوط
+        if (document.fonts) await document.fonts.ready;
+        await new Promise(resolve => setTimeout(resolve, 400));
+
+        const element = pdfContainer.firstElementChild || pdfContainer;
+
+        const opt = {
+            margin: [5, 5, 5, 5],
+            filename: `${title}_${new Date().toLocaleDateString('en-CA')}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: {
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                letterRendering: true,
+                allowTaint: true,
+                windowWidth: targetWidthPx
+            },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: isLandscape ? 'landscape' : 'portrait' },
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        };
+
+        await html2pdf().set(opt).from(element).save();
+
+    } catch (err) {
+        console.error("PDF Error: ", err);
+        showToast('فشل حفظ ملف الـ PDF', 'error');
+    } finally {
+        pdfContainer.style.cssText = 'position: fixed; left: -5000px; top: 0; width: 210mm; min-height: 297mm; background: white; z-index: -100; visibility: hidden;';
+        pdfContainer.innerHTML = '';
+        isPrinting = false;
+    }
+};
     function generateQRBase64(text) { return new Promise((resolve) => { const holder = document.createElement('div'); new QRCode(holder, { text: text, width: 120, height: 120, correctLevel : QRCode.CorrectLevel.H }); setTimeout(() => { const img = holder.querySelector('img'); const canvas = holder.querySelector('canvas'); if (img && img.src) { resolve(`<img src="${img.src}" style="width:100px; height:100px; margin:0 auto;" />`); } else if (canvas) { resolve(`<img src="${canvas.toDataURL()}" style="width:100px; height:100px; margin:0 auto;" />`); } else { resolve(''); } }, 300); }); }
 
 

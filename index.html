@@ -396,8 +396,16 @@
 
 
 
-
-    function getStudentStatusForDate(member, dateStr) { const attendanceRecord = window.attendance.find(r => r.date === dateStr && r.studentId === member.id); const eventRec = window.attendance.find(r => r.studentId === "EVENT_MARKER" && r.date === dateStr); const isExpectedToAttend = eventRec && (!eventRec.levels || eventRec.levels.includes('all') || eventRec.levels.includes(member.level)); if (attendanceRecord) { return { status: 'present', time: attendanceRecord.time }; } if (isExpectedToAttend) { return { status: 'absent' }; } return { status: 'none' }; }
+// الكود الجديد بالكامل
+    function getStudentStatusForDate(member, dateStr) { 
+        const sourceAtt = (dateStr === today) ? window.attendance : (window.dayAttForInternal || []);
+        const attendanceRecord = sourceAtt.find(r => r.date === dateStr && r.studentId === member.id); 
+        const eventRec = sourceAtt.find(r => r.studentId === "EVENT_MARKER" && r.date === dateStr); 
+        const isExpectedToAttend = eventRec && (!eventRec.levels || eventRec.levels.includes('all') || eventRec.levels.includes(member.level)); 
+        if (attendanceRecord) { return { status: 'present', time: attendanceRecord.time }; } 
+        if (isExpectedToAttend) { return { status: 'absent' }; } 
+        return { status: 'none' }; 
+    }
 
 
 
@@ -529,6 +537,7 @@ window.printHTML = async function(title, content, isLandscape = false) {
     }
 };
 
+// الكود الجديد بالكامل
 // 3. دالة حفظ الـ PDF بدون تشويه للحروف ودون أي تأثير ظاهر على الشاشة
 window.savePDF = async function(title, content, isLandscape = false) {
     if (isPrinting) return;
@@ -537,29 +546,30 @@ window.savePDF = async function(title, content, isLandscape = false) {
 
     const pdfContainer = document.getElementById('pdf-generator-container');
     try {
-        // تحديد العرض القياسي بالبكسل للـ A4 لمنع تشوه النصوص العربية
         const targetWidthPx = isLandscape ? 1122 : 794;
 
+        // تعديل position ليكون absolute لمنع أخطاء html2canvas مع الـ Fixed Offset
         pdfContainer.style.cssText = `
-            position: fixed !important;
-            top: -20000px !important;
-            left: -20000px !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: -9999px !important;
             width: ${targetWidthPx}px !important;
             height: auto !important;
             visibility: visible !important;
             opacity: 1 !important;
             z-index: -9999 !important;
             direction: rtl !important;
-            font-family: 'Cairo', sans-serif !important;
+            background: white !important;
         `;
 
-        pdfContainer.innerHTML = getPrintTemplate(title, content, isLandscape);
+        // إحاطة التمبلت بـ div رئيسي لضمان عدم التقاط وسم <style> بشكل منفرد
+        pdfContainer.innerHTML = `<div id="pdf-export-wrapper">${getPrintTemplate(title, content, isLandscape)}</div>`;
 
-        // تأكيد تحميل الخطوط
         if (document.fonts) await document.fonts.ready;
         await new Promise(resolve => setTimeout(resolve, 400));
 
-        const element = pdfContainer.firstElementChild || pdfContainer;
+        // اختيار العنصر المغلف الحقيقي لتصديره
+        const element = pdfContainer.firstElementChild;
 
         const opt = {
             margin: [5, 5, 5, 5],
@@ -571,7 +581,9 @@ window.savePDF = async function(title, content, isLandscape = false) {
                 logging: false,
                 letterRendering: true,
                 allowTaint: true,
-                windowWidth: targetWidthPx
+                windowWidth: targetWidthPx,
+                // تجاهل أي عنصر مخفي أو لا ينتمي للطباعة
+                ignoreElements: (node) => node.classList && node.classList.contains('no-print')
             },
             jsPDF: { unit: 'mm', format: 'a4', orientation: isLandscape ? 'landscape' : 'portrait' },
             pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
@@ -651,7 +663,22 @@ window.savePDF = async function(title, content, isLandscape = false) {
 
 
     let html5QrCode = null; let isScannerRunning = false; let isPaused = false;
-    window.changeAttendanceDate = function() { selectedAttendanceDate = document.getElementById('attendanceDate').value; window.updateCounters(); }
+// الكود الجديد بالكامل
+    window.changeAttendanceDate = async function() { 
+        selectedAttendanceDate = document.getElementById('attendanceDate').value; 
+        document.getElementById('presentCount').innerText = '...';
+        document.getElementById('absentCount').innerText = '...';
+        
+        if (selectedAttendanceDate !== today) {
+            const attQ = window.query(window.collection(window.db, "attendance"), window.where("date", "==", selectedAttendanceDate)); 
+            const snap = await window.getDocs(attQ); 
+            window.dayAttForInternal = []; 
+            snap.forEach(d => window.dayAttForInternal.push(d.data())); 
+        } else {
+            window.dayAttForInternal = window.attendance; 
+        }
+        window.updateCounters(); 
+    }
     
     window.confirmEventDay = async function() {
         const date = document.getElementById('attendanceDate').value; const selectedLevel = document.getElementById('attendanceStage').value; if(!selectedLevel) { showToast('يجب اختيار اللجنة أولاً!', 'error'); return; }
@@ -775,9 +802,12 @@ window.savePDF = async function(title, content, isLandscape = false) {
 
 
 
-
+// الكود الجديد بالكامل
     window.updateCounters = function() {
-        const selectedLevel = document.getElementById('attendanceStage').value; const date = selectedAttendanceDate; const eventRec = window.attendance.find(r => r.studentId === "EVENT_MARKER" && r.date === date); const indicator = document.getElementById('exceptionalStatusIndicator'); const levelNameSpan = document.getElementById('exceptionalLevelName');
+        const selectedLevel = document.getElementById('attendanceStage').value; const date = selectedAttendanceDate; 
+        const sourceAtt = (date === today) ? window.attendance : (window.dayAttForInternal || []);
+        const eventRec = sourceAtt.find(r => r.studentId === "EVENT_MARKER" && r.date === date); 
+        const indicator = document.getElementById('exceptionalStatusIndicator'); const levelNameSpan = document.getElementById('exceptionalLevelName');
         if (eventRec) { let levelsText = ""; if (eventRec.levels.includes('all')) levelsText = "الكل"; else levelsText = eventRec.levels.map(l => stageMap[l]).join('، '); levelNameSpan.innerText = levelsText; indicator.classList.remove('hidden'); } else { indicator.classList.add('hidden'); }
         let targetMembers = window.members.filter(s => s.date <= date); if(selectedLevel !== 'all') targetMembers = targetMembers.filter(s => s.level === selectedLevel);
         let presentCount = 0; let absentCount = 0; targetMembers.forEach(member => { const statusObj = getStudentStatusForDate(member, date); if (statusObj.status === 'present') presentCount++; else if (statusObj.status === 'absent') absentCount++; });

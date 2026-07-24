@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -219,7 +219,7 @@
     </div>
     <div class="a4-container">
         <div class="print-header-sim"><div class="meta">تاريخ: <span id="intAttDate"></span><br>YLY System</div><div class="title"><h1 id="intAttTitle"></h1></div><div><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" alt="Logo"></div></div>
-        <div id="intAttTableArea" class="overflow-x-auto w-full"><table class="ultra-compact-table min-w-[500px] md:min-w-full"><thead id="intAttHead"></thead><tbody id="intAttBody"></tbody></table></div>
+        <div id="intAttTableArea"><table class="ultra-compact-table"><thead id="intAttHead"></thead><tbody id="intAttBody"></tbody></table></div>
     </div>
 </div>
 
@@ -233,7 +233,7 @@
     </div>
     <div class="a4-container">
         <div class="print-header-sim"><div class="meta">تاريخ: <span id="intRepDate"></span><br>YLY System</div><div class="title"><h1 id="intRepTitle"></h1></div><div><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" alt="Logo"></div></div>
-        <div id="intRepTableArea" class="overflow-x-auto w-full"><table class="ultra-compact-table min-w-[650px] md:min-w-full"><thead id="intRepHead"></thead><tbody id="intRepBody"></tbody></table></div>
+        <div id="intRepTableArea"><table class="ultra-compact-table"><thead id="intRepHead"></thead><tbody id="intRepBody"></tbody></table></div>
         <div id="intRepPagination" class="flex justify-between items-center mt-3 bg-white p-2 rounded border shadow-sm no-print hidden"></div>
     </div>
 </div>
@@ -383,7 +383,7 @@
 
     function getPrintTemplate(title, content, isLandscape = false) {
         const todayPrintDate = new Date().toLocaleDateString('ar-EG');
-        return `<style>@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap'); @page { size: A4 ${isLandscape ? 'landscape' : 'portrait'}; margin: 6mm; } * { box-sizing: border-box; letter-spacing: 0px !important; } body { font-family: 'Cairo', sans-serif; direction: rtl; -webkit-print-color-adjust: exact; background: #fff; color: #000; } .print-page { width: 100%; max-width: 100%; margin: 0 auto; padding: 5px; background: white; } .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 8px; margin-bottom: 12px; } .print-meta-area { text-align: left; font-size: 8.5pt; color: #4b5563; font-weight: 600; } .print-title-area { text-align: center; flex: 1; padding: 0 10px; } .print-title-area h1 { font-size: 17pt; font-weight: 900; margin: 0; color: #1e3a8a; } .print-title-area h2 { font-size: 11pt; font-weight: 800; margin: 3px 0 0 0; color: #dc2626; border-bottom: 1px solid #ddd; padding-bottom: 2px; display: inline-block; white-space: normal; line-height: 1.3; } .print-logo-area img { width: 40px; height: 40px; object-fit: contain; } table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 10pt; table-layout: fixed; page-break-inside: auto; } tr { page-break-inside: avoid; page-break-after: auto; } thead { display: table-header-group; } th { background-color: #1e3a8a !important; color: #fff !important; font-weight: 800; border: 1px solid #1e3a8a; padding: 6px 3px; font-size: 9.5pt; text-align: center; -webkit-print-color-adjust: exact; } td { border: 1px solid #d1d5db; padding: 5px 3px; font-size: 9.5pt; text-align: center; vertical-align: middle; word-wrap: break-word; overflow-wrap: break-word; white-space: normal !important; line-height: 1.3; } .print-student-card { border: 4px double #1e3a8a !important; border-radius: 12px; padding: 15px; width: 330px; margin: 10px auto; text-align: center; page-break-inside: avoid; background: #fff; } .print-card-title { font-size: 15pt; font-weight: bold; margin-bottom: 8px; color: #dc2626; } .print-card-name { font-size: 18pt; font-weight: 900; margin: 8px 0; border-bottom: 2px solid #1e3a8a; padding-bottom: 8px; color: #000; word-break: break-word; } .print-card-row { font-size: 11pt; font-weight: bold; margin: 4px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding: 2px 0; color: #000; } .print-card-footer { margin-top: 12px; font-size: 9pt; color: #555; font-weight: bold; border-top: 1px solid #1e3a8a; padding-top: 4px; }</style><div class="print-page"><div class="print-header"><div class="print-meta-area"><div>تاريخ الطباعة: ${todayPrintDate}</div><div>YLY System</div></div><div class="print-title-area"><h1>YLY Leaders</h1><h2>${title}</h2></div><div class="print-logo-area"><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" alt="Logo"></div></div><div class="print-body">${content}</div></div>`;
+        return `<style>@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap'); @page { size: A4 ${isLandscape ? 'landscape' : 'portrait'}; margin: 8mm; } * { box-sizing: border-box; letter-spacing: normal !important; } body { font-family: 'Cairo', sans-serif; direction: rtl; -webkit-print-color-adjust: exact; } .print-page { width: 100%; max-width: 100%; margin: 0 auto; padding: 10px; background: white; color: #000; } .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; margin-bottom: 15px; } .print-meta-area { text-align: left; font-size: 9pt; color: #4b5563; font-weight: 600; } .print-title-area { text-align: center; flex: 1; padding: 0 10px; } .print-title-area h1 { font-size: 18pt; font-weight: 900; margin: 0; color: #1e3a8a; } .print-title-area h2 { font-size: 12pt; font-weight: 800; margin: 4px 0 0 0; color: #dc2626; border-bottom: 1px solid #ddd; padding-bottom: 3px; display: inline-block; white-space: normal; line-height: 1.3; } .print-logo-area { font-size: 30px; } table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11px; table-layout: fixed; page-break-inside: auto; } tr { page-break-inside: avoid; page-break-after: auto; } thead { display: table-header-group; } th { background-color: #1e3a8a !important; color: #fff !important; font-weight: 800; border: 1px solid #374151; padding: 7px 5px; font-size: 11px; text-align: center; -webkit-print-color-adjust: exact; } td { border: 1px solid #d1d5db; padding: 6px 4px; font-size: 11px; text-align: center; vertical-align: middle; word-wrap: break-word; overflow-wrap: break-word; white-space: normal !important; line-height: 1.4; } .print-student-card { border: 4px double #1e3a8a !important; border-radius: 15px; padding: 20px; width: 350px; margin: 20px auto; text-align: center; page-break-inside: avoid; background: #fff; } .print-card-title { font-size: 16pt; font-weight: bold; margin-bottom: 10px; color: #dc2626; } .print-card-name { font-size: 20pt; font-weight: 900; margin: 10px 0; border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; color: #000; word-break: break-word; } .print-card-row { font-size: 12pt; font-weight: bold; margin: 5px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding: 2px 0; color: #000; } .print-card-footer { margin-top: 15px; font-size: 10pt; color: #555; font-weight: bold; border-top: 1px solid #1e3a8a; padding-top: 5px; } .print-stats-table { width: 100%; margin-bottom: 20px; border-collapse: separate; border-spacing: 10px 0; page-break-inside: avoid; } .print-stats-cell { border: 1px solid #1e3a8a; padding: 10px; text-align: center; border-radius: 8px; width: 33%; vertical-align: middle; } .print-box-title { font-size: 12pt; font-weight: bold; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 5px; } .print-box-val { font-size: 16pt; font-weight: 900; }</style><div class="print-page"><div class="print-header"><div class="print-meta-area"><div>تاريخ الطباعة: ${todayPrintDate}</div><div>YLY System</div></div><div class="print-title-area"><h1>YLY Leaders</h1><h2>${title}</h2></div><div class="print-logo-area"><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" style="width:45px; height:45px; object-fit:contain;"></div></div><div class="print-body">${content}</div></div>`;
     }
 
 
@@ -402,23 +402,21 @@
             pdfContainer.style.opacity = '1'; 
             pdfContainer.style.zIndex = '-99999'; 
             pdfContainer.style.visibility = 'visible'; 
-            pdfContainer.style.direction = 'rtl';
             
-            pdfContainer.innerHTML = `<div style="direction: rtl; font-family: 'Cairo', sans-serif; letter-spacing: 0px !important; width: ${targetWidth}px; padding: 12px; box-sizing: border-box; background: #fff;">${getPrintTemplate(title, content, isLandscape)}</div>`; 
+            pdfContainer.innerHTML = `<div style="direction: rtl; font-family: 'Cairo', sans-serif; width: ${targetWidth}px; padding: 15px; box-sizing: border-box; background: #fff;">${getPrintTemplate(title, content, isLandscape)}</div>`; 
             
             if (document.fonts) await document.fonts.ready; 
-            await new Promise(resolve => setTimeout(resolve, 350)); 
+            await new Promise(resolve => setTimeout(resolve, 400)); 
             
             const element = pdfContainer.firstElementChild; 
             const opt = { 
-                margin: [3, 3, 3, 3], 
+                margin: [4, 4, 4, 4], 
                 filename: `${title}_${new Date().toLocaleDateString('en-CA')}.pdf`, 
                 image: { type: 'jpeg', quality: 0.98 }, 
                 html2canvas: { 
                     scale: 2, 
                     useCORS: true, 
                     logging: false, 
-                    letterRendering: false, 
                     scrollX: 0, 
                     scrollY: 0, 
                     x: 0, 

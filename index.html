@@ -695,10 +695,29 @@ window.savePDF = async function(title, content, isLandscape = false) {
 
 
 
-
+// الكود الجديد بالكامل
     async function startScanner(elemId, mode) { 
-        if(isScannerRunning && html5QrCode) { return; } html5QrCode = new Html5Qrcode(elemId); const config = { fps: 15, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0, disableFlip: false, formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ] };
-        try { await html5QrCode.start({ facingMode: "environment" }, config, (decodedText) => { if(isPaused) return; isPaused = true; if(mode === 'attendance') handleAttendanceScan(decodedText); else if(mode === 'payment') handlePaymentScan(decodedText); else if(mode === 'check') handleCheckScan(decodedText); if(mode !== 'check' && mode !== 'payment') { setTimeout(() => { isPaused = false; }, 1500); } }); isScannerRunning = true; } catch (err) { showToast("تعذر تشغيل الكاميرا", "error"); }
+        if(isScannerRunning && html5QrCode) { return; } 
+        html5QrCode = new Html5Qrcode(elemId); 
+        const config = { fps: 15, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0, disableFlip: false, formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ] };
+        try { 
+            await html5QrCode.start({ facingMode: "environment" }, config, async (decodedText) => { 
+                if(isPaused) return; 
+                isPaused = true; 
+                try {
+                    if(mode === 'attendance') await handleAttendanceScan(decodedText); 
+                    else if(mode === 'payment') handlePaymentScan(decodedText); 
+                    else if(mode === 'check') await handleCheckScan(decodedText); 
+                } catch(err) {
+                    console.error("Scanner process error:", err);
+                    showToast("حدث خطأ أثناء معالجة الباركود", "error");
+                    isPaused = false;
+                }
+            }); 
+            isScannerRunning = true; 
+        } catch (err) { 
+            showToast("تعذر تشغيل الكاميرا", "error"); 
+        }
     }
 
 
@@ -713,22 +732,80 @@ window.savePDF = async function(title, content, isLandscape = false) {
     function togglePayMethod(method) { const btnScan = document.getElementById('btnPayScan'); const btnManual = document.getElementById('btnPayManual'); if(method === 'scan') { document.getElementById('payScanDiv').classList.remove('hidden'); document.getElementById('payManualDiv').classList.add('hidden'); btnScan.classList.add('active'); btnManual.classList.remove('active'); startScanner('payReader', 'payment'); } else { document.getElementById('payScanDiv').classList.add('hidden'); document.getElementById('payManualDiv').classList.remove('hidden'); btnManual.classList.add('active'); btnScan.classList.remove('active'); stopScanner(); } }
 
 
-
-
+// الكود الجديد بالكامل
     async function handleCheckScan(id) {
-        if(html5QrCode) html5QrCode.pause(); const member = window.members.find(s => s.id === id);
-        if(member) {
-            document.getElementById('checkResName').innerText = member.name; document.getElementById('checkResCode').innerText = member.id; document.getElementById('checkResLevel').innerText = stageMap[member.level] || member.level; document.getElementById('checkResDate').innerText = member.date; document.getElementById('checkResPass').innerText = member.password || '---'; document.getElementById('checkResultQr').innerHTML = ''; new QRCode(document.getElementById("checkResultQr"), { text: member.id, width: 60, height: 60 });
-            let memberPoints = []; let memberAtt = [];
-            try { const accQ = window.query(window.collection(window.db, "accounting"), window.where("stdId", "==", id)); const attQ = window.query(window.collection(window.db, "attendance"), window.where("studentId", "in", [id, "EVENT_MARKER"])); const [accSnap, attSnap] = await Promise.all([window.getDocs(accQ), window.getDocs(attQ)]); accSnap.forEach(d => memberPoints.push(d.data())); attSnap.forEach(d => memberAtt.push(d.data())); } catch(e) { memberPoints = window.accounting.filter(a => a.stdId === id); memberAtt = window.attendance; }
-            const points = memberPoints.filter(a => a.category === 'points').sort((a,b) => new Date(b.date) - new Date(a.date)); const totalPoints = points.reduce((sum, p) => sum + p.amount, 0); document.getElementById('checkResTotalPay').innerText = totalPoints + ' نقطة'; document.getElementById('checkResPayTable').innerHTML = points.length ? points.map(p => `<tr><td>${p.date}</td><td>${p.type}</td><td class="text-blue-600 font-bold">${p.amount}</td></tr>`).join('') : '<tr><td colspan="3">لا يوجد</td></tr>';
-            let presentCount = 0; let absentCount = 0; let presentRows = ''; let absentRows = ''; const eventDates = new Set(memberAtt.map(a => a.date));
-            Array.from(eventDates).forEach(d => { const attRec = memberAtt.find(a => a.date === d && a.studentId === id); const eventRec = memberAtt.find(a => a.date === d && a.studentId === "EVENT_MARKER"); const isExpected = eventRec && (!eventRec.levels || eventRec.levels.includes('all') || eventRec.levels.includes(member.level)); const dayAr = new Date(d + "T12:00:00").toLocaleDateString('ar-EG', {weekday: 'long'}); if (attRec) { presentCount++; presentRows += `<tr><td>${d}</td><td>${attRec.time || 'حاضر'}</td></tr>`; } else if (isExpected && d <= today) { absentCount++; absentRows += `<tr><td>${d}</td><td>${dayAr}</td></tr>`; } });
-            document.getElementById('checkResPresentCount').innerText = presentCount; document.getElementById('checkResPresentTable').innerHTML = presentRows || '<tr><td colspan="2">لا يوجد</td></tr>'; document.getElementById('checkResAbsentCount').innerText = absentCount; document.getElementById('checkResAbsentTable').innerHTML = absentRows || '<tr><td colspan="2">لا يوجد</td></tr>';
-            document.getElementById('checkResultModal').classList.remove('hidden'); document.body.classList.add('modal-open'); playSound('success');
-        } else { showToast('عضو غير موجود', 'error'); if(html5QrCode) html5QrCode.resume(); }
-    }
+        isPaused = true;
+        try {
+            if(html5QrCode) html5QrCode.pause(); 
+            const member = window.members.find(s => s.id === id);
 
+            if(member) {
+                document.getElementById('checkResName').innerText = member.name; 
+                document.getElementById('checkResCode').innerText = member.id; 
+                document.getElementById('checkResLevel').innerText = stageMap[member.level] || member.level; 
+                document.getElementById('checkResDate').innerText = member.date; 
+                document.getElementById('checkResPass').innerText = member.password || '---'; 
+                document.getElementById('checkResultQr').innerHTML = ''; 
+                new QRCode(document.getElementById("checkResultQr"), { text: member.id, width: 60, height: 60 });
+
+                let memberPoints = []; 
+                let memberAtt = [];
+                try { 
+                    const accQ = window.query(window.collection(window.db, "accounting"), window.where("stdId", "==", id)); 
+                    const attQ = window.query(window.collection(window.db, "attendance"), window.where("studentId", "in", [id, "EVENT_MARKER"])); 
+                    const [accSnap, attSnap] = await Promise.all([window.getDocs(accQ), window.getDocs(attQ)]); 
+                    accSnap.forEach(d => memberPoints.push(d.data())); 
+                    attSnap.forEach(d => memberAtt.push(d.data())); 
+                } catch(e) { 
+                    memberPoints = window.accounting.filter(a => a.stdId === id); 
+                    memberAtt = window.attendance; 
+                }
+
+                const points = memberPoints.filter(a => a.category === 'points').sort((a,b) => new Date(b.date) - new Date(a.date)); 
+                const totalPoints = points.reduce((sum, p) => sum + p.amount, 0); 
+                document.getElementById('checkResTotalPay').innerText = totalPoints + ' نقطة'; 
+                document.getElementById('checkResPayTable').innerHTML = points.length ? points.map(p => `<tr><td>${p.date}</td><td>${p.type}</td><td class="text-blue-600 font-bold">${p.amount}</td></tr>`).join('') : '<tr><td colspan="3">لا يوجد</td></tr>';
+
+                let presentCount = 0; 
+                let absentCount = 0; 
+                let presentRows = ''; 
+                let absentRows = ''; 
+                const eventDates = new Set(memberAtt.map(a => a.date));
+
+                Array.from(eventDates).forEach(d => { 
+                    const attRec = memberAtt.find(a => a.date === d && a.studentId === id); 
+                    const eventRec = memberAtt.find(a => a.date === d && a.studentId === "EVENT_MARKER"); 
+                    const isExpected = eventRec && (!eventRec.levels || eventRec.levels.includes('all') || eventRec.levels.includes(member.level)); 
+                    const dayAr = new Date(d + "T12:00:00").toLocaleDateString('ar-EG', {weekday: 'long'}); 
+                    if (attRec) { 
+                        presentCount++; 
+                        presentRows += `<tr><td>${d}</td><td>${attRec.time || 'حاضر'}</td></tr>`; 
+                    } else if (isExpected && d <= today) { 
+                        absentCount++; 
+                        absentRows += `<tr><td>${d}</td><td>${dayAr}</td></tr>`; 
+                    } 
+                });
+
+                document.getElementById('checkResPresentCount').innerText = presentCount; 
+                document.getElementById('checkResPresentTable').innerHTML = presentRows || '<tr><td colspan="2">لا يوجد</td></tr>'; 
+                document.getElementById('checkResAbsentCount').innerText = absentCount; 
+                document.getElementById('checkResAbsentTable').innerHTML = absentRows || '<tr><td colspan="2">لا يوجد</td></tr>';
+
+                document.getElementById('checkResultModal').classList.remove('hidden'); 
+                document.body.classList.add('modal-open'); 
+                playSound('success');
+            } else { 
+                showToast('عضو غير موجود', 'error'); 
+                if(html5QrCode) html5QrCode.resume(); 
+                isPaused = false;
+            }
+        } catch(err) {
+            console.error("Check Scan Error:", err);
+            showToast("حدث خطأ أثناء الاستعلام", "error");
+            if(html5QrCode) html5QrCode.resume();
+            isPaused = false;
+        }
+    }
 
 
 
@@ -738,17 +815,60 @@ window.savePDF = async function(title, content, isLandscape = false) {
 
 
 
-
+// الكود الجديد بالكامل
     async function handleAttendanceScan(id) {
-        isPaused = true; const date = selectedAttendanceDate; if (date > today) { showCustomAlert("تاريخ غير صحيح", "لا يمكن تسجيل الحضور لموعد في المستقبل."); return; }
-        const member = window.members.find(s => s.id === id);
-        if(member) {
-            const statusObj = getStudentStatusForDate(member, date); if (statusObj.status === 'present') { showToast('مسجل مسبقاً', 'warning'); playSound('error'); setTimeout(() => { isPaused = false; }, 2000); return; }
-            const eventRec = window.attendance.find(r => r.studentId === "EVENT_MARKER" && r.date === date); const isExpectedToAttend = eventRec && (!eventRec.levels || eventRec.levels.includes('all') || eventRec.levels.includes(member.level));
-            if (!isExpectedToAttend) { showCustomAlert("غير مفعل", `لم يتم تفعيل هذا اليوم للجنة الخاصة بالعضو (${stageMap[member.level]})!`); return; }
-            playSound('success'); showScanFeedback(true); await window.addDoc(window.collection(window.db, "attendance"), { date: date, studentId: id, time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) }); 
-        } else { showToast('كود غير صحيح', 'error'); playSound('error'); }
-        setTimeout(() => { isPaused = false; showScanFeedback(false); }, 2000);
+        if (!id) return;
+        isPaused = true; 
+        const date = selectedAttendanceDate; 
+
+        try {
+            if (date > today) { 
+                showCustomAlert("تاريخ غير صحيح", "لا يمكن تسجيل الحضور لموعد في المستقبل."); 
+                return; 
+            }
+
+            const member = window.members.find(s => s.id === id);
+            if(!member) { 
+                showToast('كود غير صحيح', 'error'); 
+                playSound('error'); 
+                return;
+            }
+
+            const statusObj = getStudentStatusForDate(member, date); 
+            if (statusObj.status === 'present') { 
+                showToast('مسجل مسبقاً', 'warning'); 
+                playSound('error'); 
+                return; 
+            }
+
+            const eventRec = window.attendance.find(r => r.studentId === "EVENT_MARKER" && r.date === date); 
+            const isExpectedToAttend = eventRec && (!eventRec.levels || eventRec.levels.includes('all') || eventRec.levels.includes(member.level));
+
+            if (!isExpectedToAttend) { 
+                showCustomAlert("غير مفعل", `لم يتم تفعيل هذا اليوم للجنة الخاصة بالعضو (${stageMap[member.level]})!`); 
+                return; 
+            }
+
+            playSound('success'); 
+            showScanFeedback(true); 
+
+            await window.addDoc(window.collection(window.db, "attendance"), { 
+                date: date, 
+                studentId: id, 
+                time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) 
+            }); 
+
+        } catch (error) {
+            console.error("Attendance Scan Error:", error);
+            showToast("حدث خطأ في الاتصال أثناء تسجيل الحضور", "error");
+            playSound('error');
+        } finally {
+            // يتم التنسيق ليتم إتاحة الماسح دائماً بعد ثانيتين بغض النظر عن النجاح أو الفشل
+            setTimeout(() => { 
+                isPaused = false; 
+                showScanFeedback(false); 
+            }, 2000);
+        }
     }
     
     function showScanFeedback(show) { const el = document.getElementById('scanFeedback'); if(show) el.classList.remove('hidden'); else el.classList.add('hidden'); }

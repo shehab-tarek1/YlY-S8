@@ -1505,7 +1505,8 @@ window.printHTML = async function(title, content, isLandscape = false) {
         
         const iframeDoc = printIframe.contentWindow.document;
         iframeDoc.open();
-        iframeDoc.write(`<!DOCTYPE html><html dir="rtl" lang="ar"><head><title>${escapeHTML(title)}</title><style>@page { size: A4 ${isLandscape ? 'landscape' : 'portrait'}; margin: 5mm; }</style></head><body>${getPrintTemplate(title, content, isLandscape)}</body></html>`);
+        // أضفنا هيدر إجباري يفرض العرض والارتفاع الأفقي للطباعة
+        iframeDoc.write(`<!DOCTYPE html><html dir="rtl" lang="ar"><head><title>${escapeHTML(title)}</title><style>@page { size: ${isLandscape ? 'A4 landscape' : 'A4 portrait'} !important; margin: 5mm; } @media print { html, body { width: ${isLandscape ? '297mm' : '210mm'}; } }</style></head><body>${getPrintTemplate(title, content, isLandscape)}</body></html>`);
         iframeDoc.close();
         
         setTimeout(() => {
@@ -1694,11 +1695,14 @@ window.printCombinedReport = function() {
     if(!state.currentReportData.combined || state.currentReportData.combined.length === 0) return window.showToast('لا توجد بيانات للطباعة', 'error');
     const title = getReportTitleHeader("التقرير الشامل");
     const isDaily = document.getElementById('reportType').value === 'daily';
+    
     let rows = isDaily 
         ? state.currentReportData.combined.map((c, i) => `<tr><td>${i+1}</td><td>${c.id}</td><td style="font-weight:bold;">${escapeHTML(c.name)}</td><td>${escapeHTML(stageMap[c.level]||c.level)}</td><td style="color:blue; font-weight:bold;">${c.totalPoints}</td><td style="font-weight:bold; color:${c.presentCount > 0 ? 'green' : 'red'};">${c.presentCount > 0 ? 'حاضر' : 'غائب'}</td><td>${c.presentCount > 0 ? (c.presentTime || '-') : '-'}</td></tr>`).join('')
-        : state.currentReportData.combined.map((c, i) => `<tr><td>${i+1}</td><td>${c.id}</td><td style="font-weight:bold;">${escapeHTML(c.name)}</td><td>${escapeHTML(c.level)}</td><td style="color:blue; font-weight:bold;">${c.totalPoints}</td><td style="color:green; font-weight:bold;">${c.presentCount}</td><td style="color:red; font-weight:bold;">${c.absentCount}</td><td style="color:green;">${c.presentDates.join('<br>') || '-'}</td><td style="color:red;">${c.absentDates.join('<br>') || '-'}</td></tr>`).join('');
+        : state.currentReportData.combined.map((c, i) => `<tr><td>${i+1}</td><td>${c.id}</td><td style="font-weight:bold;">${escapeHTML(c.name)}</td><td>${escapeHTML(c.level)}</td><td style="color:blue; font-weight:bold;">${c.totalPoints}</td><td style="color:green; font-weight:bold;">${c.presentCount}</td><td style="color:red; font-weight:bold;">${c.absentCount}</td><td style="color:green; font-size:10px; line-height:1.6;">${c.presentDates.join(' ، ') || '-'}</td><td style="color:red; font-size:10px; line-height:1.6;">${c.absentDates.join(' ، ') || '-'}</td></tr>`).join('');
 
-    const content = `<table class="ultra-compact-table"><thead><tr>${isDaily ? '<th style="width:5%;">م</th><th style="width:10%;">الكود</th><th style="width:38%;">الاسم</th><th style="width:11%;">اللجنة</th><th style="width:12%;">النقاط</th><th style="width:11%;">الحالة</th><th style="width:13%;">وقت الحضور</th>' : '<th style="width:4%;">م</th><th style="width:8%;">الكود</th><th style="width:32%;">الاسم</th><th style="width:8%;">اللجنة</th><th style="width:8%;">النقاط</th><th style="width:7%;">حضور</th><th style="width:7%;">غياب</th><th style="width:13%;">تواريخ الحضور</th><th style="width:13%;">تواريخ الغياب</th>'}</tr></thead><tbody>${rows}</tbody></table>`;
+    const content = `<table class="ultra-compact-table"><thead><tr>${isDaily 
+        ? '<th style="width:5%;">م</th><th style="width:10%;">الكود</th><th style="width:38%;">الاسم</th><th style="width:11%;">اللجنة</th><th style="width:12%;">النقاط</th><th style="width:11%;">الحالة</th><th style="width:13%;">وقت الحضور</th>' 
+        : '<th style="width:4%;">م</th><th style="width:8%;">الكود</th><th style="width:25%;">الاسم</th><th style="width:8%;">اللجنة</th><th style="width:7%;">النقاط</th><th style="width:6%;">حضور</th><th style="width:6%;">غياب</th><th style="width:18%;">تواريخ الحضور</th><th style="width:18%;">تواريخ الغياب</th>'}</tr></thead><tbody>${rows}</tbody></table>`;
     window.printHTML(title, content, !isDaily);
 }
 
@@ -1708,11 +1712,14 @@ window.printAttendanceReport = function() {
     if(!state.currentReportData.combined || state.currentReportData.combined.length === 0) return window.showToast('لا توجد بيانات للطباعة', 'error');
     const title = getReportTitleHeader("تقرير الحضور والغياب");
     const isDaily = document.getElementById('reportType').value === 'daily';
+    
     let rows = isDaily 
         ? state.currentReportData.combined.map((c, i) => `<tr><td>${i+1}</td><td>${c.id}</td><td style="font-weight:bold;">${escapeHTML(c.name)}</td><td>${escapeHTML(stageMap[c.level]||c.level)}</td><td style="font-weight:bold; color:${c.presentCount > 0 ? 'green' : 'red'};">${c.presentCount > 0 ? 'حاضر' : 'غائب'}</td><td>${c.presentCount > 0 ? (c.presentTime || '-') : '-'}</td></tr>`).join('')
-        : state.currentReportData.combined.map((c, i) => `<tr><td>${i+1}</td><td>${c.id}</td><td style="font-weight:bold;">${escapeHTML(c.name)}</td><td>${escapeHTML(stageMap[c.level]||c.level)}</td><td style="color:green; font-weight:bold;">${c.presentCount}</td><td style="color:red; font-weight:bold;">${c.absentCount}</td><td style="color:green;">${c.presentDates.join('<br>') || '-'}</td><td style="color:red;">${c.absentDates.join('<br>') || '-'}</td></tr>`).join('');
+        : state.currentReportData.combined.map((c, i) => `<tr><td>${i+1}</td><td>${c.id}</td><td style="font-weight:bold;">${escapeHTML(c.name)}</td><td>${escapeHTML(stageMap[c.level]||c.level)}</td><td style="color:green; font-weight:bold;">${c.presentCount}</td><td style="color:red; font-weight:bold;">${c.absentCount}</td><td style="color:green; font-size:10px; line-height:1.6;">${c.presentDates.join(' ، ') || '-'}</td><td style="color:red; font-size:10px; line-height:1.6;">${c.absentDates.join(' ، ') || '-'}</td></tr>`).join('');
 
-    const content = `<table class="ultra-compact-table"><thead><tr>${isDaily ? '<th style="width:5%;">م</th><th style="width:12%;">الكود</th><th style="width:42%;">الاسم</th><th style="width:12%;">اللجنة</th><th style="width:14%;">الحالة</th><th style="width:15%;">وقت الحضور</th>' : '<th style="width:4%;">م</th><th style="width:9%;">الكود</th><th style="width:36%;">الاسم</th><th style="width:9%;">اللجنة</th><th style="width:8%;">حضور</th><th style="width:8%;">غياب</th><th style="width:13%;">تواريخ الحضور</th><th style="width:13%;">تواريخ الغياب</th>'}</tr></thead><tbody>${rows}</tbody></table>`;
+    const content = `<table class="ultra-compact-table"><thead><tr>${isDaily 
+        ? '<th style="width:5%;">م</th><th style="width:12%;">الكود</th><th style="width:42%;">الاسم</th><th style="width:12%;">اللجنة</th><th style="width:14%;">الحالة</th><th style="width:15%;">وقت الحضور</th>' 
+        : '<th style="width:4%;">م</th><th style="width:9%;">الكود</th><th style="width:28%;">الاسم</th><th style="width:9%;">اللجنة</th><th style="width:7%;">حضور</th><th style="width:7%;">غياب</th><th style="width:18%;">تواريخ الحضور</th><th style="width:18%;">تواريخ الغياب</th>'}</tr></thead><tbody>${rows}</tbody></table>`;
     window.printHTML(title, content, !isDaily);
 }
 

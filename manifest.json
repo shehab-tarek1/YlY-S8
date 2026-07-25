@@ -1,0 +1,54 @@
+{
+  "name": "YLY Management | Pro System",
+  "short_name": "YLY System",
+  "description": "نظام إدارة اللجان والأعضاء لمبادرة شباب يدير شباب YLY - نسخة احترافية",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f3f4f6",
+  "theme_color": "#1e3a8a",
+  "dir": "rtl",
+  "lang": "ar",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    {
+      "src": "https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_192,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_512,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "تسجيل الحضور",
+      "short_name": "الحضور",
+      "description": "فتح ماسح الباركود لتسجيل الحضور",
+      "url": "./index.html?action=attendance",
+      "icons": [
+        {
+          "src": "https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_192,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "إضافة تقييم",
+      "short_name": "التقييمات",
+      "description": "إضافة نقاط وتقييمات للأعضاء",
+      "url": "./index.html?action=accounting",
+      "icons": [
+        {
+          "src": "https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_192,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false
+}

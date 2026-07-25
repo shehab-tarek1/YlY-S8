@@ -452,7 +452,6 @@
     function openInternalPage(id) { document.getElementById(id).classList.add('active'); document.body.classList.add('internal-open'); window.scrollTo(0, 0); }
     window.closeInternalPage = function(id) { document.getElementById(id).classList.remove('active'); document.body.classList.remove('internal-open'); }
 
-
 function getPrintTemplate(title, content, isLandscape = false) {
     const todayPrintDate = new Date().toLocaleDateString('ar-EG');
     return `
@@ -485,11 +484,12 @@ function getPrintTemplate(title, content, isLandscape = false) {
         .print-title-area h2 { font-size: 12pt; font-weight: 800; margin: 4px 0 0 0; color: #dc2626; border-bottom: 1px solid #ddd; padding-bottom: 3px; display: inline-block; }
         .print-logo-area { text-align: left; }
         
+        /* إعدادات الجداول والتقسيم التلقائي بين الصفحات */
         table { width: 100% !important; border-collapse: collapse; margin-top: 10px; font-size: 11px !important; table-layout: fixed; direction: rtl !important; }
         tr { page-break-inside: avoid !important; }
-        thead { display: table-header-group; }
+        thead { display: table-header-group !important; }
         
-        /* إجبار إظهار اللون الأزرق العريض برأس الجدول */
+        /* إجبار إظهار اللون الأزرق برأس الجدول */
         th, .ultra-compact-table th { 
             background-color: #1e3a8a !important; 
             color: #ffffff !important; 
@@ -580,113 +580,62 @@ window.printHTML = async function(title, content, isLandscape = false) {
     }
 };
 
-window.savePDF = async function(title, content, isLandscape = false) {
-    if (isPrinting) return;
-    isPrinting = true;
-    showToast('جاري تحضير وتنزيل ملف الـ PDF...', 'success');
+// دالة الطباعة وتصدير الـ PDF المعزولة بالكامل بدون زحف شاشة أو تشويه للحروف العربية
+window.savePDF = function(title, content, isLandscape = false) {
+    showToast('جاري تجهيز التقرير للحفظ كـ PDF...', 'success');
 
-    // تنظيف عنوان التقرير لاستخدامه كاسم ملف رسمي للتنزيل (مثل: بطاقة_عضو_شهاب_طارق.pdf)
-    const cleanFileName = (title || 'تقرير_YLY').replace(/[/\\?%*:|"<>]/g, '_').replace(/\s+/g, '_').trim();
-    const targetWidthPx = isLandscape ? 1122 : 794;
-
-    // 1. إنشاء iframe معزول مثبت خلف الشاشة الرئيسية تماماً في النقطة (0,0) بـ z-index سالب
-    let pdfIframe = document.getElementById('pdf-export-iframe');
+    let pdfIframe = document.getElementById('vector-pdf-iframe');
     if (!pdfIframe) {
         pdfIframe = document.createElement('iframe');
-        pdfIframe.id = 'pdf-export-iframe';
-        pdfIframe.style.cssText = `
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: ${targetWidthPx}px !important;
-            height: 2000px !important;
-            border: none !important;
-            opacity: 0.01 !important;
-            pointer-events: none !important;
-            z-index: -999999 !important;
-            background: #ffffff !important;
-        `;
+        pdfIframe.id = 'vector-pdf-iframe';
+        pdfIframe.style.cssText = 'position: fixed; right: -9999px; bottom: -9999px; width: 0px; height: 0px; border: none; visibility: hidden; z-index: -9999;';
         document.body.appendChild(pdfIframe);
     }
 
-    try {
-        const iframeDoc = pdfIframe.contentWindow.document;
-        iframeDoc.open();
-        iframeDoc.write(`
-            <!DOCTYPE html>
-            <html dir="rtl" lang="ar">
-            <head>
-                <meta charset="UTF-8">
-                <title>${cleanFileName}</title>
-                <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-                <style>
-                    * {
-                        box-sizing: border-box;
-                        font-family: 'Cairo', sans-serif !important;
-                        direction: rtl !important;
-                        -webkit-print-color-adjust: exact !important;
-                        print-color-adjust: exact !important;
-                        color-adjust: exact !important;
-                    }
-                    body {
-                        font-family: 'Cairo', sans-serif !important;
-                        direction: rtl !important;
-                        text-align: right;
-                        background: #ffffff !important;
-                        color: #000000 !important;
-                        margin: 0;
-                        padding: 10px;
-                        width: ${targetWidthPx}px !important;
-                    }
-                </style>
-            </head>
-            <body>
-                <div id="pdf-content-root">
-                    ${getPrintTemplate(title, content, isLandscape)}
-                </div>
-            </body>
-            </html>
-        `);
-        iframeDoc.close();
+    const cleanTitle = (title || 'تقرير_YLY').replace(/[/\\?%*:|"<>]/g, '_').trim();
+    const iframeDoc = pdfIframe.contentWindow.document;
+    iframeDoc.open();
+    iframeDoc.write(`
+        <!DOCTYPE html>
+        <html dir="rtl" lang="ar">
+        <head>
+            <meta charset="UTF-8">
+            <title>${cleanTitle}</title>
+            <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+            <style>
+                @page { size: A4 ${isLandscape ? 'landscape' : 'portrait'}; margin: 8mm; }
+                * { 
+                    box-sizing: border-box; 
+                    font-family: 'Cairo', sans-serif !important; 
+                    direction: rtl !important; 
+                    -webkit-print-color-adjust: exact !important; 
+                    print-color-adjust: exact !important; 
+                }
+                body { 
+                    background: white !important; 
+                    color: black !important; 
+                    margin: 0; 
+                    padding: 5px; 
+                    direction: rtl; 
+                    text-align: right; 
+                }
+            </style>
+        </head>
+        <body>
+            ${getPrintTemplate(title, content, isLandscape)}
+        </body>
+        </html>
+    `);
+    iframeDoc.close();
 
-        // 2. الانتظار حتى استكمال تحميل الخطوط بالكامل داخل الـ iframe
-        if (pdfIframe.contentWindow.document.fonts) {
-            await pdfIframe.contentWindow.document.fonts.ready;
-        }
-        await new Promise(resolve => setTimeout(resolve, 400));
-
-        const targetElement = iframeDoc.getElementById('pdf-content-root');
-
-        // 3. إعدادات html2pdf لدعم تعدد الصفحات A4 ومنع انكماش الجداول
-        const opt = {
-            margin: [6, 6, 6, 6],
-            filename: `${cleanFileName}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: {
-                scale: 2,
-                useCORS: true,
-                logging: false,
-                letterRendering: true,
-                allowTaint: true,
-                windowWidth: targetWidthPx,
-                scrollX: 0,
-                scrollY: 0
-            },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: isLandscape ? 'landscape' : 'portrait' },
-            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-        };
-
-        // توليد ملف الـ PDF المعزول وتنزيله بضغط زر واحدة
-        await html2pdf().set(opt).from(targetElement).save();
-        showToast('تم تحميل ملف الـ PDF بنجاح 📄', 'success');
-
-    } catch (err) {
-        console.error("PDF Export Error: ", err);
-        showToast('حدث خطأ أثناء تحميل ملف الـ PDF', 'error');
-    } finally {
-        isPrinting = false;
-    }
+    setTimeout(() => {
+        pdfIframe.contentWindow.focus();
+        pdfIframe.contentWindow.print();
+    }, 350);
 };
+
+window.printHTML = window.savePDF;
+
     function generateQRBase64(text) { return new Promise((resolve) => { const holder = document.createElement('div'); new QRCode(holder, { text: text, width: 120, height: 120, correctLevel : QRCode.CorrectLevel.H }); setTimeout(() => { const img = holder.querySelector('img'); const canvas = holder.querySelector('canvas'); if (img && img.src) { resolve(`<img src="${img.src}" style="width:100px; height:100px; margin:0 auto;" />`); } else if (canvas) { resolve(`<img src="${canvas.toDataURL()}" style="width:100px; height:100px; margin:0 auto;" />`); } else { resolve(''); } }, 300); }); }
 
 

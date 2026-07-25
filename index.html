@@ -478,7 +478,7 @@ function getPrintTemplate(title, content, isLandscape = false) {
         }
         
         .print-page { width: 100%; max-width: 100%; margin: 0 auto; background: #ffffff; color: #000000; }
-        .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; margin-bottom: 15px; }
+        .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; margin-bottom: 15px; page-break-after: avoid; }
         .print-meta-area { text-align: right; font-size: 9pt; color: #4b5563; font-weight: 600; }
         .print-title-area { text-align: center; flex: 1; padding: 0 10px; }
         .print-title-area h1 { font-size: 18pt; font-weight: 900; margin: 0; color: #1e3a8a; }
@@ -486,7 +486,7 @@ function getPrintTemplate(title, content, isLandscape = false) {
         .print-logo-area { text-align: left; }
         
         table { width: 100% !important; border-collapse: collapse; margin-top: 10px; font-size: 11px !important; table-layout: fixed; direction: rtl !important; }
-        tr { page-break-inside: avoid; }
+        tr { page-break-inside: avoid !important; }
         thead { display: table-header-group; }
         
         /* إجبار إظهار اللون الأزرق العريض برأس الجدول */
@@ -585,36 +585,81 @@ window.savePDF = async function(title, content, isLandscape = false) {
     isPrinting = true;
     showToast('جاري تحضير وتنزيل ملف الـ PDF...', 'success');
 
-    // تنظيف عنوان التقرير لاستخدامه كاسم ملف رسمي للتنزيل
-    const cleanFileName = title.replace(/[/\\?%*:|"<>]/g, '_').trim();
-
-    // إنشاء حاوية مخفية بعرض أبعاد A4 المضبوطة لضمان عدم تقطيع الكلمات العربية
+    // تنظيف عنوان التقرير لاستخدامه كاسم ملف رسمي للتنزيل (مثل: بطاقة_عضو_شهاب_طارق.pdf)
+    const cleanFileName = (title || 'تقرير_YLY').replace(/[/\\?%*:|"<>]/g, '_').replace(/\s+/g, '_').trim();
     const targetWidthPx = isLandscape ? 1122 : 794;
-    const pdfHolder = document.createElement('div');
-    pdfHolder.style.cssText = `
-        position: fixed !important;
-        left: -9999px !important;
-        top: 0 !important;
-        width: ${targetWidthPx}px !important;
-        min-height: 1000px !important;
-        background: #ffffff !important;
-        direction: rtl !important;
-        z-index: -9999 !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-    `;
 
-    pdfHolder.innerHTML = getPrintTemplate(title, content, isLandscape);
-    document.body.appendChild(pdfHolder);
+    // 1. إنشاء iframe معزول مثبت خلف الشاشة الرئيسية تماماً في النقطة (0,0) بـ z-index سالب
+    let pdfIframe = document.getElementById('pdf-export-iframe');
+    if (!pdfIframe) {
+        pdfIframe = document.createElement('iframe');
+        pdfIframe.id = 'pdf-export-iframe';
+        pdfIframe.style.cssText = `
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: ${targetWidthPx}px !important;
+            height: 2000px !important;
+            border: none !important;
+            opacity: 0.01 !important;
+            pointer-events: none !important;
+            z-index: -999999 !important;
+            background: #ffffff !important;
+        `;
+        document.body.appendChild(pdfIframe);
+    }
 
     try {
-        if (document.fonts) {
-            await document.fonts.ready;
-        }
-        await new Promise(resolve => setTimeout(resolve, 350));
+        const iframeDoc = pdfIframe.contentWindow.document;
+        iframeDoc.open();
+        iframeDoc.write(`
+            <!DOCTYPE html>
+            <html dir="rtl" lang="ar">
+            <head>
+                <meta charset="UTF-8">
+                <title>${cleanFileName}</title>
+                <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+                <style>
+                    * {
+                        box-sizing: border-box;
+                        font-family: 'Cairo', sans-serif !important;
+                        direction: rtl !important;
+                        -webkit-print-color-adjust: exact !important;
+                        print-color-adjust: exact !important;
+                        color-adjust: exact !important;
+                    }
+                    body {
+                        font-family: 'Cairo', sans-serif !important;
+                        direction: rtl !important;
+                        text-align: right;
+                        background: #ffffff !important;
+                        color: #000000 !important;
+                        margin: 0;
+                        padding: 10px;
+                        width: ${targetWidthPx}px !important;
+                    }
+                </style>
+            </head>
+            <body>
+                <div id="pdf-content-root">
+                    ${getPrintTemplate(title, content, isLandscape)}
+                </div>
+            </body>
+            </html>
+        `);
+        iframeDoc.close();
 
+        // 2. الانتظار حتى استكمال تحميل الخطوط بالكامل داخل الـ iframe
+        if (pdfIframe.contentWindow.document.fonts) {
+            await pdfIframe.contentWindow.document.fonts.ready;
+        }
+        await new Promise(resolve => setTimeout(resolve, 400));
+
+        const targetElement = iframeDoc.getElementById('pdf-content-root');
+
+        // 3. إعدادات html2pdf لدعم تعدد الصفحات A4 ومنع انكماش الجداول
         const opt = {
-            margin: [5, 5, 5, 5],
+            margin: [6, 6, 6, 6],
             filename: `${cleanFileName}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: {
@@ -631,17 +676,14 @@ window.savePDF = async function(title, content, isLandscape = false) {
             pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
         };
 
-        // تحويل التقرير وتنزيله فوراً كملف PDF على جهاز المستخدم
-        await html2pdf().set(opt).from(pdfHolder).save();
+        // توليد ملف الـ PDF المعزول وتنزيله بضغط زر واحدة
+        await html2pdf().set(opt).from(targetElement).save();
         showToast('تم تحميل ملف الـ PDF بنجاح 📄', 'success');
 
     } catch (err) {
         console.error("PDF Export Error: ", err);
         showToast('حدث خطأ أثناء تحميل ملف الـ PDF', 'error');
     } finally {
-        if (document.body.contains(pdfHolder)) {
-            document.body.removeChild(pdfHolder);
-        }
         isPrinting = false;
     }
 };
@@ -1301,8 +1343,31 @@ window.openInternalReport = function() {
     function printContent(elementId, title) { const content = `<table class="ultra-compact-table"><thead>${document.getElementById('intAttHead').innerHTML}</thead><tbody>${document.getElementById('intAttBody').innerHTML}</tbody></table>`; printHTML(title, content); }
     function pdfContent(elementId, title) { const content = `<table class="ultra-compact-table"><thead>${document.getElementById('intAttHead').innerHTML}</thead><tbody>${document.getElementById('intAttBody').innerHTML}</tbody></table>`; savePDF(title, content); }
     window.printStudentCard = async function() { const s = window.members.find(st => st.id === currentModalStudentId); if(!s) return; showToast('جاري تجهيز الكارنيه...', 'success'); const qrImageHtml = await generateQRBase64(s.id); const stdPhone = s.ownPhone ? (s.ownPhone.startsWith('0') ? s.ownPhone : '0' + s.ownPhone) : (s.phone ? (s.phone.startsWith('0') ? s.phone : '0'+s.phone) : 'غير مسجل'); const content = `<div class="print-student-card"><div class="print-card-title">بطاقة عضو YLY</div><div class="print-card-name">${s.name}</div><div style="display:flex; justify-content:center; margin:10px 0;">${qrImageHtml}</div><div class="print-card-row"><span>كود العضو:</span> <span>${s.id}</span></div><div class="print-card-row"><span>كلمة السر:</span> <span>${s.password || '----'}</span></div><div class="print-card-row"><span>اللجنة:</span> <span>${stageMap[s.level] || s.level}</span></div><div class="print-card-row"><span>رقم الهاتف:</span> <span>${stdPhone}</span></div><div class="print-card-row"><span>تاريخ الاشتراك:</span> <span>${s.date}</span></div></div>`; printHTML('بطاقة عضو', content); }
-    window.shareStudentPdf = async function() { const s = window.members.find(st => st.id === currentModalStudentId); if(!s) return; showToast('جاري إنشاء PDF...', 'success'); const qrImageHtml = await generateQRBase64(s.id); const stdPhone = s.ownPhone ? (s.ownPhone.startsWith('0') ? s.ownPhone : '0' + s.ownPhone) : (s.phone ? (s.phone.startsWith('0') ? s.phone : '0'+s.phone) : 'غير مسجل'); const content = `<div class="print-student-card"><div class="print-card-title">بطاقة عضو YLY</div><div class="print-card-name">${s.name}</div><div style="display:flex; justify-content:center; margin:10px 0;">${qrImageHtml}</div><div class="print-card-row"><span>كود العضو:</span> <span>${s.id}</span></div><div class="print-card-row"><span>كلمة السر:</span> <span>${s.password || '----'}</span></div><div class="print-card-row"><span>اللجنة:</span> <span>${stageMap[s.level] || s.level}</span></div><div class="print-card-row"><span>رقم الهاتف:</span> <span>${stdPhone}</span></div><div class="print-card-row"><span>تاريخ الاشتراك:</span> <span>${s.date}</span></div></div>`; savePDF(`بطاقة_${s.name}`, content); }
-    async function delStudent(docId, studentId) { if(!confirm('سيتم حذف العضو وجميع سجلات حضوره ونقاطه! هل أنت متأكد؟')) return; try { const attQuery = window.query(window.collection(window.db, "attendance"), window.where("studentId", "==", studentId)); const attSnapshot = await window.getDocs(attQuery); attSnapshot.forEach(doc => window.deleteDoc(doc.ref)); const accQuery = window.query(window.collection(window.db, "accounting"), window.where("stdId", "==", studentId)); const accSnapshot = await window.getDocs(accQuery); accSnapshot.forEach(doc => window.deleteDoc(doc.ref)); await window.deleteDoc(window.doc(window.db, "members", docId)); showToast('تم حذف العضو وكل بياناته', 'success'); } catch (e) { showToast('حدث خطأ أثناء الحذف', 'error'); } }
+    window.shareStudentPdf = async function() { 
+        const s = window.members.find(st => st.id === currentModalStudentId); 
+        if(!s) return; 
+        showToast('جاري إنشاء وتحميل الكارنيه...', 'success'); 
+        const qrImageHtml = await generateQRBase64(s.id); 
+        const stdPhone = s.ownPhone ? (s.ownPhone.startsWith('0') ? s.ownPhone : '0' + s.ownPhone) : (s.phone ? (s.phone.startsWith('0') ? s.phone : '0'+s.phone) : 'غير مسجل'); 
+        const content = `<div class="print-student-card"><div class="print-card-title">بطاقة عضو YLY</div><div class="print-card-name">${s.name}</div><div style="display:flex; justify-content:center; margin:10px 0;">${qrImageHtml}</div><div class="print-card-row"><span>كود العضو:</span> <span>${s.id}</span></div><div class="print-card-row"><span>كلمة السر:</span> <span>${s.password || '----'}</span></div><div class="print-card-row"><span>اللجنة:</span> <span>${stageMap[s.level] || s.level}</span></div><div class="print-card-row"><span>رقم الهاتف:</span> <span>${stdPhone}</span></div><div class="print-card-row"><span>تاريخ الاشتراك:</span> <span>${s.date}</span></div></div>`; 
+        savePDF(`بطاقة_عضو_${s.name}`, content); 
+    }
+
+    async function delStudent(docId, studentId) { 
+        if(!confirm('سيتم حذف العضو وجميع سجلات حضوره ونقاطه! هل أنت متأكد؟')) return; 
+        try { 
+            const attQuery = window.query(window.collection(window.db, "attendance"), window.where("studentId", "==", studentId)); 
+            const attSnapshot = await window.getDocs(attQuery); 
+            attSnapshot.forEach(doc => window.deleteDoc(doc.ref)); 
+            const accQuery = window.query(window.collection(window.db, "accounting"), window.where("stdId", "==", studentId)); 
+            const accSnapshot = await window.getDocs(accQuery); 
+            accSnapshot.forEach(doc => window.deleteDoc(doc.ref)); 
+            await window.deleteDoc(window.doc(window.db, "members", docId)); 
+            showToast('تم حذف العضو وكل بياناته', 'success'); 
+        } catch (e) { 
+            showToast('حدث خطأ أثناء الحذف', 'error'); 
+        } 
+    }
 </script>
 </body>
 </html>

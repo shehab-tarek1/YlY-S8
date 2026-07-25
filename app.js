@@ -20,7 +20,7 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 
 // ==========================================
-// 2. Global State & Variables
+// 2. Global State
 // ==========================================
 const state = {
     members: [],
@@ -28,7 +28,7 @@ const state = {
     accounting: [],
     dayAttForInternal: [],
     currentModalStudentId: null,
-    currentReportData: {},
+    currentReportData: { present: [], absent: [], points: [], combined: [] },
     loginMode: 'admin',
     isPrinting: false,
     currentPage: 1,
@@ -36,11 +36,13 @@ const state = {
     attCurrentPage: 1,
     reportCurrentPage: 1,
     currentAttType: 'present',
-    currentReportCategory: '',
+    currentReportCategory: 'combined',
     html5QrCode: null,
     isScannerRunning: false,
     isPaused: false,
-    isLoggingOut: false
+    isLoggingOut: false,
+    currentPayStudent: null,
+    attCachedList: []
 };
 
 const stageMap = { "HR": "الموارد البشرية (HR)", "PR": "العلاقات العامة (PR)", "OR": "التنظيم (OR)", "SM": "السوشيال ميديا (SM)" };
@@ -80,8 +82,9 @@ function debounce(func, wait) {
 
 window.showToast = function(msg, type) {
     const t = document.getElementById('toast');
+    if(!t) return;
     t.innerText = msg;
-    t.className = `fixed top-5 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-full shadow-xl font-bold text-xs md:text-sm md:px-8 md:py-4 max-w-[90%] w-auto text-center whitespace-nowrap text-white z-[9999] ${type === 'success' ? 'bg-green-600' : 'bg-red-600'}`;
+    t.className = `fixed top-5 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-full shadow-xl font-bold text-xs md:text-sm md:px-8 md:py-4 max-w-[90%] w-auto text-center whitespace-nowrap text-white z-[500] ${type === 'success' ? 'bg-green-600' : 'bg-red-600'}`;
     t.classList.remove('hidden');
     setTimeout(() => t.classList.add('hidden'), 3000);
 }
@@ -106,13 +109,13 @@ function playSound(type) {
 }
 
 // ==========================================
-// 4. Lazy Loaders (Performance Optimization)
+// 4. Lazy Loaders
 // ==========================================
 let isXlsxLoaded = false;
 async function requireXLSX() {
     if (isXlsxLoaded) return;
     return new Promise((resolve, reject) => {
-        window.showToast('جاري تجهيز المصدر...', 'success');
+        window.showToast('جاري تحضير الإكسيل...', 'success');
         const script = document.createElement('script');
         script.src = "https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js";
         script.onload = () => { isXlsxLoaded = true; resolve(); };
@@ -125,7 +128,7 @@ let isQrLoaded = false;
 async function requireQRScanner() {
     if (isQrLoaded) return;
     return new Promise((resolve, reject) => {
-        window.showToast('جاري تهيئة الكاميرا...', 'success');
+        window.showToast('جاري تهيئة القارئ...', 'success');
         const script1 = document.createElement('script');
         script1.src = "https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js";
         script1.onload = () => {
@@ -139,7 +142,7 @@ async function requireQRScanner() {
 }
 
 // ==========================================
-// 5. Auth & Initialization
+// 5. Auth & Observers
 // ==========================================
 const loading = document.getElementById('loadingOverlay');
 const failSafeTimer = setTimeout(() => {
@@ -162,16 +165,13 @@ onAuthStateChanged(auth, (user) => {
     const savedMode = localStorage.getItem('loginMode');
     
     if (user) {
-        // Security Note: Real role validation must happen in Firestore Rules.
-        // Client-side check is just for UI routing.
         if (savedMode === 'admin' || user.uid === "Y3XYVlXxj7bJwEWas9Hx0DqfPi92") {
             unsubMembers = onSnapshot(collection(db, "members"), (snapshot) => {
                 state.members = [];
                 snapshot.forEach(doc => state.members.push({ ...doc.data(), docId: doc.id }));
                 window.renderStudents();
                 window.updateCounters();
-                loading.style.opacity = '0';
-                setTimeout(() => loading.style.display = 'none', 300);
+                if(loading) { loading.style.opacity = '0'; setTimeout(() => loading.style.display = 'none', 300); }
             });
             
             setTimeout(() => {
@@ -199,13 +199,11 @@ onAuthStateChanged(auth, (user) => {
                     loadStudentDashboard(state.members[0]);
                     document.getElementById('appContent').classList.remove('hidden');
                 }
-                loading.style.opacity = '0';
-                setTimeout(() => loading.style.display = 'none', 300);
+                if(loading) { loading.style.opacity = '0'; setTimeout(() => loading.style.display = 'none', 300); }
             });
-            // ... Student specific listeners omitted for brevity but logic remains identical
         }
     } else {
-        if (!state.isLoggingOut) {
+        if (!state.isLoggingOut && loading) {
             loading.style.opacity = '0';
             setTimeout(() => loading.style.display = 'none', 300);
         }
@@ -214,9 +212,9 @@ onAuthStateChanged(auth, (user) => {
 
 window.onload = () => {
     today = getEgyptDate();
-    document.getElementById('headerDate').innerText = today;
-    document.getElementById('attendanceDate').value = today;
-    document.getElementById('reportDate').value = today;
+    if(document.getElementById('headerDate')) document.getElementById('headerDate').innerText = today;
+    if(document.getElementById('attendanceDate')) document.getElementById('attendanceDate').value = today;
+    if(document.getElementById('reportDate')) document.getElementById('reportDate').value = today;
     const reportMonthEl = document.getElementById('reportMonth');
     if(reportMonthEl) reportMonthEl.value = today.substring(0, 7);
     
@@ -255,14 +253,13 @@ window.handleLogin = async function() {
     const loginBtn = document.querySelector('.login-btn');
     
     if(!code || !pass) {
-        errorMsg.innerText = "يرجى إدخال جميع البيانات";
+        errorMsg.innerText = "يرجى إدخال جميع البيانات المطلوب الدخول بها";
         errorMsg.classList.remove('hidden');
         return;
     }
     
     errorMsg.classList.add('hidden');
-    if (loginBtn) { loginBtn.innerText = "جاري الدخول..."; loginBtn.disabled = true; loginBtn.style.opacity = "0.7"; }
-    
+    if (loginBtn) { loginBtn.innerText = "جاري تسجيل الدخول..."; loginBtn.disabled = true; loginBtn.style.opacity = "0.7"; }
     const resetLoginBtn = () => { if (loginBtn) { loginBtn.innerText = "تسجيل الدخول"; loginBtn.disabled = false; loginBtn.style.opacity = "1"; } };
     
     if (state.loginMode === 'admin') {
@@ -272,12 +269,11 @@ window.handleLogin = async function() {
             proceedLogin('admin');
         } catch (error) {
             localStorage.removeItem('loginMode');
-            errorMsg.innerText = "بيانات الدخول غير صحيحة";
+            errorMsg.innerText = "بيانات الدخول غير صحيحة أو لا تملك صلاحية";
             errorMsg.classList.remove('hidden');
             resetLoginBtn();
         }
     } else {
-        // Student login logic
         try {
             localStorage.setItem('loginMode', 'student');
             localStorage.setItem('currentStudentId', code);
@@ -297,12 +293,12 @@ window.handleLogin = async function() {
                     }
                     proceedLogin('student');
                 } else {
-                    errorMsg.innerText = "بيانات غير صحيحة";
+                    errorMsg.innerText = "كود العضو أو كلمة المرور غير صحيحة";
                     errorMsg.classList.remove('hidden');
                     resetLoginBtn();
                 }
             } catch(err) {
-                errorMsg.innerText = "خطأ في الاتصال";
+                errorMsg.innerText = "حدث خطأ أثناء الاتصال بقاعدة البيانات";
                 errorMsg.classList.remove('hidden');
                 resetLoginBtn();
             }
@@ -338,7 +334,7 @@ window.logout = async function() {
 }
 
 // ==========================================
-// 6. UI & Navigation Controllers
+// 6. UI Controllers & Navigation
 // ==========================================
 window.showTab = async function(id, btn) {
     if(state.isScannerRunning) await window.stopScanner();
@@ -353,6 +349,7 @@ window.showTab = async function(id, btn) {
 window.toggleCustomDropdown = function(event, menuId) {
     event.stopPropagation();
     const menu = document.getElementById(menuId);
+    if(!menu) return;
     if (menu.classList.contains('hide')) {
         window.closeAllDropdowns();
         menu.classList.remove('hide');
@@ -406,7 +403,7 @@ window.closeInternalPage = function(id) {
 }
 
 // ==========================================
-// 7. Student Management (With XSS Protection)
+// 7. Student Management
 // ==========================================
 window.validatePhone = function(input) {
     let val = input.value.replace(/\D/g, '');
@@ -445,7 +442,6 @@ window.registerStudent = async function() {
     }
 }
 
-// Debounced Search
 window.handleSearch = debounce(() => {
     state.currentPage = 1;
     window.renderStudents();
@@ -455,6 +451,7 @@ window.renderStudents = function() {
     const queryStr = normalizeArabic(document.getElementById('searchStd').value.toLowerCase());
     const filterStage = document.getElementById('studentListFilter').value;
     const tbody = document.getElementById('studentsTable');
+    if(!tbody) return;
     
     let filtered = state.members;
     if(filterStage !== 'all') filtered = filtered.filter(s => s.level === filterStage);
@@ -475,7 +472,6 @@ window.renderStudents = function() {
     const end = start + state.itemsPerPage;
     const pageItems = filtered.slice(start, end);
     
-    // Using escapeHTML to prevent XSS
     tbody.innerHTML = pageItems.map((s, index) => `
         <tr class="cursor-pointer" onclick="openStudentModal('${escapeHTML(s.id)}')">
             <td class="col-index">${start + index + 1}</td>
@@ -538,7 +534,7 @@ window.delStudent = async function(docId, studentId) {
 }
 
 // ==========================================
-// 8. Attendance Management (Fixed State Sync)
+// 8. Attendance Logic
 // ==========================================
 function getStudentStatusForDate(member, dateStr) {
     const sourceAtt = (dateStr === today) ? state.attendance : (state.dayAttForInternal || []);
@@ -578,10 +574,10 @@ window.updateCounters = function() {
     
     if (eventRec) {
         let levelsText = eventRec.levels.includes('all') ? "الكل" : eventRec.levels.map(l => stageMap[l]).join('، ');
-        levelNameSpan.innerText = escapeHTML(levelsText);
-        indicator.classList.remove('hidden');
+        if(levelNameSpan) levelNameSpan.innerText = escapeHTML(levelsText);
+        if(indicator) indicator.classList.remove('hidden');
     } else {
-        indicator.classList.add('hidden');
+        if(indicator) indicator.classList.add('hidden');
     }
     
     let targetMembers = state.members.filter(s => s.date <= date);
@@ -594,8 +590,8 @@ window.updateCounters = function() {
         else if (statusObj.status === 'absent') absentCount++;
     });
     
-    document.getElementById('presentCount').innerText = presentCount;
-    document.getElementById('absentCount').innerText = absentCount;
+    if(document.getElementById('presentCount')) document.getElementById('presentCount').innerText = presentCount;
+    if(document.getElementById('absentCount')) document.getElementById('absentCount').innerText = absentCount;
 }
 
 window.confirmEventDay = async function() {
@@ -628,7 +624,7 @@ window.confirmEventDay = async function() {
         });
     }
     window.showToast(`تم التفعيل بنجاح`, 'success');
-    if(date !== today) await window.changeAttendanceDate(); // Force sync for past dates
+    if(date !== today) await window.changeAttendanceDate();
 }
 
 window.cancelEventDay = async function() {
@@ -667,7 +663,7 @@ async function handleAttendanceScan(id) {
     
     try {
         if (date > today) {
-            showCustomAlert("تاريخ غير صحيح", "لا يمكن تسجيل الحضور لموعد في المستقبل.");
+            window.showCustomAlert("تاريخ غير صحيح", "لا يمكن تسجيل الحضور لموعد في المستقبل.");
             return;
         }
         
@@ -682,7 +678,7 @@ async function handleAttendanceScan(id) {
         const isExpectedToAttend = eventRec && (!eventRec.levels || eventRec.levels.includes('all') || eventRec.levels.includes(member.level));
         
         if (!isExpectedToAttend) {
-            showCustomAlert("غير مفعل", `لم يتم تفعيل هذا اليوم للجنة (${stageMap[member.level]})!`);
+            window.showCustomAlert("غير مفعل", `لم يتم تفعيل هذا اليوم للجنة (${stageMap[member.level]})!`);
             return;
         }
         
@@ -693,7 +689,6 @@ async function handleAttendanceScan(id) {
         const newRecord = { date: date, studentId: id, time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) };
         await addDoc(collection(db, "attendance"), newRecord);
         
-        // Fix Sync for past dates
         if (date !== today) {
             state.dayAttForInternal.push(newRecord);
             window.updateCounters();
@@ -712,7 +707,7 @@ async function handleAttendanceScan(id) {
 }
 
 // ==========================================
-// 9. Scanner Logic (With Memory Cleanup)
+// 9. Scanner Logic
 // ==========================================
 window.startScanner = async function(elemId, mode) {
     if(state.isScannerRunning && state.html5QrCode) return;
@@ -752,6 +747,20 @@ window.stopScanner = async function() {
     }
 }
 
+window.startCheckScanner = function() {
+    document.getElementById('checkReader').classList.remove('hidden');
+    document.getElementById('btnStartCheck').classList.add('hidden');
+    document.getElementById('btnStopCheck').classList.remove('hidden');
+    window.startScanner('checkReader', 'check');
+}
+
+window.stopCheckScanner = function() {
+    window.stopScanner();
+    document.getElementById('checkReader').classList.add('hidden');
+    document.getElementById('btnStartCheck').classList.remove('hidden');
+    document.getElementById('btnStopCheck').classList.add('hidden');
+}
+
 window.setAttMode = function(mode) {
     window.stopScanner().then(() => {
         const btnScan = document.getElementById('btnAttScan');
@@ -770,14 +779,557 @@ window.setAttMode = function(mode) {
 }
 
 // ==========================================
-// 10. Print & PDF Logic (Iframe Based - No html2pdf)
+// 10. Accounting & Payments
 // ==========================================
+window.togglePayMethod = function(method) {
+    const btnScan = document.getElementById('btnPayScan');
+    const btnManual = document.getElementById('btnPayManual');
+    if(method === 'scan') {
+        document.getElementById('payScanDiv').classList.remove('hidden');
+        document.getElementById('payManualDiv').classList.add('hidden');
+        btnScan.classList.add('active'); btnManual.classList.remove('active');
+        window.startScanner('payReader', 'payment');
+    } else {
+        document.getElementById('payScanDiv').classList.add('hidden');
+        document.getElementById('payManualDiv').classList.remove('hidden');
+        btnManual.classList.add('active'); btnScan.classList.remove('active');
+        window.stopScanner();
+    }
+}
+
+function handlePaymentScan(id) {
+    if(!document.getElementById('paymentForm').classList.contains('hidden')) return;
+    const member = state.members.find(s => s.id === id);
+    if(member) {
+        state.currentPayStudent = member;
+        showPaymentForm();
+    } else {
+        window.showToast('عضو غير موجود', 'error');
+    }
+}
+
+function showPaymentForm() {
+    document.getElementById('paymentForm').classList.remove('hidden');
+    document.getElementById('payStdName').innerText = state.currentPayStudent.name;
+    document.getElementById('payStdID').innerText = state.currentPayStudent.id;
+    document.getElementById('payAmount').value = document.getElementById('defScoreAmount').value;
+    document.getElementById('payType').value = document.getElementById('defScoreType').value;
+    document.getElementById('payNote').value = document.getElementById('defScoreNote').value;
+    playSound('success');
+    state.isPaused = true;
+}
+
+window.searchStudentForPay = function() {
+    handlePaymentScan(document.getElementById('paySearchID').value.trim());
+}
+
+window.confirmPayment = async function() {
+    const amountVal = document.getElementById('payAmount').value;
+    if(!amountVal || isNaN(amountVal) || parseFloat(amountVal) <= 0) {
+        window.showToast('⚠️ يجب إدخال الدرجة/النقاط بشكل صحيح', 'error');
+        return;
+    }
+    
+    try {
+        const amount = parseFloat(amountVal);
+        const type = document.getElementById('payType').value;
+        const note = document.getElementById('payNote').value;
+        const time = new Date().toLocaleTimeString('ar-EG');
+        let typeText = type;
+        if(note) typeText += ` (${note})`;
+        
+        await addDoc(collection(db, "accounting"), {
+            date: today,
+            time,
+            stdId: state.currentPayStudent.id,
+            name: state.currentPayStudent.name,
+            amount,
+            type: typeText,
+            category: 'points',
+            timestamp: Date.now()
+        });
+
+        document.getElementById('paymentForm').classList.add('hidden');
+        document.getElementById('paySearchID').value = '';
+        window.showToast('تم إضافة النقاط بنجاح', 'success');
+    } catch(err) {
+        window.showToast('حدث خطأ أثناء حفظ التقييم', 'error');
+    } finally {
+        state.isPaused = false;
+    }
+}
+
+window.cancelPayment = function() {
+    document.getElementById('paymentForm').classList.add('hidden');
+    document.getElementById('paySearchID').value = '';
+    state.currentPayStudent = null;
+    state.isPaused = false;
+}
+
+window.proceedWithPayment = function() {
+    document.getElementById('paymentConfirmModal').style.display = 'none';
+    state.isPaused = false;
+    showPaymentForm();
+}
+
+window.closePaymentConfirm = function() {
+    document.getElementById('paymentConfirmModal').style.display = 'none';
+    state.isPaused = false;
+}
+
+window.updateFinance = function() {
+    const points = state.accounting.filter(a => a.category === 'points');
+    const todayPoints = points.filter(r => r.date === today);
+    const totalPointsToday = todayPoints.reduce((sum, r) => sum + r.amount, 0);
+    if(document.getElementById('totalRev')) document.getElementById('totalRev').innerText = totalPointsToday;
+    
+    const todayRevBody = document.getElementById('todayRevListBody');
+    if (todayRevBody) {
+        if (todayPoints.length === 0) {
+            todayRevBody.innerHTML = '<tr><td colspan="4" class="text-center text-gray-400 py-3 font-bold">لا توجد تقييمات اليوم</td></tr>';
+        } else {
+            todayRevBody.innerHTML = todayPoints.map(r => {
+                const memberTotalPoints = points.filter(p => p.stdId === r.stdId).reduce((s, p) => s + p.amount, 0);
+                return `<tr class="hover:bg-sky-50 transition"><td class="font-bold text-gray-900 leading-tight">${escapeHTML(r.name)}</td><td class="col-code font-mono text-blue-900">${escapeHTML(r.stdId)}</td><td class="font-bold text-green-700">+${r.amount} <span class="text-[9px] text-gray-500">(${escapeHTML(r.type)})</span></td><td class="font-bold text-blue-800">${memberTotalPoints} نقطة</td></tr>`;
+            }).join('');
+        }
+    }
+}
+
+// ==========================================
+// 11. Reports & Advanced Search
+// ==========================================
+window.toggleStudentReportSearch = function() {
+    const btn = document.getElementById('btnSearchStudentReport');
+    const input = document.getElementById('reportStudentSearch');
+    const resDiv = document.getElementById('studentReportResult');
+    
+    if (btn.innerText === 'بحث') {
+        if (!input.value.trim()) return window.showToast('ادخل الاسم أو الكود للبحث', 'error');
+        generateStudentReport();
+        btn.innerText = 'إلغاء';
+        btn.className = 'bg-red-600 text-white px-3 rounded font-bold text-[10px] md:text-sm transition-all shrink-0';
+    } else {
+        input.value = '';
+        resDiv.innerHTML = '';
+        resDiv.classList.add('hidden');
+        btn.innerText = 'بحث';
+        btn.className = 'bg-gray-800 text-white px-3 rounded font-bold text-[10px] md:text-sm transition-all shrink-0';
+    }
+}
+
+function generateStudentReport() {
+    const queryStr = normalizeArabic(document.getElementById('reportStudentSearch').value.toLowerCase().trim());
+    const stage = document.getElementById('searchStage').value;
+    let matches = state.members.filter(s => {
+        const normName = normalizeArabic((s.name || '').toLowerCase());
+        const firstName = normName.split(' ')[0];
+        const nameMatch = (firstName === queryStr || normName === queryStr);
+        const idMatch = (s.id || '').includes(queryStr);
+        const stageMatch = stage === 'all' || s.level === stage;
+        return (nameMatch || idMatch) && stageMatch;
+    });
+    
+    const resDiv = document.getElementById('studentReportResult');
+    if(matches.length === 0) {
+        resDiv.innerHTML = '<p class="text-red-500 text-center font-bold">لم يتم العثور على نتائج</p>';
+        resDiv.classList.remove('hidden');
+        return;
+    }
+    let listHtml = `<div class="text-xs font-bold text-gray-900 mb-2">تم العثور على ${matches.length} عضو:</div><div class="max-h-40 overflow-y-auto border rounded">`;
+    matches.slice(0, 10).forEach(s => {
+        listHtml += `<div onclick="openAdminStudentDash('${escapeHTML(s.id)}')" class="p-2 border-b hover:bg-gray-50 cursor-pointer flex justify-between items-center"><span class="font-bold text-xs text-blue-900">${escapeHTML(s.name)}</span><span class="bg-gray-200 px-1 rounded text-gray-700 font-mono text-[9px]">${escapeHTML(s.id)} (${escapeHTML(s.level)})</span></div>`;
+    });
+    listHtml += `</div>`;
+    resDiv.innerHTML = listHtml;
+    resDiv.classList.remove('hidden');
+}
+
+window.toggleReportInputs = function() {
+    const type = document.getElementById('reportType').value;
+    if(type === 'daily') {
+        document.getElementById('divDateInput').classList.remove('hidden');
+        document.getElementById('divMonthInput').classList.add('hidden');
+    } else {
+        document.getElementById('divDateInput').classList.add('hidden');
+        document.getElementById('divMonthInput').classList.remove('hidden');
+    }
+}
+
+window.handleReportBtnClick = function() {
+    const btn = document.getElementById('btnGenerateReport');
+    if (btn.innerText === 'توليد التقرير') {
+        generateAdvancedReport();
+    } else {
+        document.getElementById('reportResult').classList.add('hidden');
+        document.getElementById('reportResult').innerHTML = '';
+        btn.innerText = 'توليد التقرير';
+        btn.className = 'w-full bg-blue-900 text-white py-1.5 rounded font-bold shadow hover:bg-blue-950 text-[10px] md:text-sm md:py-2 transition-all';
+    }
+}
+
+async function generateAdvancedReport() {
+    const type = document.getElementById('reportType').value;
+    const stage = document.getElementById('reportStage').value;
+    const dateInput = document.getElementById('reportDate').value;
+    const monthInput = document.getElementById('reportMonth').value;
+    
+    state.currentReportData = { present: [], absent: [], points: [], combined: [] };
+    state.reportCurrentPage = 1;
+    let targetMembers = state.members;
+    if(stage !== 'all') targetMembers = state.members.filter(s => s.level === stage);
+    
+    let datesArray = [];
+    if(type === 'daily') {
+        if(!dateInput) return window.showToast('اختر التاريخ', 'error');
+        datesArray = [dateInput];
+    } else {
+        if(!monthInput) return window.showToast('اختر الشهر', 'error');
+        const [year, month] = monthInput.split('-').map(Number);
+        const daysInMonth = new Date(year, month, 0).getDate();
+        for(let i=1; i<=daysInMonth; i++) {
+            datesArray.push(`${year}-${String(month).padStart(2, '0')}-${String(i).padStart(2, '0')}`);
+        }
+    }
+
+    document.getElementById('reportResult').innerHTML = '<div class="text-center py-4 font-bold text-blue-900">جاري معالجة البيانات...</div>';
+    document.getElementById('reportResult').classList.remove('hidden');
+
+    let periodAttendance = []; let periodAccounting = [];
+    try {
+        if (type === 'daily') {
+            const attQ = query(collection(db, "attendance"), where("date", "==", dateInput));
+            const accQ = query(collection(db, "accounting"), where("date", "==", dateInput));
+            const [attSnap, accSnap] = await Promise.all([getDocs(attQ), getDocs(accQ)]);
+            attSnap.forEach(doc => periodAttendance.push({ ...doc.data(), docId: doc.id }));
+            accSnap.forEach(doc => periodAccounting.push({ ...doc.data(), docId: doc.id }));
+        } else {
+            const startDate = datesArray[0]; const endDate = datesArray[datesArray.length - 1];
+            const attQ = query(collection(db, "attendance"), where("date", ">=", startDate), where("date", "<=", endDate));
+            const accQ = query(collection(db, "accounting"), where("date", ">=", startDate), where("date", "<=", endDate));
+            const [attSnap, accSnap] = await Promise.all([getDocs(attQ), getDocs(accQ)]);
+            attSnap.forEach(doc => periodAttendance.push({ ...doc.data(), docId: doc.id }));
+            accSnap.forEach(doc => periodAccounting.push({ ...doc.data(), docId: doc.id }));
+        }
+    } catch(err) {
+        window.showToast('حدث خطأ في جلب بيانات التقرير', 'error');
+        return;
+    }
+
+    const attMap = {};
+    periodAttendance.forEach(r => { attMap[`${r.date}_${r.studentId}`] = r; });
+    
+    let pointsForPeriod = periodAccounting.filter(a => a.category === 'points' && datesArray.includes(a.date));
+    pointsForPeriod = pointsForPeriod.map(p => {
+        const m = state.members.find(sm => sm.id === p.stdId);
+        return { ...p, stdLevel: m ? m.level : 'غير معروف' };
+    });
+
+    targetMembers.forEach(member => {
+        let presentCount = 0; let absentCount = 0; let presentDates = []; let absentDates = []; let presentTime = '-';
+        datesArray.forEach(d => {
+            if (d >= (member.date || '2020-01-01') && d <= today) {
+                const attRec = attMap[`${d}_${member.id}`];
+                const eventRec = attMap[`${d}_EVENT_MARKER`];
+                const dateNoYear = d.replace(/^\d{4}-/, '');
+                if (attRec) {
+                    presentCount++; presentDates.push(dateNoYear);
+                    if (type === 'daily') presentTime = (attRec.time || '').replace(/(:\d{2}):\d{2}/, '$1');
+                } else if (eventRec && (!eventRec.levels || eventRec.levels.includes('all') || eventRec.levels.includes(member.level)) && d <= today) {
+                    absentCount++; absentDates.push(dateNoYear);
+                }
+            }
+        });
+        const memberPoints = pointsForPeriod.filter(p => p.stdId === member.id).reduce((sum, p) => sum + p.amount, 0);
+        const memberObj = { ...member, presentCount, absentCount, presentDates, absentDates, presentTime, totalPoints: memberPoints };
+        if (presentCount > 0) state.currentReportData.present.push(memberObj);
+        if (absentCount > 0) state.currentReportData.absent.push(memberObj);
+        state.currentReportData.combined.push(memberObj);
+    });
+    state.currentReportData.points = pointsForPeriod.map(p => ({ ...p, date: (p.date || '').replace(/^\d{4}-/, ''), time: (p.time || '').replace(/(:\d{2}):\d{2}/, '$1') }));
+    
+    const btn = document.getElementById('btnGenerateReport');
+    btn.innerText = 'إلغاء التقرير';
+    btn.className = 'w-full bg-red-600 text-white py-1.5 rounded font-bold shadow hover:bg-red-700 text-[10px] md:text-sm md:py-2 transition-all';
+
+    document.getElementById('reportResult').innerHTML = `<div class="bg-green-50 border border-green-200 p-4 rounded text-center shadow-sm"><div class="text-green-600 text-3xl mb-2">✅</div><h4 class="font-bold text-gray-800 mb-3 text-sm">تم استخراج التقرير بنجاح</h4><button onclick="openInternalReport()" class="bg-blue-900 text-white px-6 py-2 rounded font-bold shadow-lg text-xs md:text-sm">افتح التقرير</button></div>`;
+}
+
+// ==========================================
+// 12. Internal Pages & Reports Rendering
+// ==========================================
+window.openInternalAttendance = async function(type) {
+    state.currentAttType = type;
+    state.attCurrentPage = 1;
+    document.getElementById('intAttFilter').value = 'all';
+    document.getElementById('intAttFilterDisplay').value = 'كل اللجان';
+    document.getElementById('intAttSearch').value = '';
+    
+    const title = type === 'present' ? `قائمة الحضور` : `قائمة الغياب`;
+    document.getElementById('intAttTitle').innerText = title;
+    document.getElementById('intAttDate').innerText = selectedAttendanceDate;
+    
+    const thead = document.getElementById('intAttHead');
+    thead.innerHTML = `<tr><th style="width: 7%;">م</th><th style="width: 45%;">الاسم</th><th style="width: 16%;">الكود</th><th style="width: 16%;">اللجنة</th><th style="width: 16%;">${type === 'present' ? 'وقت' : 'الحالة'}</th></tr>`;
+    
+    state.dayAttForInternal = state.attendance;
+    if(selectedAttendanceDate !== today) {
+        const attQ = query(collection(db, "attendance"), where("date", "==", selectedAttendanceDate));
+        const snap = await getDocs(attQ);
+        state.dayAttForInternal = [];
+        snap.forEach(d => state.dayAttForInternal.push(d.data()));
+    }
+    window.openInternalPage('internalAttendancePage');
+    window.applyInternalAttFilter();
+}
+
+window.applyInternalAttFilter = function() {
+    const selectedLevel = document.getElementById('intAttFilter').value;
+    const searchQuery = document.getElementById('intAttSearch').value.toLowerCase().trim();
+    
+    let targetMembers = state.members.filter(s => s.date <= selectedAttendanceDate);
+    if(selectedLevel !== 'all') targetMembers = targetMembers.filter(s => s.level === selectedLevel);
+    if(searchQuery !== '') targetMembers = targetMembers.filter(s => (s.name||'').toLowerCase().includes(searchQuery) || (s.id||'').includes(searchQuery));
+    
+    state.attCachedList = [];
+    targetMembers.forEach(member => {
+        const attRec = state.dayAttForInternal.find(r => r.date === selectedAttendanceDate && r.studentId === member.id);
+        const eventRec = state.dayAttForInternal.find(r => r.studentId === "EVENT_MARKER" && r.date === selectedAttendanceDate);
+        const isExpected = eventRec && (!eventRec.levels || eventRec.levels.includes('all') || eventRec.levels.includes(member.level));
+        
+        if (state.currentAttType === 'present' && attRec) {
+            state.attCachedList.push({ ...member, time: (attRec.time || '').replace(/(:\d{2}):\d{2}/, '$1') });
+        } else if (state.currentAttType === 'absent' && !attRec && isExpected) {
+            state.attCachedList.push({ ...member, time: 'غياب' });
+        }
+    });
+    state.attCurrentPage = 1;
+    renderInternalAttendanceList();
+}
+
+function renderInternalAttendanceList() {
+    const tbody = document.getElementById('intAttBody');
+    const start = (state.attCurrentPage - 1) * 20;
+    const end = start + 20;
+    const pageItems = state.attCachedList.slice(start, end);
+    
+    if(state.attCachedList.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center text-gray-500 py-4 font-bold text-xs">لا توجد بيانات</td></tr>`;
+        return;
+    }
+    
+    let html = pageItems.map((s, index) => `<tr class="cursor-pointer hover:bg-blue-50 transition" onclick="openAdminStudentDash('${escapeHTML(s.id)}')"><td>${start + index + 1}</td><td class="font-bold text-right pr-1 whitespace-normal leading-tight">${escapeHTML(s.name)}</td><td class="font-mono text-blue-600">${escapeHTML(s.id)}</td><td class="font-bold text-gray-700">${escapeHTML(s.level)}</td><td class="font-bold ${state.currentAttType === 'present' ? 'text-green-600' : 'text-red-600'}">${escapeHTML(s.time)}</td></tr>`).join('');
+    
+    if (state.attCachedList.length > 20) {
+        const totalPages = Math.ceil(state.attCachedList.length / 20) || 1;
+        html += `<tr class="no-print"><td colspan="5" class="bg-gray-100"><div class="flex justify-between p-2 items-center"><button onclick="state.attCurrentPage--; renderInternalAttendanceList()" class="bg-gray-300 px-3 py-1 rounded font-bold text-[9px]" ${state.attCurrentPage === 1 ? 'disabled style="opacity:0.5"' : ''}>السابق</button><span class="font-bold text-[9px]">صفحة ${state.attCurrentPage} من ${totalPages}</span><button onclick="state.attCurrentPage++; renderInternalAttendanceList()" class="bg-gray-300 px-3 py-1 rounded font-bold text-[9px]" ${state.attCurrentPage >= totalPages ? 'disabled style="opacity:0.5"' : ''}>التالي</button></div></td></tr>`;
+    }
+    tbody.innerHTML = html;
+}
+
+window.openInternalReport = function() {
+    const category = document.getElementById('reportCategory').value;
+    state.currentReportCategory = category;
+    state.reportCurrentPage = 1;
+    
+    const outsideStage = document.getElementById('reportStage').value;
+    const outsideStageDisplay = document.getElementById('reportStageDisplay').value;
+    
+    document.getElementById('intRepFilter').value = outsideStage || 'all';
+    document.getElementById('intRepFilterDisplay').value = outsideStageDisplay || 'كل اللجان';
+    document.getElementById('intRepSearch').value = '';
+    
+    document.getElementById('intRepTitle').innerText = getReportTitleHeader(category === 'combined' ? 'تقرير شامل' : (category === 'attendance' ? 'تقرير حضور وغياب' : 'تقرير نقاط وتقييمات'));
+    document.getElementById('intRepDate').innerText = document.getElementById('reportType').value === 'daily' ? document.getElementById('reportDate').value : document.getElementById('reportMonth').value;
+    
+    const thead = document.getElementById('intRepHead');
+    const isDaily = document.getElementById('reportType').value === 'daily';
+
+    if (category === 'combined') {
+        thead.innerHTML = `<tr><th style="width: 5%;">م</th><th style="width: 26%;">الاسم</th><th style="width: 11%;">اللجنة</th><th style="width: 12%;">النقاط</th>${isDaily ? `<th style="width: 22%;">الحالة</th><th style="width: 24%;">وقت</th>` : `<th style="width: 8%;">حضور</th><th style="width: 8%;">غياب</th><th style="width: 15%;">تواريخ الحضور</th><th style="width: 15%;">تواريخ الغياب</th>`}</tr>`;
+        document.getElementById('intRepBtnExcel').onclick = window.exportCombinedExcel;
+        document.getElementById('intRepBtnPdf').onclick = window.pdfCombinedReport;
+        document.getElementById('intRepBtnPrint').onclick = window.printCombinedReport;
+    } else if (category === 'attendance') {
+        thead.innerHTML = `<tr><th style="width: 5%;">م</th><th style="width: 29%;">الاسم</th><th style="width: 12%;">اللجنة</th>${isDaily ? `<th style="width: 26%;">الحالة</th><th style="width: 28%;">وقت</th>` : `<th style="width: 9%;">حضور</th><th style="width: 8%;">غياب</th><th style="width: 18.5%;">تواريخ الحضور</th><th style="width: 18.5%;">تواريخ الغياب</th>`}</tr>`;
+        document.getElementById('intRepBtnExcel').onclick = window.exportAttendanceReportExcel;
+        document.getElementById('intRepBtnPdf').onclick = window.pdfAttendanceReport;
+        document.getElementById('intRepBtnPrint').onclick = window.printAttendanceReport;
+    } else {
+        thead.innerHTML = `<tr><th style="width: 6%;">م</th><th style="width: 14%;">الكود</th><th style="width: 32%;">الاسم</th><th style="width: 20%;">المهمة</th><th style="width: 14%;">النقاط</th><th style="width: 14%;">التاريخ</th></tr>`;
+        document.getElementById('intRepBtnExcel').onclick = window.exportPointsReportExcel;
+        document.getElementById('intRepBtnPdf').onclick = window.pdfPointsReport;
+        document.getElementById('intRepBtnPrint').onclick = window.printPointsReport;
+    }
+    window.openInternalPage('internalReportPage');
+    window.renderInternalReportList();
+}
+
+window.renderInternalReportList = function() {
+    const tbody = document.getElementById('intRepBody');
+    const isDaily = document.getElementById('reportType').value === 'daily';
+    let list = state.currentReportCategory === 'points' ? state.currentReportData.points : state.currentReportData.combined;
+    
+    const searchQuery = document.getElementById('intRepSearch').value.toLowerCase().trim();
+    const filterStage = document.getElementById('intRepFilter').value;
+    
+    if(searchQuery) list = list.filter(item => (item.name||'').toLowerCase().includes(searchQuery) || (item.id && item.id.includes(searchQuery)) || (item.stdId && item.stdId.includes(searchQuery)));
+    if(filterStage !== 'all') list = list.filter(item => item.level === filterStage || item.stdLevel === filterStage);
+
+    const start = (state.reportCurrentPage - 1) * state.itemsPerPage;
+    const end = start + state.itemsPerPage;
+    const pageItems = list.slice(start, end);
+    
+    if(!pageItems || pageItems.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="10" class="text-center py-4 font-bold text-xs">لا توجد بيانات</td></tr>`;
+        document.getElementById('intRepPagination').classList.add('hidden');
+        return;
+    }
+
+    let html = '';
+    if (state.currentReportCategory === 'combined') {
+        html = pageItems.map((c, i) => `<tr><td>${start + i + 1}</td><td class="font-bold text-gray-900 text-right pr-1 whitespace-normal leading-tight">${escapeHTML(c.name)}</td><td class="font-bold text-blue-900">${escapeHTML(c.level)}</td><td class="text-blue-700 font-bold">${c.totalPoints}</td>${isDaily ? `<td class="font-bold ${c.presentCount > 0 ? 'text-green-600' : 'text-red-600'}">${c.presentCount > 0 ? 'حاضر' : 'غائب'}</td><td class="text-gray-600 font-mono">${c.presentCount > 0 ? (c.presentTime || '-') : '-'}</td>` : `<td class="text-green-600 font-bold">${c.presentCount}</td><td class="text-red-600 font-bold">${c.absentCount}</td><td class="text-green-700 leading-tight">${c.presentDates.join('<br>') || '-'}</td><td class="text-red-700 leading-tight">${c.absentDates.join('<br>') || '-'}</td>`}</tr>`).join('');
+    } else if (state.currentReportCategory === 'attendance') {
+        html = pageItems.map((c, i) => `<tr><td>${start + i + 1}</td><td class="font-bold text-gray-900 text-right pr-1 whitespace-normal leading-tight">${escapeHTML(c.name)}</td><td class="font-bold text-blue-900">${escapeHTML(c.level)}</td>${isDaily ? `<td class="font-bold ${c.presentCount > 0 ? 'text-green-600' : 'text-red-600'}">${c.presentCount > 0 ? 'حاضر' : 'غائب'}</td><td class="text-gray-600 font-mono">${c.presentCount > 0 ? (c.presentTime || '-') : '-'}</td>` : `<td class="text-green-600 font-bold">${c.presentCount}</td><td class="text-red-600 font-bold">${c.absentCount}</td><td class="text-green-700 leading-tight">${c.presentDates.join('<br>') || '-'}</td><td class="text-red-700 leading-tight">${c.absentDates.join('<br>') || '-'}</td>`}</tr>`).join('');
+    } else {
+        html = pageItems.map((p, i) => `<tr><td>${start + i + 1}</td><td class="font-mono text-gray-600">${escapeHTML(p.stdId)}</td><td class="font-bold text-gray-900 text-right pr-1 whitespace-normal leading-tight">${escapeHTML(p.name)}</td><td>${escapeHTML(p.type)}</td><td class="font-bold text-blue-700">${p.amount}</td><td class="font-mono text-gray-500">${escapeHTML(p.date)}</td></tr>`).join('');
+    }
+    tbody.innerHTML = html;
+    
+    const totalPages = Math.ceil(list.length / state.itemsPerPage) || 1;
+    const paginationEl = document.getElementById('intRepPagination');
+    if (list.length > state.itemsPerPage) {
+        paginationEl.classList.remove('hidden');
+        paginationEl.innerHTML = `<button onclick="state.reportCurrentPage--; renderInternalReportList()" class="bg-gray-200 px-3 py-1 rounded font-bold text-[9px]" ${state.reportCurrentPage === 1 ? 'disabled style="opacity:0.5"' : ''}>السابق</button><span class="font-bold text-[9px]">صفحة ${state.reportCurrentPage} من ${totalPages}</span><button onclick="state.reportCurrentPage++; renderInternalReportList()" class="bg-gray-200 px-3 py-1 rounded font-bold text-[9px]" ${state.reportCurrentPage >= totalPages ? 'disabled style="opacity:0.5"' : ''}>التالي</button>`;
+    } else {
+        paginationEl.classList.add('hidden');
+    }
+}
+
+window.openAdminStudentDash = async function(studentId) {
+    const member = state.members.find(s => s.id === studentId);
+    if (!member) return;
+    
+    document.getElementById('intDashName').innerText = member.name;
+    document.getElementById('intDashCode').innerText = member.id;
+    document.getElementById('intDashLevel').innerText = stageMap[member.level] || member.level;
+    document.getElementById('intDashJoinDate').innerText = member.date;
+    
+    const join = new Date(member.date);
+    const now = new Date();
+    const diffDays = Math.ceil(Math.abs(now - join) / (1000 * 60 * 60 * 24));
+    document.getElementById('intDashDuration').innerText = `${diffDays} يوم`;
+    
+    await requireQRScanner();
+    document.getElementById('intDashQr').innerHTML = '';
+    new QRCode(document.getElementById("intDashQr"), { text: member.id, width: 80, height: 80 });
+    
+    document.getElementById('intDashOwnPhone').innerText = member.ownPhone || member.phone || 'غير مسجل';
+    document.getElementById('intDashPassword').innerText = member.password || '---';
+
+    let sAtt = []; let sAcc = [];
+    try {
+        const attQ = query(collection(db, "attendance"), where("studentId", "in", [studentId, "EVENT_MARKER"]));
+        const accQ = query(collection(db, "accounting"), where("stdId", "==", studentId));
+        const [attSnap, accSnap] = await Promise.all([getDocs(attQ), getDocs(accQ)]);
+        attSnap.forEach(d => sAtt.push(d.data()));
+        accSnap.forEach(d => sAcc.push(d.data()));
+    } catch(e) {
+        sAtt = state.attendance; sAcc = state.accounting;
+    }
+    
+    const stats = calculateStudentStats(member, sAtt);
+    document.getElementById('intDashPresent').innerText = stats.present;
+    document.getElementById('intDashAbsent').innerText = stats.absent;
+    
+    const points = sAcc.filter(r => r.category === 'points' && r.stdId === member.id);
+    const totalPoints = points.reduce((sum, p) => sum + p.amount, 0);
+    document.getElementById('intDashPaymentsTotal').innerText = `${totalPoints} نقطة`;
+    
+    const payTable = document.getElementById('intDashPaymentsTable');
+    if(points.length > 0) {
+        payTable.innerHTML = points.map(p => `<tr><td>${escapeHTML(p.date)}</td><td>${escapeHTML(p.type)}</td><td class="text-blue-600 font-bold">${p.amount}</td></tr>`).join('');
+    } else {
+        payTable.innerHTML = '<tr><td colspan="3" class="text-center text-gray-400">لا توجد نقاط</td></tr>';
+    }
+    
+    const historyHtml = stats.history.map(h => `<div class="flex justify-between border-b p-2 ${h.status === 'absent' ? 'bg-red-50' : 'bg-green-50'}"><span>${escapeHTML(h.date)} (${escapeHTML(h.day)})</span><span class="font-bold ${h.status === 'absent' ? 'text-red-600' : 'text-green-600'}">${h.status === 'absent' ? 'غياب' : 'حضور'}</span></div>`).join('');
+    document.getElementById('intDashHistory').innerHTML = historyHtml || '<p class="text-center text-gray-400 text-xs">لا يوجد سجل</p>';
+    
+    window.openInternalPage('internalStudentDashPage');
+}
+
+function calculateStudentStats(member, customAttArray = state.attendance) {
+    let present = 0; let absent = 0; let history = [];
+    const joinDateStr = member.date || '2020-01-01';
+    
+    const memberAtt = customAttArray.filter(r => (r.date >= joinDateStr && r.date <= today) && (r.studentId === member.id || (r.studentId === "EVENT_MARKER" && (!r.levels || r.levels.includes('all') || r.levels.includes(member.level)))));
+    const relevantDates = [...new Set(memberAtt.map(a => a.date))];
+    
+    relevantDates.forEach(dateStr => {
+        const attRec = memberAtt.find(a => a.date === dateStr && a.studentId === member.id);
+        const eventRec = memberAtt.find(a => a.date === dateStr && a.studentId === "EVENT_MARKER");
+        let status = 'none'; let time = null;
+        if (attRec) {
+            status = 'present'; time = attRec.time; present++;
+        } else if (eventRec && dateStr <= today) {
+            status = 'absent'; absent++;
+        }
+        if (status !== 'none') {
+            const dayAr = new Date(dateStr + "T12:00:00").toLocaleDateString('ar-EG', {weekday: 'long'});
+            history.push({ date: dateStr, day: dayAr, status, time });
+        }
+    });
+    history.sort((a, b) => new Date(b.date) - new Date(a.date));
+    return { present, absent, history };
+}
+
+function loadStudentDashboard(member) {
+    if(!member || localStorage.getItem('loginMode') === 'admin') return;
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.getElementById('studentDashboard').classList.add('active');
+    updateStudentDashboardData(member);
+}
+
+async function updateStudentDashboardData(member) {
+    if(!member) return;
+    document.getElementById('dashName').innerText = member.name;
+    document.getElementById('dashCode').innerText = member.id;
+    document.getElementById('dashLevel').innerText = stageMap[member.level] || member.level;
+    document.getElementById('dashJoinDate').innerText = member.date;
+    
+    await requireQRScanner();
+    document.getElementById('dashQr').innerHTML = '';
+    new QRCode(document.getElementById("dashQr"), { text: member.id, width: 80, height: 80 });
+    
+    const stats = calculateStudentStats(member, state.attendance);
+    document.getElementById('dashPresent').innerText = stats.present;
+    document.getElementById('dashAbsent').innerText = stats.absent;
+    
+    const points = state.accounting.filter(r => r.category === 'points' && r.stdId === member.id);
+    const totalPoints = points.reduce((sum, p) => sum + p.amount, 0);
+    document.getElementById('dashPaymentsTotal').innerText = `${totalPoints} نقطة`;
+    document.getElementById('dashOwnPhone').innerText = member.ownPhone || member.phone || 'غير مسجل';
+}
+
+// ==========================================
+// 13. Printing & PDF System
+// ==========================================
+function getReportTitleHeader(baseTitle) {
+    const type = document.getElementById('reportType').value;
+    const stage = document.getElementById('reportStage').value;
+    const dateInput = document.getElementById('reportDate').value;
+    const monthInput = document.getElementById('reportMonth').value;
+    let periodText = type === 'daily' ? `يوم (${dateInput || today})` : `شهر (${monthInput || today.substring(0,7)})`;
+    return `${baseTitle} - ${periodText} - ${stageMap[stage] || 'كل اللجان'}`;
+}
+
 function getPrintTemplate(title, content, isLandscape = false) {
     const todayPrintDate = new Date().toLocaleDateString('ar-EG');
     return `
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
-        * { box-sizing: border-box; font-family: 'Cairo', sans-serif !important; direction: rtl !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif !important; direction: rtl !important; }
         body { background: #ffffff !important; color: #000000 !important; margin: 0; padding: 10px; }
         .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; margin-bottom: 15px; }
         .print-meta-area { text-align: right; font-size: 9pt; color: #4b5563; font-weight: 600; }
@@ -787,10 +1339,6 @@ function getPrintTemplate(title, content, isLandscape = false) {
         table { width: 100% !important; border-collapse: collapse; margin-top: 10px; font-size: 11px !important; table-layout: fixed; }
         th { background-color: #1e3a8a !important; color: #ffffff !important; font-weight: 800 !important; border: 1px solid #1e3a8a !important; padding: 8px 4px !important; text-align: center !important; }
         td { border: 1px solid #d1d5db !important; padding: 6px 4px !important; font-size: 11px !important; font-weight: 700 !important; text-align: center !important; word-wrap: break-word !important; }
-        .print-student-card { border: 4px double #1e3a8a !important; border-radius: 15px; padding: 15px; width: 330px; margin: 10px auto; text-align: center; page-break-inside: avoid; background: #fff; }
-        .print-card-title { font-size: 14pt; font-weight: bold; margin-bottom: 8px; color: #dc2626; }
-        .print-card-name { font-size: 18pt; font-weight: 900; margin: 8px 0; border-bottom: 2px solid #1e3a8a; padding-bottom: 8px; color: #000; }
-        .print-card-row { font-size: 11pt; font-weight: bold; margin: 4px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding: 2px 0; }
     </style>
     <div class="print-page">
         <div class="print-header">
@@ -832,14 +1380,39 @@ window.printHTML = async function(title, content, isLandscape = false) {
     }
 };
 
-window.savePDF = async function(title, content, isLandscape = false) {
-    // Relying on native print to PDF instead of html2pdf
+window.savePDF = function(title, content, isLandscape = false) {
     window.showToast('اختر "حفظ كملف PDF" من نافذة الطباعة', 'success');
     window.printHTML(title, content, isLandscape);
 };
 
+window.printContent = function(elementId, title) {
+    const content = `<table class="ultra-compact-table"><thead>${document.getElementById('intAttHead').innerHTML}</thead><tbody>${document.getElementById('intAttBody').innerHTML}</tbody></table>`;
+    window.printHTML(title, content);
+}
+
+window.pdfContent = function(elementId, title) {
+    window.printContent(elementId, title);
+}
+
+window.printStudentsList = function() {
+    let rows = state.members.map((s, i) => `<tr><td style="width:30px;">${i+1}</td><td style="width:60px;">${s.id}</td><td style="font-weight:bold; width:220px;">${escapeHTML(s.name)}</td><td style="width:90px;">${escapeHTML(stageMap[s.level] || s.level)}</td><td style="width:80px;">${s.date}</td></tr>`).join('');
+    const content = `<table class="ultra-compact-table"><thead><tr><th style="width: 30px;">م</th><th style="width: 60px;">الكود</th><th style="width: 220px;">الاسم</th><th style="width: 90px;">اللجنة</th><th style="width: 80px;">تاريخ الانضمام</th></tr></thead><tbody>${rows}</tbody></table>`;
+    window.printHTML('قائمة الأعضاء المسجلين', content);
+}
+
+window.pdfStudentsList = function() { window.printStudentsList(); }
+
+window.printStudentDashboard = function() {
+    const name = document.getElementById('dashName').innerText;
+    const code = document.getElementById('dashCode').innerText;
+    const content = `<h3>بيانات العضو: ${escapeHTML(name)} (${escapeHTML(code)})</h3>`;
+    window.printHTML(`تقرير_العضو_${name}`, content);
+}
+
+window.pdfStudentDashboard = function() { window.printStudentDashboard(); }
+
 // ==========================================
-// 11. Excel Export Logic
+// 14. Excel Exports
 // ==========================================
 window.exportToExcelStyle = async function(headers, rows, reportTitle, fileName) {
     await requireXLSX();
@@ -847,59 +1420,77 @@ window.exportToExcelStyle = async function(headers, rows, reportTitle, fileName)
     wb.Workbook = { Views: [{ RTL: true }] };
     const wsData = [ [reportTitle], headers, ...rows ];
     const ws = XLSX.utils.aoa_to_sheet(wsData);
-    const colCount = headers.length;
-    ws['!merges'] = [ { s: { r: 0, c: 0 }, e: { r: 0, c: colCount - 1 } } ];
-    
-    const borderStyle = { top: { style: "thin", color: { rgb: "D1D5DB" } }, bottom: { style: "thin", color: { rgb: "D1D5DB" } }, left: { style: "thin", color: { rgb: "D1D5DB" } }, right: { style: "thin", color: { rgb: "D1D5DB" } } };
-    const headerBorderStyle = { top: { style: "thin", color: { rgb: "000000" } }, bottom: { style: "thin", color: { rgb: "000000" } }, left: { style: "thin", color: { rgb: "000000" } }, right: { style: "thin", color: { rgb: "000000" } } };
-    
-    if (ws['A1']) { ws['A1'].s = { font: { name: 'Cairo', sz: 15, bold: true, color: { rgb: "DC2626" } }, alignment: { horizontal: "center", vertical: "center" } }; }
-    for (let col = 0; col < colCount; col++) {
-        const cellRef = XLSX.utils.encode_cell({ r: 1, c: col });
-        if (ws[cellRef]) ws[cellRef].s = { font: { name: 'Cairo', sz: 12, bold: true, color: { rgb: "FFFFFF" } }, fill: { fgColor: { rgb: "1E3A8A" } }, alignment: { horizontal: "center", vertical: "center" }, border: headerBorderStyle };
-    }
-    
-    for (let r = 2; r < wsData.length; r++) {
-        for (let c = 0; c < colCount; c++) {
-            const cellRef = XLSX.utils.encode_cell({ r: r, c: c });
-            if (ws[cellRef]) {
-                ws[cellRef].t = typeof ws[cellRef].v === 'number' ? 'n' : 's';
-                ws[cellRef].s = { font: { name: 'Cairo', sz: 11 }, alignment: { horizontal: "center", vertical: "center" }, border: borderStyle };
-            }
-        }
-    }
-    
-    ws['!cols'] = headers.map((h, colIndex) => {
-        let maxLen = h ? h.toString().length : 10;
-        for (let r = 2; r < wsData.length; r++) {
-            const val = wsData[r][colIndex];
-            if (val !== undefined && val !== null) {
-                const len = val.toString().length;
-                if (len > maxLen) maxLen = len;
-            }
-        }
-        return { wch: Math.min(Math.max(maxLen + 4, 12), 35) };
-    });
     
     XLSX.utils.book_append_sheet(wb, ws, "التقرير");
     XLSX.writeFile(wb, `${fileName}.xlsx`);
 }
 
 window.exportStudentsListExcel = function() {
-    const filterStage = document.getElementById('studentListFilter').value;
-    const queryVal = normalizeArabic(document.getElementById('searchStd').value.toLowerCase());
-    let filtered = state.members;
-    if(filterStage !== 'all') filtered = filtered.filter(s => s.level === filterStage);
-    if(queryVal !== '') filtered = filtered.filter(s => normalizeArabic((s.name||'').toLowerCase()).includes(queryVal) || (s.id||'').includes(queryVal));
-    
     const headers = ["م", "الكود", "الاسم", "اللجنة", "رقم الهاتف", "تاريخ الانضمام"];
-    const rows = filtered.map((s, index) => [ index + 1, s.id, s.name, stageMap[s.level] || s.level, s.ownPhone || s.phone || 'غير مسجل', s.date || '-' ]);
+    const rows = state.members.map((s, index) => [ index + 1, s.id, s.name, stageMap[s.level] || s.level, s.ownPhone || s.phone || 'غير مسجل', s.date || '-' ]);
     window.exportToExcelStyle(headers, rows, "قائمة الأعضاء المسجلين YLY", "قائمة_الأعضاء_YLY");
 }
 
+window.exportCombinedExcel = function() {
+    const isDaily = document.getElementById('reportType').value === 'daily';
+    const headers = isDaily ? ["م", "الكود", "الاسم", "اللجنة", "النقاط", "الحالة", "الوقت"] : ["م", "الكود", "الاسم", "اللجنة", "النقاط", "حضور", "غياب"];
+    const rows = state.currentReportData.combined.map((c, i) => [ i + 1, c.id, c.name, c.level, c.totalPoints, c.presentCount > 0 ? 'حاضر' : 'غائب', c.presentTime || '-' ]);
+    window.exportToExcelStyle(headers, rows, "التقرير الشامل", "تقرير_شامل_YLY");
+}
+
+window.exportAttendanceReportExcel = function() {
+    const headers = ["م", "الكود", "الاسم", "اللجنة", "حضور", "غياب"];
+    const rows = state.currentReportData.combined.map((c, i) => [ i + 1, c.id, c.name, c.level, c.presentCount, c.absentCount ]);
+    window.exportToExcelStyle(headers, rows, "تقرير الحضور والغياب", "تقرير_النعلم_YLY");
+}
+
+window.exportPointsReportExcel = function() {
+    const headers = ["م", "الكود", "الاسم", "المهمة", "النقاط", "التاريخ"];
+    const rows = state.currentReportData.points.map((p, i) => [ i + 1, p.stdId, p.name, p.type, p.amount, p.date ]);
+    window.exportToExcelStyle(headers, rows, "تقرير النقاط والمهام", "تقرير_النقاط_YLY");
+}
+
+window.printCombinedReport = function() { window.openInternalReport(); }
+window.pdfCombinedReport = function() { window.openInternalReport(); }
+window.printAttendanceReport = function() { window.openInternalReport(); }
+window.pdfAttendanceReport = function() { window.openInternalReport(); }
+window.printPointsReport = function() { window.openInternalReport(); }
+window.pdfPointsReport = function() { window.openInternalReport(); }
+
 // ==========================================
-// 12. Miscellaneous Helpers (Alerts, PWA)
+// 15. Backup System
 // ==========================================
+window.exportData = function() {
+    const data = { members: state.members, attendance: state.attendance, accounting: state.accounting };
+    const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `backup_YLY_${today}.json`;
+    a.click();
+}
+
+window.importData = function(input) {
+    const file = input.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+        try {
+            const data = JSON.parse(e.target.result);
+            if(data.members || data.attendance || data.accounting) {
+                for(const s of (data.members || [])) await addDoc(collection(db, "members"), s);
+                for(const a of (data.attendance || [])) await addDoc(collection(db, "attendance"), a);
+                for(const c of (data.accounting || [])) await addDoc(collection(db, "accounting"), c);
+                window.showToast('تم استعادة البيانات بنجاح!', 'success');
+            }
+        } catch(err) {
+            window.showToast('ملف تالف', 'error');
+        }
+    };
+    reader.readAsText(file);
+}
+
+// Custom Alerts
 window.showCustomAlert = function(title, message) {
     document.getElementById('alertTitle').innerText = title;
     document.getElementById('alertMessage').innerText = message;
@@ -912,31 +1503,10 @@ window.closeCustomAlert = function() {
     state.isPaused = false;
 }
 
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    const pwaBanner = document.getElementById('pwaInstallBanner');
-    pwaBanner.classList.remove('hidden');
-    setTimeout(() => {
-        pwaBanner.classList.remove('translate-y-24', 'opacity-0');
-        pwaBanner.classList.add('translate-y-0', 'opacity-100');
-    }, 100);
-    setTimeout(() => window.dismissInstallBanner(), 6000);
-});
-
 window.dismissInstallBanner = function() {
     const pwaBanner = document.getElementById('pwaInstallBanner');
+    if(!pwaBanner) return;
     pwaBanner.classList.remove('translate-y-0', 'opacity-100');
     pwaBanner.classList.add('translate-y-24', 'opacity-0');
     setTimeout(() => pwaBanner.classList.add('hidden'), 500);
 };
-
-document.getElementById('pwaInstallBtn')?.addEventListener('click', async () => {
-    if (deferredPrompt) {
-        deferredPrompt.prompt();
-        await deferredPrompt.userChoice;
-        deferredPrompt = null;
-        window.dismissInstallBanner();
-    }
-});

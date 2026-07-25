@@ -459,10 +459,25 @@ function getPrintTemplate(title, content, isLandscape = false) {
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
         
-        * { box-sizing: border-box; font-family: 'Cairo', sans-serif !important; direction: rtl !important; }
-        body { font-family: 'Cairo', sans-serif !important; direction: rtl !important; text-align: right; background: #fff; color: #000; margin: 0; padding: 5px; }
+        * { 
+            box-sizing: border-box; 
+            font-family: 'Cairo', sans-serif !important; 
+            direction: rtl !important; 
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
+        }
+        body { 
+            font-family: 'Cairo', sans-serif !important; 
+            direction: rtl !important; 
+            text-align: right; 
+            background: #ffffff !important; 
+            color: #000000 !important; 
+            margin: 0; 
+            padding: 10px; 
+        }
         
-        .print-page { width: 100%; max-width: 100%; margin: 0 auto; background: white; color: #000; }
+        .print-page { width: 100%; max-width: 100%; margin: 0 auto; background: #ffffff; color: #000000; }
         .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; margin-bottom: 15px; }
         .print-meta-area { text-align: right; font-size: 9pt; color: #4b5563; font-weight: 600; }
         .print-title-area { text-align: center; flex: 1; padding: 0 10px; }
@@ -474,8 +489,30 @@ function getPrintTemplate(title, content, isLandscape = false) {
         tr { page-break-inside: avoid; }
         thead { display: table-header-group; }
         
-        .ultra-compact-table th { background-color: #1e3a8a !important; color: #fff !important; font-weight: 800 !important; border: 1px solid #374151 !important; padding: 6px 4px !important; text-align: center !important; }
-        .ultra-compact-table td { border: 1px solid #d1d5db !important; padding: 6px 4px !important; font-size: 11px !important; font-weight: 700 !important; text-align: center !important; vertical-align: middle !important; word-wrap: break-word !important; overflow-wrap: break-word !important; white-space: normal !important; line-height: 1.4 !important; }
+        /* إجبار إظهار اللون الأزرق العريض برأس الجدول */
+        th, .ultra-compact-table th { 
+            background-color: #1e3a8a !important; 
+            color: #ffffff !important; 
+            font-weight: 800 !important; 
+            border: 1px solid #1e3a8a !important; 
+            padding: 8px 4px !important; 
+            text-align: center !important; 
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+        
+        td, .ultra-compact-table td { 
+            border: 1px solid #d1d5db !important; 
+            padding: 6px 4px !important; 
+            font-size: 11px !important; 
+            font-weight: 700 !important; 
+            text-align: center !important; 
+            vertical-align: middle !important; 
+            word-wrap: break-word !important; 
+            overflow-wrap: break-word !important; 
+            white-space: normal !important; 
+            line-height: 1.4 !important; 
+        }
         
         .print-student-card { border: 4px double #1e3a8a !important; border-radius: 15px; padding: 15px; width: 330px; margin: 10px auto; text-align: center; page-break-inside: avoid; background: #fff; }
         .print-card-title { font-size: 14pt; font-weight: bold; margin-bottom: 8px; color: #dc2626; }
@@ -546,54 +583,65 @@ window.printHTML = async function(title, content, isLandscape = false) {
 window.savePDF = async function(title, content, isLandscape = false) {
     if (isPrinting) return;
     isPrinting = true;
-    showToast('جاري تحضير ملف الـ PDF...', 'success');
+    showToast('جاري تحضير وتنزيل ملف الـ PDF...', 'success');
+
+    // تنظيف عنوان التقرير لاستخدامه كاسم ملف رسمي للتنزيل
+    const cleanFileName = title.replace(/[/\\?%*:|"<>]/g, '_').trim();
+
+    // إنشاء حاوية مخفية بعرض أبعاد A4 المضبوطة لضمان عدم تقطيع الكلمات العربية
+    const targetWidthPx = isLandscape ? 1122 : 794;
+    const pdfHolder = document.createElement('div');
+    pdfHolder.style.cssText = `
+        position: fixed !important;
+        left: -9999px !important;
+        top: 0 !important;
+        width: ${targetWidthPx}px !important;
+        min-height: 1000px !important;
+        background: #ffffff !important;
+        direction: rtl !important;
+        z-index: -9999 !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    `;
+
+    pdfHolder.innerHTML = getPrintTemplate(title, content, isLandscape);
+    document.body.appendChild(pdfHolder);
 
     try {
-        // 1. إنشاء iframe معزول مخفي تماماً خارج نطاق الشاشة لمنع زحف الصفحة الرئيسية
-        let pdfIframe = document.getElementById('pdf-render-iframe');
-        if (!pdfIframe) {
-            pdfIframe = document.createElement('iframe');
-            pdfIframe.id = 'pdf-render-iframe';
-            pdfIframe.style.cssText = 'position: fixed; right: -9999px; bottom: -9999px; width: 1024px; height: 1400px; border: none; visibility: hidden; z-index: -9999;';
-            document.body.appendChild(pdfIframe);
+        if (document.fonts) {
+            await document.fonts.ready;
         }
+        await new Promise(resolve => setTimeout(resolve, 350));
 
-        const iframeDoc = pdfIframe.contentWindow.document;
-        iframeDoc.open();
-        iframeDoc.write(`
-            <!DOCTYPE html>
-            <html dir="rtl" lang="ar">
-            <head>
-                <meta charset="UTF-8">
-                <title>${title}</title>
-                <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-                <style>
-                    @page { size: A4 ${isLandscape ? 'landscape' : 'portrait'}; margin: 8mm; }
-                    * { box-sizing: border-box; font-family: 'Cairo', sans-serif !important; direction: rtl !important; }
-                    body { background: white !important; color: black !important; margin: 0; padding: 10px; direction: rtl; text-align: right; }
-                </style>
-            </head>
-            <body>
-                ${getPrintTemplate(title, content, isLandscape)}
-            </body>
-            </html>
-        `);
-        iframeDoc.close();
+        const opt = {
+            margin: [5, 5, 5, 5],
+            filename: `${cleanFileName}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: {
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                letterRendering: true,
+                allowTaint: true,
+                windowWidth: targetWidthPx,
+                scrollX: 0,
+                scrollY: 0
+            },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: isLandscape ? 'landscape' : 'portrait' },
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        };
 
-        // 2. الانتظار حتى استكمال تحميل الخطوط العربية داخل الـ iframe
-        if (pdfIframe.contentWindow.document.fonts) {
-            await pdfIframe.contentWindow.document.fonts.ready;
-        }
-        await new Promise(resolve => setTimeout(resolve, 300));
-
-        // 3. استدعاء محرك الـ PDF الأصلي بالنظام (حفظ كـ PDF بدون تشويه الحروف أو زحف للشاشة)
-        pdfIframe.contentWindow.focus();
-        pdfIframe.contentWindow.print();
+        // تحويل التقرير وتنزيله فوراً كملف PDF على جهاز المستخدم
+        await html2pdf().set(opt).from(pdfHolder).save();
+        showToast('تم تحميل ملف الـ PDF بنجاح 📄', 'success');
 
     } catch (err) {
         console.error("PDF Export Error: ", err);
-        showToast('حدث خطأ أثناء تجهيز الـ PDF', 'error');
+        showToast('حدث خطأ أثناء تحميل ملف الـ PDF', 'error');
     } finally {
+        if (document.body.contains(pdfHolder)) {
+            document.body.removeChild(pdfHolder);
+        }
         isPrinting = false;
     }
 };

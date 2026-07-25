@@ -54,7 +54,7 @@ let today = getEgyptDate();
 let selectedAttendanceDate = today;
 
 // ==========================================
-// 3. Security & Utilities (XSS Protection & Debounce)
+// 3. Security & Utilities
 // ==========================================
 function escapeHTML(str) {
     if (str === null || str === undefined) return '';
@@ -109,13 +109,13 @@ function playSound(type) {
 }
 
 // ==========================================
-// 4. Lazy Loaders
+// 4. Lazy Loaders (بدون إشعارات مزعجة)
 // ==========================================
 let isXlsxLoaded = false;
 async function requireXLSX() {
     if (isXlsxLoaded) return;
     return new Promise((resolve, reject) => {
-        window.showToast('جاري تحضير الإكسيل...', 'success');
+        window.showToast('جاري تحضير ملف الإكسيل...', 'success');
         const script = document.createElement('script');
         script.src = "https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js";
         script.onload = () => { isXlsxLoaded = true; resolve(); };
@@ -128,7 +128,7 @@ let isQrLoaded = false;
 async function requireQRScanner() {
     if (isQrLoaded) return;
     return new Promise((resolve, reject) => {
-        window.showToast('جاري تهيئة القارئ...', 'success');
+        // تم إزالة الإشعار المنبثق لعدم إزعاج المستخدم عند فتح كارت العضو
         const script1 = document.createElement('script');
         script1.src = "https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js";
         script1.onload = () => {
@@ -897,7 +897,7 @@ window.updateFinance = function() {
 }
 
 // ==========================================
-// 11. Reports & Advanced Search
+// 11. Reports
 // ==========================================
 window.toggleStudentReportSearch = function() {
     const btn = document.getElementById('btnSearchStudentReport');
@@ -1056,7 +1056,7 @@ async function generateAdvancedReport() {
 }
 
 // ==========================================
-// 12. Internal Pages & Reports Rendering
+// 12. Internal Pages & Reports
 // ==========================================
 window.openInternalAttendance = async function(type) {
     state.currentAttType = type;
@@ -1313,7 +1313,7 @@ async function updateStudentDashboardData(member) {
 }
 
 // ==========================================
-// 13. Printing & PDF System
+// 13. Printing & PDF System (ربط أزرار الحفظ والطباعة)
 // ==========================================
 function getReportTitleHeader(baseTitle) {
     const type = document.getElementById('reportType').value;
@@ -1329,7 +1329,7 @@ function getPrintTemplate(title, content, isLandscape = false) {
     return `
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
-        * { box-sizing: border-box; font-family: 'Cairo', sans-serif !important; direction: rtl !important; }
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif !important; direction: rtl !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
         body { background: #ffffff !important; color: #000000 !important; margin: 0; padding: 10px; }
         .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; margin-bottom: 15px; }
         .print-meta-area { text-align: right; font-size: 9pt; color: #4b5563; font-weight: 600; }
@@ -1337,8 +1337,12 @@ function getPrintTemplate(title, content, isLandscape = false) {
         .print-title-area h1 { font-size: 18pt; font-weight: 900; margin: 0; color: #1e3a8a; }
         .print-title-area h2 { font-size: 12pt; font-weight: 800; margin: 4px 0 0 0; color: #dc2626; border-bottom: 1px solid #ddd; padding-bottom: 3px; display: inline-block; }
         table { width: 100% !important; border-collapse: collapse; margin-top: 10px; font-size: 11px !important; table-layout: fixed; }
-        th { background-color: #1e3a8a !important; color: #ffffff !important; font-weight: 800 !important; border: 1px solid #1e3a8a !important; padding: 8px 4px !important; text-align: center !important; }
+        th { background-color: #1e3a8a !important; color: #ffffff !important; font-weight: 800 !important; border: 1px solid #1e3a8a !important; padding: 8px 4px !important; text-align: center !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         td { border: 1px solid #d1d5db !important; padding: 6px 4px !important; font-size: 11px !important; font-weight: 700 !important; text-align: center !important; word-wrap: break-word !important; }
+        .print-student-card { border: 4px double #1e3a8a !important; border-radius: 15px; padding: 15px; width: 330px; margin: 10px auto; text-align: center; page-break-inside: avoid; background: #fff; }
+        .print-card-title { font-size: 14pt; font-weight: bold; margin-bottom: 8px; color: #dc2626; }
+        .print-card-name { font-size: 18pt; font-weight: 900; margin: 8px 0; border-bottom: 2px solid #1e3a8a; padding-bottom: 8px; color: #000; }
+        .print-card-row { font-size: 11pt; font-weight: bold; margin: 4px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding: 2px 0; }
     </style>
     <div class="print-page">
         <div class="print-header">
@@ -1390,9 +1394,34 @@ window.printContent = function(elementId, title) {
     window.printHTML(title, content);
 }
 
-window.pdfContent = function(elementId, title) {
-    window.printContent(elementId, title);
+window.pdfContent = function(elementId, title) { window.printContent(elementId, title); }
+
+window.printStudentCard = function() {
+    const s = state.members.find(st => st.id === state.currentModalStudentId);
+    if(!s) return;
+    const content = `<div class="print-student-card"><div class="print-card-title">بطاقة عضو YLY</div><div class="print-card-name">${escapeHTML(s.name)}</div><div class="print-card-row"><span>كود العضو:</span> <span>${escapeHTML(s.id)}</span></div><div class="print-card-row"><span>كلمة السر:</span> <span>${escapeHTML(s.password || '----')}</span></div><div class="print-card-row"><span>اللجنة:</span> <span>${escapeHTML(stageMap[s.level] || s.level)}</span></div><div class="print-card-row"><span>رقم الهاتف:</span> <span>${escapeHTML(s.ownPhone || s.phone || 'غير مسجل')}</span></div><div class="print-card-row"><span>تاريخ الانضمام:</span> <span>${escapeHTML(s.date)}</span></div></div>`;
+    window.printHTML('بطاقة عضو', content);
 }
+
+window.shareStudentPdf = function() { window.printStudentCard(); }
+
+window.printInternalStudentDash = function() {
+    const code = document.getElementById('intDashCode').innerText;
+    const s = state.members.find(st => st.id === code);
+    if(!s) return;
+    const content = `<h3>تقرير متابعة عضو: ${escapeHTML(s.name)} (${escapeHTML(s.id)})</h3><p>اللجنة: ${escapeHTML(stageMap[s.level]||s.level)}</p>`;
+    window.printHTML(`تقرير_العضو_${s.name}`, content);
+}
+
+window.excelDetailedStudentReport = function(code) {
+    const s = state.members.find(st => st.id === code);
+    if(!s) return;
+    const headers = ["الكود", "الاسم", "اللجنة", "تاريخ الانضمام"];
+    const rows = [[s.id, s.name, stageMap[s.level]||s.level, s.date]];
+    window.exportToExcelStyle(headers, rows, `تقرير_تفصيلي_${s.name}`, `تقرير_${s.name}`);
+}
+
+window.pdfDetailedStudentReport = function(code) { window.printInternalStudentDash(); }
 
 window.printStudentsList = function() {
     let rows = state.members.map((s, i) => `<tr><td style="width:30px;">${i+1}</td><td style="width:60px;">${s.id}</td><td style="font-weight:bold; width:220px;">${escapeHTML(s.name)}</td><td style="width:90px;">${escapeHTML(stageMap[s.level] || s.level)}</td><td style="width:80px;">${s.date}</td></tr>`).join('');
@@ -1441,7 +1470,7 @@ window.exportCombinedExcel = function() {
 window.exportAttendanceReportExcel = function() {
     const headers = ["م", "الكود", "الاسم", "اللجنة", "حضور", "غياب"];
     const rows = state.currentReportData.combined.map((c, i) => [ i + 1, c.id, c.name, c.level, c.presentCount, c.absentCount ]);
-    window.exportToExcelStyle(headers, rows, "تقرير الحضور والغياب", "تقرير_النعلم_YLY");
+    window.exportToExcelStyle(headers, rows, "تقرير الحضور والغياب", "تقرير_الحضور_YLY");
 }
 
 window.exportPointsReportExcel = function() {
@@ -1490,7 +1519,6 @@ window.importData = function(input) {
     reader.readAsText(file);
 }
 
-// Custom Alerts
 window.showCustomAlert = function(title, message) {
     document.getElementById('alertTitle').innerText = title;
     document.getElementById('alertMessage').innerText = message;
@@ -1506,7 +1534,7 @@ window.closeCustomAlert = function() {
 window.dismissInstallBanner = function() {
     const pwaBanner = document.getElementById('pwaInstallBanner');
     if(!pwaBanner) return;
-    pwaBanner.classList.remove('translate-y-0', 'opacity-100');
+    pwaBanner.classList.remove('translate-y-0', 'opacity-0');
     pwaBanner.classList.add('translate-y-24', 'opacity-0');
     setTimeout(() => pwaBanner.classList.add('hidden'), 500);
 };

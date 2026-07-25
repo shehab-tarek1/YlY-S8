@@ -1,11 +1,11 @@
 /* =========================================
-   Base & Typography (Ultra Compact)
+   Base & Typography (Ultra Compact Original)
 ========================================= */
 body {
     font-family: 'Cairo', sans-serif;
     background-color: #f3f4f6;
     padding-bottom: 80px;
-    font-size: 10px; /* العودة للحجم الأصلي المدمج */
+    font-size: 10px;
     -webkit-tap-highlight-color: transparent;
     user-select: none;
     overflow-x: hidden;
@@ -45,9 +45,20 @@ input, select, textarea {
     transition: border-color 0.2s, box-shadow 0.2s;
     padding-right: 0.5rem;
     padding-left: 1.5rem;
-    height: 30px; /* العودة للارتفاع المدمج الأصلي */
+    height: 30px;
     font-size: 11px;
     width: 100%;
+}
+
+/* ضبط محاذاة نص رقم الهاتف جهة اليمين */
+input[type="tel"], #stdOwnPhone {
+    text-align: right !important;
+    direction: rtl !important;
+}
+
+input[type="tel"]::placeholder, #stdOwnPhone::placeholder {
+    text-align: right !important;
+    direction: rtl !important;
 }
 
 input:focus, select:focus, textarea:focus {
@@ -208,18 +219,27 @@ input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
 .unified-card-footer { margin-top: 15px; font-size: 9pt; color: #6b7280; font-weight: bold; border-top: 1px solid #1e3a8a; padding-top: 5px; }
 
 /* =========================================
-   Tables
+   Tables (Ultra Compact & Responsive)
 ========================================= */
 .custom-table, .ultra-compact-table {
-    width: 100%;
+    width: 100% !important;
     border-collapse: collapse;
     border: 1px solid #374151;
-    table-layout: fixed;
-    font-size: 10px;
+    table-layout: fixed !important;
+    font-size: 9px;
+}
+
+.ultra-compact-table th {
+    font-size: 9px !important;
+    padding: 4px 1px !important;
+    white-space: normal !important;
+    word-break: break-word;
+    letter-spacing: -0.2px;
 }
 
 @media (min-width: 768px) {
-    .custom-table, .ultra-compact-table { font-size: 12px; }
+    .custom-table, .ultra-compact-table { font-size: 11px; }
+    .ultra-compact-table th { font-size: 11px !important; padding: 5px !important; }
 }
 
 .custom-table thead, .ultra-compact-table thead {
@@ -230,11 +250,11 @@ input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
 
 .custom-table th, .custom-table td,
 .ultra-compact-table th, .ultra-compact-table td {
-    padding: 5px 3px;
+    padding: 5px 2px;
     border: 1px solid #e5e7eb;
     text-align: center;
     vertical-align: middle;
-    line-height: 1.3;
+    line-height: 1.2;
     word-wrap: break-word;
     overflow-wrap: break-word;
 }
@@ -250,7 +270,7 @@ input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
 .col-action { width: 45px; }
 
 /* =========================================
-   Scanners & Loading Overlay Fix
+   Scanners & Fixed QR Sizes
 ========================================= */
 .scanner-wrapper {
     border-radius: 0.5rem;
@@ -274,12 +294,71 @@ input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
     display: none !important;
 }
 
-/* حل مشكلة اللوجو الكبير في شاشة التحميل فوراً */
+/* تثبيت أبعاد الباركود كما في الكود الأصلي تماماً */
+#dashQr img, #dashQr canvas, 
+#intDashQr img, #intDashQr canvas {
+    width: 80px !important;
+    height: 80px !important;
+    margin: 0 auto !important;
+    display: block !important;
+}
+
+#modalQr img, #modalQr canvas {
+    width: 100px !important;
+    height: 100px !important;
+    margin: 0 auto !important;
+    display: block !important;
+}
+
+#checkResultQr img, #checkResultQr canvas {
+    width: 60px !important;
+    height: 60px !important;
+    margin: 0 auto !important;
+    display: block !important;
+}
+
+/* =========================================
+   Loading Overlay (منع قفزة النصوص واللوجو)
+========================================= */
+#loadingOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.98);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    z-index: 400;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #ffffff;
+    transition: opacity 0.3s ease;
+}
+
 #loadingOverlay img {
     width: 56px !important;
     height: 56px !important;
     object-fit: contain !important;
-    max-width: 56px !important;
+    position: relative;
+    z-index: 10;
+}
+
+#loadingOverlay div[class*="text-2xl"] {
+    font-size: 1.5rem !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.05em !important;
+    color: #ffffff !important;
+    margin-bottom: 0.5rem !important;
+    line-height: 1.25 !important;
+    text-align: center !important;
+}
+
+#loadingOverlay div[class*="text-[10px]"] {
+    font-size: 10px !important;
+    color: #9ca3af !important;
+    font-family: monospace !important;
+    line-height: 1.5 !important;
+    text-align: center !important;
 }
 
 .spinner-box {
@@ -305,7 +384,7 @@ input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
 @keyframes spin { 100% { transform: rotate(360deg); } }
 
 /* =========================================
-   Z-Index Layers
+   Z-Index Layers & Modals
 ========================================= */
 .internal-page {
     position: fixed;
@@ -331,25 +410,11 @@ input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
     backdrop-filter: blur(2px);
 }
 
-#loadingOverlay, #loginOverlay {
+#loginOverlay {
     position: fixed;
     inset: 0;
-    z-index: 400;
-}
-
-#loadingOverlay {
-    background: rgba(15, 23, 42, 0.98);
-    backdrop-filter: blur(15px);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    transition: opacity 0.3s ease;
-}
-
-#loginOverlay {
     background: linear-gradient(135deg, #1e3a8a 0%, #111827 100%);
+    z-index: 400;
     display: none;
     align-items: center;
     justify-content: center;
@@ -499,7 +564,7 @@ input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
 .print-header-sim img { width: 35px; height: 35px; object-fit: contain; }
 
 /* =========================================
-   Print Fixes (إجبار ألوان رؤوس الجداول)
+   Print Fixes (إجبار ألوان خلفية رأس الجدول)
 ========================================= */
 @media print {
     body {

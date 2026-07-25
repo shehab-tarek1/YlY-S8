@@ -1213,10 +1213,13 @@ window.applyInternalAttFilter = function() {
     renderInternalAttendanceList();
 }
 
-function renderInternalAttendanceList() {
+function renderInternalAttendanceList(isScroll = false) {
+    if (!isScroll) state.attCurrentPage = 1;
+
     const tbody = document.getElementById('intAttBody');
-    const start = (state.attCurrentPage - 1) * 20;
-    const end = start + 20;
+    const itemsPerScroll = 30; 
+    const start = (state.attCurrentPage - 1) * itemsPerScroll;
+    const end = start + itemsPerScroll;
     const pageItems = state.attCachedList.slice(start, end);
     
     if(state.attCachedList.length === 0) {
@@ -1226,11 +1229,11 @@ function renderInternalAttendanceList() {
     
     let html = pageItems.map((s, index) => `<tr class="cursor-pointer hover:bg-blue-50 transition" onclick="openAdminStudentDash('${escapeHTML(s.id)}')"><td>${start + index + 1}</td><td class="font-bold text-right pr-1 whitespace-normal leading-tight">${escapeHTML(s.name)}</td><td class="font-mono text-blue-600">${escapeHTML(s.id)}</td><td class="font-bold text-gray-700">${escapeHTML(s.level)}</td><td class="font-bold ${state.currentAttType === 'present' ? 'text-green-600' : 'text-red-600'}">${escapeHTML(s.time)}</td></tr>`).join('');
     
-    if (state.attCachedList.length > 20) {
-        const totalPages = Math.ceil(state.attCachedList.length / 20) || 1;
-        html += `<tr class="no-print"><td colspan="5" class="bg-gray-100"><div class="flex justify-between p-2 items-center"><button onclick="state.attCurrentPage--; renderInternalAttendanceList()" class="bg-gray-300 px-3 py-1 rounded font-bold text-[9px]" ${state.attCurrentPage === 1 ? 'disabled style="opacity:0.5"' : ''}>السابق</button><span class="font-bold text-[9px]">صفحة ${state.attCurrentPage} من ${totalPages}</span><button onclick="state.attCurrentPage++; renderInternalAttendanceList()" class="bg-gray-300 px-3 py-1 rounded font-bold text-[9px]" ${state.attCurrentPage >= totalPages ? 'disabled style="opacity:0.5"' : ''}>التالي</button></div></td></tr>`;
+    if (state.attCurrentPage === 1) {
+        tbody.innerHTML = html;
+    } else {
+        tbody.insertAdjacentHTML('beforeend', html);
     }
-    tbody.innerHTML = html;
 }
 
 window.openInternalReport = function() {
@@ -1271,7 +1274,9 @@ window.openInternalReport = function() {
     window.renderInternalReportList();
 }
 
-window.renderInternalReportList = function() {
+window.renderInternalReportList = function(isScroll = false) {
+    if (!isScroll) state.reportCurrentPage = 1;
+
     const tbody = document.getElementById('intRepBody');
     const isDaily = document.getElementById('reportType').value === 'daily';
     let list = state.currentReportCategory === 'points' ? state.currentReportData.points : state.currentReportData.combined;
@@ -1282,13 +1287,15 @@ window.renderInternalReportList = function() {
     if(searchQuery) list = list.filter(item => (item.name||'').toLowerCase().includes(searchQuery) || (item.id && item.id.includes(searchQuery)) || (item.stdId && item.stdId.includes(searchQuery)));
     if(filterStage !== 'all') list = list.filter(item => item.level === filterStage || item.stdLevel === filterStage);
 
-    const start = (state.reportCurrentPage - 1) * state.itemsPerPage;
-    const end = start + state.itemsPerPage;
+    const itemsPerScroll = 30; 
+    const start = (state.reportCurrentPage - 1) * itemsPerScroll;
+    const end = start + itemsPerScroll;
     const pageItems = list.slice(start, end);
     
     if(!pageItems || pageItems.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="10" class="text-center py-4 font-bold text-xs">لا توجد بيانات</td></tr>`;
-        document.getElementById('intRepPagination').classList.add('hidden');
+        if (state.reportCurrentPage === 1) {
+            tbody.innerHTML = `<tr><td colspan="10" class="text-center py-4 font-bold text-xs">لا توجد بيانات</td></tr>`;
+        }
         return;
     }
 
@@ -1300,15 +1307,11 @@ window.renderInternalReportList = function() {
     } else {
         html = pageItems.map((p, i) => `<tr><td>${start + i + 1}</td><td class="font-mono text-gray-600">${escapeHTML(p.stdId)}</td><td class="font-bold text-gray-900 text-right pr-1 whitespace-normal leading-tight">${escapeHTML(p.name)}</td><td>${escapeHTML(p.type)}</td><td class="font-bold text-blue-700">${p.amount}</td><td class="font-mono text-gray-500">${escapeHTML(p.date)}</td></tr>`).join('');
     }
-    tbody.innerHTML = html;
     
-    const totalPages = Math.ceil(list.length / state.itemsPerPage) || 1;
-    const paginationEl = document.getElementById('intRepPagination');
-    if (list.length > state.itemsPerPage) {
-        paginationEl.classList.remove('hidden');
-        paginationEl.innerHTML = `<button onclick="state.reportCurrentPage--; renderInternalReportList()" class="bg-gray-200 px-3 py-1 rounded font-bold text-[9px]" ${state.reportCurrentPage === 1 ? 'disabled style="opacity:0.5"' : ''}>السابق</button><span class="font-bold text-[9px]">صفحة ${state.reportCurrentPage} من ${totalPages}</span><button onclick="state.reportCurrentPage++; renderInternalReportList()" class="bg-gray-200 px-3 py-1 rounded font-bold text-[9px]" ${state.reportCurrentPage >= totalPages ? 'disabled style="opacity:0.5"' : ''}>التالي</button>`;
+    if (state.reportCurrentPage === 1) {
+        tbody.innerHTML = html;
     } else {
-        paginationEl.classList.add('hidden');
+        tbody.insertAdjacentHTML('beforeend', html);
     }
 }
 
@@ -1906,3 +1909,52 @@ window.dismissInstallBanner = function() {
     pwaBanner.classList.add('translate-y-24', 'opacity-0');
     setTimeout(() => pwaBanner.classList.add('hidden'), 500);
 };
+// ==========================================
+// 16. Lazy Loading Scroll Observers
+// ==========================================
+document.getElementById('internalAttendancePage').addEventListener('scroll', function() {
+    if (this.scrollTop + this.clientHeight >= this.scrollHeight - 50) {
+        const totalPages = Math.ceil(state.attCachedList.length / 30) || 1;
+        if (state.attCurrentPage < totalPages) {
+            const loading = document.getElementById('intAttLoading');
+            if (loading && loading.classList.contains('hidden')) {
+                loading.classList.remove('hidden');
+                loading.classList.add('flex');
+                
+                setTimeout(() => {
+                    state.attCurrentPage++;
+                    renderInternalAttendanceList(true); 
+                    loading.classList.add('hidden');
+                    loading.classList.remove('flex');
+                }, 300);
+            }
+        }
+    }
+});
+
+document.getElementById('internalReportPage').addEventListener('scroll', function() {
+    let list = state.currentReportCategory === 'points' ? state.currentReportData.points : state.currentReportData.combined;
+    const filterStage = document.getElementById('intRepFilter').value;
+    const searchQuery = document.getElementById('intRepSearch').value.toLowerCase().trim();
+    
+    if(searchQuery) list = list.filter(item => (item.name||'').toLowerCase().includes(searchQuery) || (item.id && item.id.includes(searchQuery)) || (item.stdId && item.stdId.includes(searchQuery)));
+    if(filterStage !== 'all') list = list.filter(item => item.level === filterStage || item.stdLevel === filterStage);
+
+    if (this.scrollTop + this.clientHeight >= this.scrollHeight - 50) {
+        const totalPages = Math.ceil(list.length / 30) || 1;
+        if (state.reportCurrentPage < totalPages) {
+            const loading = document.getElementById('intRepLoading');
+            if (loading && loading.classList.contains('hidden')) {
+                loading.classList.remove('hidden');
+                loading.classList.add('flex');
+
+                setTimeout(() => {
+                    state.reportCurrentPage++;
+                    window.renderInternalReportList(true); 
+                    loading.classList.add('hidden');
+                    loading.classList.remove('flex');
+                }, 300);
+            }
+        }
+    }
+});

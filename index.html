@@ -1,1 +1,775 @@
-{"response":"<!DOCTYPE html>\n<html lang=\"ar\" dir=\"rtl\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <meta property=\"og:title\" content=\"YLY Management | Pro System\">\n    <meta property=\"og:description\" content=\"نظام إدارة اللجان والأعضاء لمبادرة شباب يدير شباب YLY\">\n    <meta property=\"og:image\" content=\"https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657868/etyefoyw9madba5a5u1z.png\">\n    <meta name=\"twitter:card\" content=\"summary_large_image\">\n    <meta name=\"twitter:image\" content=\"https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657868/etyefoyw9madba5a5u1z.png\">\n    <meta name=\"mobile-web-app-capable\" content=\"yes\">\n    <meta name=\"apple-mobile-web-app-status-bar-style\" content=\"black-translucent\">\n    <meta name=\"theme-color\" content=\"#1e3a8a\">\n    \n    <link rel=\"manifest\" href=\"manifest.json\">\n    <link rel=\"apple-touch-icon\" href=\"https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png\">\n    \n    <title>YLY Management | Pro System</title>\n    \n    <link rel=\"stylesheet\" href=\"tailwind.min.css\">\n    <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n    <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n    <link href=\"https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap\" rel=\"stylesheet\">\n    <link rel=\"stylesheet\" href=\"styles.css\">\n</head>\n<body class=\"text-gray-800\" onclick=\"if(window.closeAllDropdowns) window.closeAllDropdowns(event)\">\n\n    <!-- Loading Overlay -->\n    <div id=\"loadingOverlay\" class=\"no-print\">\n        <div class=\"spinner-box\">\n            <div class=\"modern-spinner\"></div>\n            <img src=\"https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png\" class=\"w-14 h-14 object-contain z-10 drop-shadow-xl\" alt=\"YLY Logo\" loading=\"lazy\">\n        </div>\n        <div class=\"text-2xl font-black tracking-wider text-white mb-2\">\n            YLY <span class=\"text-red-500\">System</span>\n        </div>\n        <div class=\"text-[10px] text-gray-400 font-mono text-center leading-relaxed\">جاري تأمين النظام وتهيئته...</div>\n    </div>\n\n    <!-- Login Overlay -->\n    <div id=\"loginOverlay\" class=\"no-print\">\n        <div class=\"login-card\">\n            <div class=\"mb-3\">\n                <img src=\"https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png\" class=\"w-16 h-16 object-contain mx-auto mb-1 drop-shadow-md\" alt=\"YLY Logo\" loading=\"lazy\">\n                <h1 class=\"text-2xl font-black text-gray-900 mb-0\">YLY System</h1>\n                <p class=\"text-gray-500 text-[10px] font-bold\">نظام إدارة اللجان والأعضاء</p>\n            </div>\n            <div class=\"flex border-b mb-3\">\n                <div onclick=\"setLoginMode('admin')\" id=\"tabAdmin\" class=\"login-tab active\">القيادة / HR</div>\n                <div onclick=\"setLoginMode('student')\" id=\"tabStudent\" class=\"login-tab\">الأعضاء</div>\n            </div>\n            <div id=\"loginForm\">\n                <div class=\"input-wrapper mb-2\">\n                    <svg class=\"input-icon\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z\"></path></svg>\n                    <input type=\"text\" id=\"loginCode\" class=\"login-input\" placeholder=\"البريد الإلكتروني للادارة\">\n                </div>\n                <div class=\"input-wrapper mb-3\">\n                    <svg class=\"input-icon\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z\"></path></svg>\n                    <input type=\"password\" id=\"loginPass\" class=\"login-input\" placeholder=\"كلمة المرور\">\n                </div>\n                <button onclick=\"handleLogin()\" class=\"login-btn shadow-lg\">تسجيل الدخول</button>\n            </div>\n            <p id=\"loginError\" class=\"text-red-500 text-[10px] mt-2 hidden font-bold bg-red-50 p-2 rounded\">بيانات الدخول غير صحيحة أو لا تملك صلاحية</p>\n        </div>\n    </div>\n\n    <!-- Modals -->\n    <div id=\"customAlertModal\" class=\"no-print\">\n        <div class=\"alert-card\">\n            <div id=\"alertIcon\" class=\"alert-icon\">⚠️</div>\n            <h3 id=\"alertTitle\" class=\"text-base font-bold text-gray-800 mb-1\">تنبيه</h3>\n            <p id=\"alertMessage\" class=\"text-[11px] text-gray-600 font-bold mb-4\"></p>\n            <button onclick=\"closeCustomAlert()\" class=\"alert-btn shadow-lg\">حسناً</button>\n        </div>\n    </div>\n\n    <div id=\"paymentConfirmModal\" class=\"no-print\">\n        <div class=\"alert-card border-t-4 border-blue-600\">\n            <div class=\"text-4xl mb-2\">⭐</div>\n            <h3 class=\"text-base font-bold text-gray-800 mb-1\">تأكيد تقييم</h3>\n            <p id=\"payConfirmMsg\" class=\"text-[11px] text-gray-600 font-bold mb-4\"></p>\n            <div class=\"flex gap-2\">\n                <button onclick=\"proceedWithPayment()\" class=\"flex-1 bg-blue-600 text-white py-2 rounded font-bold text-xs shadow\">نعم</button>\n                <button onclick=\"closePaymentConfirm()\" class=\"flex-1 bg-gray-500 text-white py-2 rounded font-bold text-xs\">إلغاء</button>\n            </div>\n        </div>\n    </div>\n\n    <div id=\"checkResultModal\" class=\"fixed inset-0 bg-black/80 hidden z-[250000] flex items-center justify-center p-4 no-print\">\n        <div class=\"bg-white rounded-xl w-full max-w-md p-4 shadow-2xl relative h-[85vh] flex flex-col\">\n            <div class=\"flex justify-between items-center border-b pb-2 mb-2\">\n                <h3 class=\"font-bold text-lg text-gray-900 flex-1 text-center\">ملف العضو</h3>\n                <button onclick=\"closeModal('checkResultModal')\" class=\"close-btn-modern\" aria-label=\"إغلاق\">&times;</button>\n            </div>\n            <div class=\"overflow-y-auto flex-1 p-1\">\n                <div class=\"flex gap-3 mb-3 bg-gray-50 p-2 rounded border\">\n                    <div id=\"checkResultQr\" class=\"bg-white p-1 border rounded\"></div>\n                    <div class=\"flex-1 space-y-1\">\n                        <div class=\"font-black text-lg text-blue-900\" id=\"checkResName\"></div>\n                        <div class=\"text-xs font-mono bg-gray-200 inline-block px-1 rounded\" id=\"checkResCode\"></div>\n                        <div class=\"text-xs font-bold text-red-600\" id=\"checkResLevel\"></div>\n                        <div class=\"text-[10px] text-gray-500 mt-1\">تاريخ الانضمام: <span id=\"checkResDate\"></span></div>\n                    </div>\n                </div>\n                <div class=\"space-y-3\">\n                    <div class=\"border rounded p-2 border-blue-200 bg-blue-50/30\">\n                        <h4 class=\"font-bold text-xs border-b pb-1 mb-1 flex justify-between\">\n                            <span class=\"text-blue-800\">⭐ سجل التقييمات</span>\n                            <span class=\"text-blue-700 font-black\" id=\"checkResTotalPay\"></span>\n                        </h4>\n                        <div class=\"max-h-24 overflow-y-auto\">\n                            <table class=\"w-full text-[10px] text-center\">\n                                <thead class=\"bg-blue-100\"><tr><th>التاريخ</th><th>المهمة</th><th>النقاط</th></tr></thead>\n                                <tbody id=\"checkResPayTable\"></tbody>\n                            </table>\n                        </div>\n                    </div>\n                    <div class=\"border rounded p-2 border-green-200 bg-green-50/30\">\n                        <h4 class=\"font-bold text-xs border-b pb-1 mb-1 text-green-700\">✅ سجل الحضور (<span id=\"checkResPresentCount\">0</span>)</h4>\n                        <div class=\"max-h-24 overflow-y-auto\">\n                            <table class=\"w-full text-[10px] text-center\">\n                                <thead class=\"bg-green-100\"><tr><th>التاريخ</th><th>الوقت</th></tr></thead>\n                                <tbody id=\"checkResPresentTable\"></tbody>\n                            </table>\n                        </div>\n                    </div>\n                    <div class=\"border rounded p-2 border-red-200 bg-red-50/30\">\n                        <h4 class=\"font-bold text-xs border-b pb-1 mb-1 text-red-700\">❌ سجل الغياب (<span id=\"checkResAbsentCount\">0</span>)</h4>\n                        <div class=\"max-h-24 overflow-y-auto\">\n                            <table class=\"w-full text-[10px] text-center\">\n                                <thead class=\"bg-red-100\"><tr><th>التاريخ</th><th>اليوم</th></tr></thead>\n                                <tbody id=\"checkResAbsentTable\"></tbody>\n                            </table>\n                        </div>\n                    </div>\n                </div>\n            </div>\n            <div class=\"grid grid-cols-2 gap-2 mt-2 pt-2 border-t\">\n                <div class=\"text-center bg-gray-100 p-1 rounded border border-gray-300\">\n                    <div class=\"text-[9px] text-gray-500\">كلمة المرور</div>\n                    <div class=\"font-bold text-gray-800 font-mono\" id=\"checkResPass\">••••••••</div>\n                </div>\n                <button onclick=\"closeModal('checkResultModal')\" class=\"bg-blue-900 text-white rounded font-bold text-xs\">إغلاق</button>\n            </div>\n        </div>\n    </div>\n\n    <!-- Print Container (For Iframe Printing) -->\n    <div id=\"print-container\"></div>\n\n    <!-- Main App Content -->\n    <div id=\"appContent\" class=\"hidden\">\n        \n        <!-- Header -->\n        <header id=\"mainHeader\" class=\"bg-blue-900 text-white shadow-md sticky top-0 z-50 no-print\">\n            <div class=\"container mx-auto px-4 py-2 flex justify-between items-center\">\n                <h1 class=\"text-sm font-bold flex items-center gap-2 md:text-xl\">\n                    <img src=\"https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png\" class=\"w-7 h-7 object-cover drop-shadow-md\" alt=\"YLY Logo\" loading=\"lazy\">\n                    YLY System <span class=\"text-[8px] bg-red-600 px-1 py-0.5 rounded text-white md:text-xs shadow-sm\">pro</span>\n                </h1>\n                <div class=\"flex items-center gap-2\">\n                    <div class=\"text-[9px] bg-blue-800 px-2 py-1 rounded-full font-mono border border-blue-700 md:text-xs\" id=\"headerDate\">--/--/----</div>\n                    <button onclick=\"logout()\" class=\"text-[9px] bg-red-600 px-2 py-1 rounded font-bold hover:bg-red-700 transition md:text-xs md:px-3 border border-red-800\">خروج</button>\n                </div>\n            </div>\n            <div class=\"bg-blue-950 border-t border-blue-800\" id=\"navBar\">\n                <div class=\"container mx-auto px-2\">\n                    <div class=\"flex w-full gap-1.5 py-1.5 md:gap-4 md:py-2\">\n                        <button id=\"nav-students\" onclick=\"showTab('students', this)\" class=\"nav-item flex-1 py-1.5 rounded text-[11px] text-blue-100 flex-shrink-0 text-center transition-all md:text-sm\">الأعضاء</button>\n                        <button id=\"nav-attendance\" onclick=\"showTab('attendance', this)\" class=\"nav-item flex-1 py-1.5 rounded text-[11px] text-blue-100 flex-shrink-0 text-center transition-all md:text-sm\">الحضور</button>\n                        <button id=\"nav-accounting\" onclick=\"showTab('accounting', this)\" class=\"nav-item flex-1 py-1.5 rounded text-[11px] text-blue-100 flex-shrink-0 text-center transition-all md:text-sm\">التقييمات</button>\n                        <button id=\"nav-reports\" onclick=\"showTab('reports', this)\" class=\"nav-item flex-1 py-1.5 rounded text-[11px] text-blue-100 flex-shrink-0 text-center transition-all md:text-sm\">التقارير</button>\n                    </div>\n                </div>\n            </div>\n        </header>\n\n        <main id=\"mainContent\" class=\"container mx-auto p-3 max-w-4xl md:max-w-6xl\">\n            \n            <!-- Student Dashboard Tab -->\n            <section id=\"studentDashboard\" class=\"tab-content\">\n                <div class=\"flex justify-end mb-2 no-print gap-2\">\n                    <button onclick=\"printStudentDashboard()\" class=\"bg-blue-900 text-white px-3 py-1 rounded text-xs font-bold md:text-sm md:px-4 md:py-2\">🖨️ طباعة تقرير</button>\n                    <button onclick=\"pdfStudentDashboard()\" class=\"bg-red-700 text-white px-3 py-1 rounded text-xs font-bold md:text-sm md:px-4 md:py-2\">📄 حفظ PDF</button>\n                </div>\n                <div class=\"grid md:grid-cols-3 gap-4\" id=\"stdDashContainer\">\n                    <div class=\"std-dash-card text-center md:col-span-1 border-t-4 border-blue-600\">\n                        <div class=\"mb-3 relative inline-block\">\n                            <div id=\"dashQr\" class=\"p-2 bg-white border rounded-lg\"></div>\n                        </div>\n                        <div class=\"text-center space-y-1\">\n                            <p class=\"text-[10px] text-gray-500 font-bold\">اسم العضو:</p>\n                            <h2 class=\"text-xl font-bold text-gray-900 md:text-2xl\" id=\"dashName\"></h2>\n                            <p class=\"text-[10px] text-gray-500 font-bold mt-2\">كود العضو:</p>\n                            <p class=\"text-gray-500 font-mono text-lg font-bold md:text-xl\" id=\"dashCode\"></p>\n                            <p class=\"text-[10px] text-gray-500 font-bold mt-2\">اللجنة:</p>\n                            <div class=\"bg-blue-100 rounded-lg p-2 text-xs text-blue-900 font-bold inline-block\" id=\"dashLevel\"></div>\n                            <div class=\"mt-3 pt-2 border-t border-dashed border-gray-300\">\n                                <div class=\"flex justify-between text-xs mb-1\">\n                                    <span class=\"text-gray-500 font-bold\">رقم الهاتف:</span>\n                                    <span id=\"dashOwnPhone\" class=\"font-bold text-gray-900\"></span>\n                                </div>\n                            </div>\n                        </div>\n                        <div class=\"grid grid-cols-2 gap-2 mt-4\">\n                            <div class=\"bg-green-50 p-2 rounded border border-green-100\">\n                                <div class=\"text-2xl font-bold text-green-600 md:text-3xl\" id=\"dashPresent\">0</div>\n                                <div class=\"text-[10px] text-green-800 md:text-xs\">أيام الحضور</div>\n                            </div>\n                            <div class=\"bg-red-50 p-2 rounded border border-red-100\">\n                                <div class=\"text-2xl font-bold text-red-600 md:text-3xl\" id=\"dashAbsent\">0</div>\n                                <div class=\"text-[10px] text-red-800 md:text-xs\">أيام الغياب</div>\n                            </div>\n                        </div>\n                    </div>\n                    <div class=\"md:col-span-2 space-y-4\">\n                        <div class=\"std-dash-card\">\n                            <h3 class=\"font-bold text-sm text-blue-900 border-b pb-2 mb-2 flex items-center gap-2 md:text-base\">◇ بيانات العضو</h3>\n                            <div class=\"std-info-row\"><span class=\"std-info-label\">تاريخ الانضمام</span><span class=\"std-info-val\" id=\"dashJoinDate\"></span></div>\n                            <div class=\"std-info-row\"><span class=\"std-info-label\">مدة الانضمام</span><span class=\"std-info-val\" id=\"dashDuration\"></span></div>\n                            <div class=\"std-info-row\"><span class=\"std-info-label\">إجمالي النقاط</span><span class=\"std-info-val text-blue-700 text-lg font-black\" id=\"dashPaymentsTotal\"></span></div>\n                        </div>\n                        <div class=\"std-dash-card\">\n                            <h3 class=\"font-bold text-sm text-blue-900 border-b pb-2 mb-2 md:text-base\">◇ سجل المهام والنقاط</h3>\n                            <div class=\"overflow-x-auto\">\n                                <table class=\"custom-table\">\n                                    <thead><tr><th>التاريخ</th><th>المهمة/التقييم</th><th>النقاط</th></tr></thead>\n                                    <tbody id=\"dashPaymentsTable\"></tbody>\n                                </table>\n                            </div>\n                        </div>\n                        <div class=\"std-dash-card\">\n                            <h3 class=\"font-bold text-sm text-blue-900 border-b pb-2 mb-2 md:text-base\">◇ سجل حضور الفعاليات</h3>\n                            <div id=\"dashHistory\" class=\"max-h-48 overflow-y-auto pr-1 space-y-1\"></div>\n                        </div>\n                    </div>\n                </div>\n            </section>\n\n            <!-- Students Tab -->\n            <section id=\"students\" class=\"tab-content\">\n                <div class=\"glass-card border-r-4 border-blue-700 no-print mb-4\">\n                    <h2 class=\"font-bold text-gray-900 mb-2 text-xs md:text-base\">تسجيل عضو جديد</h2>\n                    <div class=\"space-y-2 md:grid md:grid-cols-2 md:gap-4 md:space-y-0\">\n                        <div class=\"input-wrapper\">\n                            <svg class=\"input-icon\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z\"></path></svg>\n                            <input type=\"text\" id=\"stdName\" class=\"w-full p-2 text-xs md:text-sm\" placeholder=\"الاسم رباعي\">\n                        </div>\n                        <div class=\"flex items-center border border-gray-400 rounded bg-white overflow-hidden h-[30px] md:h-[36px]\">\n                            <span class=\"bg-gray-100 px-2 py-1 text-gray-600 text-[10px] font-bold border-l border-gray-400 md:text-sm h-full flex items-center\">+20</span>\n                            <div class=\"input-wrapper flex-1 h-full\">\n                                <svg class=\"input-icon\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z\"></path></svg>\n                                <input type=\"tel\" id=\"stdOwnPhone\" inputmode=\"numeric\" oninput=\"validatePhone(this)\" class=\"w-full p-2 text-xs outline-none md:text-sm !border-0 h-full\" placeholder=\"رقم الهاتف\">\n                            </div>\n                        </div>\n                        <div class=\"input-wrapper md:col-span-2 relative\" id=\"levelDropdownContainer\">\n                            <svg class=\"input-icon\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10\"></path></svg>\n                            <input type=\"text\" id=\"stdLevelDisplay\" readonly class=\"w-full p-2 text-xs md:text-sm h-full cursor-pointer bg-white\" placeholder=\"اختر اللجنة...\" onclick=\"toggleCustomDropdown(event, 'levelMenu')\">\n                            <input type=\"hidden\" id=\"stdLevel\" value=\"\">\n                            <div id=\"levelMenu\" class=\"dropdown-menu hide absolute top-full left-0 right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] overflow-hidden\">\n                                <div class=\"p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900 transition flex items-center gap-2\" onclick=\"selectLevel('HR', 'الموارد البشرية (HR)')\"> الموارد البشرية (HR)</div>\n                                <div class=\"p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900 transition flex items-center gap-2\" onclick=\"selectLevel('PR', 'العلاقات العامة (PR)')\"> العلاقات العامة (PR)</div>\n                                <div class=\"p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900 transition flex items-center gap-2\" onclick=\"selectLevel('OR', 'التنظيم (OR)')\"> التنظيم (OR)</div>\n                                <div class=\"p-2 text-xs hover:bg-blue-50 cursor-pointer font-bold text-blue-900 transition flex items-center gap-2\" onclick=\"selectLevel('SM', 'السوشيال ميديا (SM)')\"> السوشيال ميديا (SM)</div>\n                            </div>\n                        </div>\n                        <button onclick=\"registerStudent()\" class=\"w-full bg-blue-900 text-white py-2 rounded font-bold shadow hover:bg-blue-800 text-xs transition md:text-sm md:col-span-2 md:py-3\">حفظ العضو</button>\n                    </div>\n                </div>\n                \n                <div class=\"glass-card border-r-4 border-red-600 no-print mb-4\">\n                    <h2 class=\"font-bold text-gray-900 mb-2 text-xs md:text-base\">🔍استعلام عن عضو باركود</h2>\n                    <div id=\"checkReader\" class=\"scanner-wrapper h-32 mb-2 hidden border-2 border-gray-800\"></div>\n                    <div class=\"flex gap-2\">\n                        <button onclick=\"startCheckScanner()\" id=\"btnStartCheck\" class=\"flex-1 bg-gray-800 text-white py-1.5 rounded font-bold text-xs shadow\">تشغيل الكاميرا</button>\n                        <button onclick=\"stopCheckScanner()\" id=\"btnStopCheck\" class=\"flex-1 bg-red-100 text-red-600 py-1.5 rounded font-bold text-xs hidden\">إيقاف</button>\n                    </div>\n                </div>\n                \n                <div class=\"glass-card\">\n                    <div class=\"flex justify-between items-center mb-2 no-print flex-wrap gap-2\">\n                        <h2 class=\"font-bold text-[10px] md:text-sm text-gray-800\">قائمة الأعضاء (<span id=\"stdCount\">0</span>)</h2>\n                        <div class=\"flex gap-1.5 items-center flex-1 justify-end max-w-full\">\n                            <div class=\"relative shrink-0\" id=\"studentListFilterContainer\">\n                                <input type=\"text\" id=\"studentListFilterDisplay\" readonly value=\"كل اللجان\" class=\"text-[10px] px-2 !h-[30px] md:!h-[36px] w-20 md:w-24 text-center font-bold text-gray-800 bg-white border border-gray-400 rounded cursor-pointer\" onclick=\"toggleCustomDropdown(event, 'studentListFilterMenu')\">\n                                <input type=\"hidden\" id=\"studentListFilter\" value=\"all\">\n                                <div id=\"studentListFilterMenu\" class=\"dropdown-menu hide absolute top-full right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] min-w-[100px] overflow-hidden text-right\">\n                                    <div class=\"p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('studentListFilter', 'studentListFilterDisplay', 'studentListFilterMenu', 'all', 'كل اللجان', renderStudents)\">كل اللجان</div>\n                                    <div class=\"p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('studentListFilter', 'studentListFilterDisplay', 'studentListFilterMenu', 'HR', 'HR', renderStudents)\">HR</div>\n                                    <div class=\"p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('studentListFilter', 'studentListFilterDisplay', 'studentListFilterMenu', 'PR', 'PR', renderStudents)\">PR</div>\n                                    <div class=\"p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('studentListFilter', 'studentListFilterDisplay', 'studentListFilterMenu', 'OR', 'OR', renderStudents)\">OR</div>\n                                    <div class=\"p-2 text-xs hover:bg-blue-50 cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('studentListFilter', 'studentListFilterDisplay', 'studentListFilterMenu', 'SM', 'SM', renderStudents)\">SM</div>\n                                </div>\n                            </div>\n                            <div class=\"input-wrapper flex-1 min-w-0\">\n                                <svg class=\"input-icon\" style=\"width:14px; height:14px; left:6px;\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z\"></path></svg>\n                                <input type=\"text\" id=\"searchStd\" onkeyup=\"handleSearch()\" placeholder=\"بحث باسم أو كود...\" class=\"text-[10px] px-2 w-full !h-[30px] md:!h-[36px] transition-all md:text-sm\">\n                            </div>\n                            <button onclick=\"printStudentsList()\" class=\"bg-blue-900 text-white px-2 h-[30px] md:h-[36px] rounded text-[10px] flex items-center justify-center gap-1 shrink-0\" aria-label=\"طباعة القائمة\">🖨️</button>\n                            <button onclick=\"pdfStudentsList()\" class=\"bg-red-700 text-white px-2 h-[30px] md:h-[36px] rounded text-[10px] flex items-center justify-center gap-1 shrink-0\" aria-label=\"تصدير القائمة PDF\">PDF</button>\n                        </div>\n                    </div>\n                    <div id=\"studentsListArea\">\n                        <table class=\"custom-table\">\n                            <thead><tr><th class=\"col-index\">م</th><th class=\"col-code\">الكود</th><th>الاسم</th><th>اللجنة</th><th class=\"col-date\">التاريخ</th><th class=\"no-print col-action\">إجراء</th></tr></thead>\n                            <tbody id=\"studentsTable\"></tbody>\n                        </table>\n                    </div>\n                    <div class=\"flex justify-between items-center mt-3 no-print\">\n                        <div class=\"flex items-center gap-2\">\n                            <button onclick=\"prevPage()\" class=\"bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded text-xs\">➡️ السابق</button>\n                            <span id=\"pageIndicator\" class=\"text-xs font-bold\"></span>\n                            <button onclick=\"nextPage()\" class=\"bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded text-xs\"> التالي ⬅️</button>\n                        </div>\n                        <button onclick=\"exportStudentsListExcel()\" class=\"bg-green-700 hover:bg-green-800 text-white font-bold py-1 px-3 rounded text-xs flex items-center gap-1 shadow\">📊 تصدير Excel</button>\n                    </div>\n                </div>\n            </section>\n\n            <!-- Attendance Tab -->\n            <section id=\"attendance\" class=\"tab-content\">\n                <div class=\"glass-card text-center\">\n                    <h2 class=\"text-sm font-bold text-gray-900 mb-2 md:text-lg\">سجل حضور الفعاليات</h2>\n                    <div id=\"exceptionalStatusIndicator\" class=\"hidden bg-blue-100 border border-blue-300 text-blue-900 p-2 rounded mb-2 text-xs font-bold animate-pulse md:text-sm\">📅 تم تفعيل الحضور اليوم لـ: <span id=\"exceptionalLevelName\"></span></div>\n                    <div class=\"mb-2 bg-white p-2 rounded border border-gray-300 shadow-sm\">\n                        <div class=\"grid grid-cols-2 gap-2\">\n                            <div class=\"input-wrapper\">\n                                <label class=\"text-[9px] text-gray-600 font-bold block mb-1\">تاريخ اليوم</label>\n                                <div class=\"relative\"><input type=\"date\" id=\"attendanceDate\" onchange=\"changeAttendanceDate()\" class=\"w-full p-1 text-right font-bold text-gray-900 text-xs bg-white\"></div>\n                            </div>\n                            <div class=\"input-wrapper\">\n                                <label class=\"text-[9px] text-gray-600 font-bold block mb-1\">اللجنة</label>\n                                <div class=\"relative\" id=\"attendanceStageContainer\">\n                                    <input type=\"text\" id=\"attendanceStageDisplay\" readonly value=\"كل اللجان\" class=\"w-full p-1 text-center font-bold text-gray-900 text-xs bg-white cursor-pointer border rounded\" onclick=\"toggleCustomDropdown(event, 'attendanceStageMenu')\">\n                                    <input type=\"hidden\" id=\"attendanceStage\" value=\"all\">\n                                    <div id=\"attendanceStageMenu\" class=\"dropdown-menu hide absolute top-full left-0 right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] overflow-hidden text-right\">\n                                        <div class=\"p-2 text-[11px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('attendanceStage', 'attendanceStageDisplay', 'attendanceStageMenu', 'all', 'كل اللجان', updateCounters)\">كل اللجان</div>\n                                        <div class=\"p-2 text-[11px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('attendanceStage', 'attendanceStageDisplay', 'attendanceStageMenu', 'HR', 'الموارد البشرية (HR)', updateCounters)\">الموارد البشرية (HR)</div>\n                                        <div class=\"p-2 text-[11px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('attendanceStage', 'attendanceStageDisplay', 'attendanceStageMenu', 'PR', 'العلاقات العامة (PR)', updateCounters)\">العلاقات العامة (PR)</div>\n                                        <div class=\"p-2 text-[11px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('attendanceStage', 'attendanceStageDisplay', 'attendanceStageMenu', 'OR', 'التنظيم (OR)', updateCounters)\">التنظيم (OR)</div>\n                                        <div class=\"p-2 text-[11px] hover:bg-blue-50 cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('attendanceStage', 'attendanceStageDisplay', 'attendanceStageMenu', 'SM', 'السوشيال ميديا (SM)', updateCounters)\">السوشيال ميديا (SM)</div>\n                                    </div>\n                                </div>\n                            </div>\n                        </div>\n                    </div>\n                    \n                    <div class=\"flex bg-gray-100 p-1 rounded mb-2 no-print border border-gray-300\">\n                        <button onclick=\"setAttMode('scan')\" id=\"btnAttScan\" class=\"sub-nav-item flex-1 rounded text-[10px] active transition-all\">📷 قارئ الباركود</button>\n                        <button onclick=\"setAttMode('manual')\" id=\"btnAttManual\" class=\"sub-nav-item flex-1 rounded text-[10px] transition-all\">⌨️ إدخال يدوي</button>\n                    </div>\n                    \n                    <div id=\"attScanArea\" class=\"relative\">\n                        <div id=\"reader\" class=\"scanner-wrapper w-full mb-2\"></div>\n                        <div id=\"scanOverlay\" class=\"absolute inset-0 pointer-events-none border-2 border-blue-500 hidden md:block\" style=\"top: 50%; left: 50%; transform: translate(-50%, -50%); width: 250px; height: 250px;\"></div>\n                        <div id=\"scanFeedback\" class=\"absolute inset-0 flex items-center justify-center bg-green-500/90 hidden z-10 rounded-lg\">\n                            <div class=\"text-white font-bold text-lg animate-bounce md:text-2xl\">✅ تم التسجيل</div>\n                        </div>\n                        <div class=\"flex justify-center gap-2 no-print\">\n                            <button onclick=\"startScanner('reader', 'attendance')\" class=\"bg-blue-900 text-white px-4 py-1 rounded shadow text-[10px]\">تشغيل الكاميرا</button>\n                            <button onclick=\"stopScanner()\" class=\"bg-red-100 text-red-600 px-4 py-1 rounded text-[10px]\">إيقاف</button>\n                        </div>\n                    </div>\n                    \n                    <div id=\"attManualArea\" class=\"hidden\">\n                        <div class=\"input-wrapper mb-2\">\n                            <input type=\"number\" id=\"manualAttID\" inputmode=\"numeric\" placeholder=\"كود العضو\" class=\"w-full text-center text-xl font-bold p-2 font-mono md:text-2xl md:p-3\">\n                        </div>\n                        <button onclick=\"manualAttendance()\" class=\"w-full bg-blue-900 text-white py-2 rounded font-bold text-xs md:text-sm md:py-3\">تسجيل الحضور</button>\n                    </div>\n                    \n                    <div class=\"grid grid-cols-2 gap-2 mt-3 no-print md:gap-4\">\n                        <div onclick=\"openInternalAttendance('present')\" class=\"bg-green-50 p-2 rounded border border-green-200 cursor-pointer hover:bg-green-100 transition\">\n                            <span class=\"block text-lg font-bold text-green-600 md:text-2xl\" id=\"presentCount\">0</span>\n                            <span class=\"text-[10px] text-green-800 font-bold md:text-sm\">تم الحضور</span>\n                        </div>\n                        <div onclick=\"openInternalAttendance('absent')\" class=\"bg-red-50 p-2 rounded border border-red-200 cursor-pointer hover:bg-red-100 transition\">\n                            <span class=\"block text-lg font-bold text-red-600 md:text-2xl\" id=\"absentCount\">0</span>\n                            <span class=\"text-[10px] text-red-800 font-bold md:text-sm\">غياب اليوم</span>\n                        </div>\n                    </div>\n                    \n                    <div class=\"flex flex-col items-center gap-2 mt-5 border-t border-gray-200 pt-5 no-print\">\n                        <button onclick=\"confirmEventDay()\" class=\"w-64 bg-blue-700 text-white py-2 rounded font-bold text-[11px] shadow-sm hover:bg-blue-800 flex justify-center items-center gap-2\">✅ تفعيل يوم حضور للجنة المحددة</button>\n                        <button onclick=\"cancelEventDay()\" class=\"w-64 bg-gray-500 text-white py-2 rounded font-bold text-[11px] shadow-sm hover:bg-gray-600 flex justify-center items-center gap-2\"> إلغاء تفعيل اليوم</button>\n                    </div>\n                </div>\n            </section>\n\n            <!-- Accounting Tab -->\n            <section id=\"accounting\" class=\"tab-content\">\n                <div class=\"glass-card border-t-4 border-blue-600\">\n                    <h3 class=\"font-bold text-blue-900 mb-2 text-xs md:text-base\">⭐ إضافة نقاط وتقييمات الأعضاء</h3>\n                    <div id=\"defaultPaymentBar\" class=\"bg-blue-50 p-2 rounded mb-2 border border-blue-200\">\n                        <div class=\"text-[9px] text-blue-800 font-bold mb-1\">إعدادات التقييم الحالية</div>\n                        <div class=\"flex gap-1\">\n                            <input type=\"number\" id=\"defScoreAmount\" inputmode=\"numeric\" class=\"w-1/4 p-1 text-center font-bold text-xs\" placeholder=\"النقاط (+)\">\n                            <div class=\"relative w-1/4\" id=\"defScoreTypeContainer\">\n                                <input type=\"text\" id=\"defScoreTypeDisplay\" readonly value=\"كويز\" class=\"w-full p-1 text-[10px] text-center font-bold bg-white border rounded cursor-pointer\" onclick=\"toggleCustomDropdown(event, 'defScoreTypeMenu')\">\n                                <input type=\"hidden\" id=\"defScoreType\" value=\"كويز\">\n                                <div id=\"defScoreTypeMenu\" class=\"dropdown-menu hide absolute top-full right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] w-full overflow-hidden text-right\">\n                                    <div class=\"p-1.5 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('defScoreType', 'defScoreTypeDisplay', 'defScoreTypeMenu', 'كويز', 'كويز')\">كويز</div>\n                                    <div class=\"p-1.5 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('defScoreType', 'defScoreTypeDisplay', 'defScoreTypeMenu', 'مهمة/تاسك', 'مهمة/تاسك')\">مهمة/تاسك</div>\n                                    <div class=\"p-1.5 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('defScoreType', 'defScoreTypeDisplay', 'defScoreTypeMenu', 'تفاعل', 'تفاعل ومشاركة')\">تفاعل ومشاركة</div>\n                                    <div class=\"p-1.5 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('defScoreType', 'defScoreTypeDisplay', 'defScoreTypeMenu', 'تنظيم', 'دور تنظيمي')\">دور تنظيمي</div>\n                                    <div class=\"p-1.5 text-[10px] hover:bg-blue-50 cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('defScoreType', 'defScoreTypeDisplay', 'defScoreTypeMenu', 'أخرى', 'أخرى')\">أخرى</div>\n                                </div>\n                            </div>\n                            <input type=\"text\" id=\"defScoreNote\" class=\"w-2/4 p-1 text-[10px]\" placeholder=\"تفاصيل (اختياري)\">\n                        </div>\n                    </div>\n                    \n                    <div class=\"flex bg-gray-100 p-1 rounded mb-2 no-print border border-gray-300\">\n                        <button onclick=\"togglePayMethod('scan')\" id=\"btnPayScan\" class=\"sub-nav-item flex-1 rounded text-[10px] active font-bold md:text-sm md:py-2\">📷 قارئ الباركود</button>\n                        <button onclick=\"togglePayMethod('manual')\" id=\"btnPayManual\" class=\"sub-nav-item flex-1 rounded text-[10px] font-bold md:text-sm md:py-2\">⌨️ إدخال يدوي</button>\n                    </div>\n                    \n                    <div id=\"payScanDiv\" class=\"mb-2\">\n                        <div id=\"payReader\" class=\"scanner-wrapper h-24 mb-2 md:h-48\"></div>\n                        <div class=\"flex gap-2\">\n                            <button onclick=\"startScanner('payReader', 'payment')\" class=\"flex-1 bg-blue-700 text-white py-1 rounded text-[10px] no-print md:text-sm md:py-2\">تشغيل</button>\n                            <button onclick=\"stopScanner()\" class=\"flex-1 bg-red-100 text-red-600 border border-red-200 py-1 rounded text-[10px] no-print md:text-sm md:py-2 font-bold\">إيقاف</button>\n                        </div>\n                    </div>\n                    \n                    <div id=\"payManualDiv\" class=\"hidden flex gap-2 mb-2\">\n                        <div class=\"input-wrapper flex-1\">\n                            <input type=\"number\" id=\"paySearchID\" inputmode=\"numeric\" placeholder=\"كود العضو\" class=\"w-full p-1 text-center font-bold text-xs md:text-sm md:p-2\">\n                        </div>\n                        <button onclick=\"searchStudentForPay()\" class=\"bg-blue-700 text-white px-2 rounded text-xs md:text-sm md:px-4\">🔍 بحث</button>\n                    </div>\n                    \n                    <div id=\"paymentForm\" class=\"hidden bg-yellow-50 p-2 rounded border border-yellow-200\">\n                        <div class=\"flex justify-between text-[10px] mb-1 font-bold md:text-sm\">\n                            <span id=\"payStdName\" class=\"text-blue-900\"></span>\n                            <span id=\"payStdID\" class=\"font-mono bg-white px-1 rounded\"></span>\n                        </div>\n                        <div class=\"flex gap-1 mb-1\">\n                            <input type=\"number\" id=\"payAmount\" inputmode=\"numeric\" class=\"w-1/3 p-1 text-center font-bold text-xs text-blue-700\" placeholder=\"النقاط\">\n                            <div class=\"relative w-2/3\" id=\"payTypeContainer\">\n                                <input type=\"text\" id=\"payTypeDisplay\" readonly value=\"كويز\" class=\"w-full p-1 text-[10px] text-center font-bold bg-white border rounded cursor-pointer\" onclick=\"toggleCustomDropdown(event, 'payTypeMenu')\">\n                                <input type=\"hidden\" id=\"payType\" value=\"كويز\">\n                                <div id=\"payTypeMenu\" class=\"dropdown-menu hide absolute top-full right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] w-full overflow-hidden text-right\">\n                                    <div class=\"p-1.5 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('payType', 'payTypeDisplay', 'payTypeMenu', 'كويز', 'كويز')\">كويز</div>\n                                    <div class=\"p-1.5 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('payType', 'payTypeDisplay', 'payTypeMenu', 'مهمة/تاسك', 'مهمة/تاسك')\">مهمة/تاسك</div>\n                                    <div class=\"p-1.5 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('payType', 'payTypeDisplay', 'payTypeMenu', 'تفاعل', 'تفاعل ومشاركة')\">تفاعل ومشاركة</div>\n                                    <div class=\"p-1.5 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('payType', 'payTypeDisplay', 'payTypeMenu', 'تنظيم', 'دور تنظيمي')\">دور تنظيمي</div>\n                                    <div class=\"p-1.5 text-[10px] hover:bg-blue-50 cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('payType', 'payTypeDisplay', 'payTypeMenu', 'أخرى', 'أخرى')\">أخرى</div>\n                                </div>\n                            </div>\n                        </div>\n                        <input type=\"text\" id=\"payNote\" class=\"w-full p-1 text-[10px] mb-1\" placeholder=\"تفاصيل إضافية (اسم الكويز أو المهمة)\">\n                        <div class=\"flex gap-2 mt-2\">\n                            <button onclick=\"confirmPayment()\" class=\"flex-1 bg-blue-700 text-white py-1 rounded font-bold shadow text-[10px] md:text-sm md:py-2\">✅ تأكيد ومنح النقاط</button>\n                            <button onclick=\"cancelPayment()\" class=\"flex-1 bg-gray-500 text-white py-1 rounded font-bold shadow text-[10px] md:text-sm md:py-2\">إلغاء</button>\n                        </div>\n                    </div>\n                </div>\n                \n                <div class=\"bg-sky-50 text-sky-950 p-3 rounded-xl shadow-sm mt-4 md:p-5 border-2 border-sky-200\">\n                    <div class=\"text-center mb-2\">\n                        <p class=\"text-[10px] font-bold text-sky-700\">إجمالي النقاط الممنوحة اليوم</p>\n                        <p class=\"text-2xl font-black text-blue-900\" id=\"totalRev\">0</p>\n                    </div>\n                    <div class=\"bg-white p-2 rounded-lg border border-sky-200 shadow-inner md:p-3\">\n                        <h4 class=\"text-[10px] font-bold text-blue-900 mb-2 border-b border-sky-100 pb-1 md:text-sm\">أحدث تقييمات اليوم</h4>\n                        <div class=\"overflow-x-auto max-h-48 overflow-y-auto\">\n                            <table class=\"custom-table text-[10px] md:text-xs\">\n                                <thead>\n                                    <tr class=\"bg-blue-900 text-white\">\n                                        <th style=\"width:35%;\">الاسم</th>\n                                        <th style=\"width:15%;\">الكود</th>\n                                        <th style=\"width:25%;\">النقاط المكتسبة اليوم</th>\n                                        <th style=\"width:25%;\">إجمالي النقاط</th>\n                                    </tr>\n                                </thead>\n                                <tbody id=\"todayRevListBody\" class=\"bg-white text-gray-900\"></tbody>\n                            </table>\n                        </div>\n                    </div>\n                </div>\n            </section>\n\n            <!-- Reports Tab -->\n            <section id=\"reports\" class=\"tab-content\">\n                <div class=\"glass-card border-t-4 border-gray-600 mb-4\">\n                    <h3 class=\"font-bold mb-1 text-gray-900 flex items-center gap-2 text-xs md:text-base\"><span>👤</span> استعلام عن تقرير عضو</h3>\n                    <div class=\"flex gap-1 mb-1\">\n                        <div class=\"relative w-1/4 min-w-[80px]\" id=\"searchStageContainer\">\n                            <input type=\"text\" id=\"searchStageDisplay\" readonly value=\"كل اللجان\" class=\"w-full p-1 bg-white text-[10px] md:text-sm md:p-2 text-center font-bold border rounded cursor-pointer\" onclick=\"toggleCustomDropdown(event, 'searchStageMenu')\">\n                            <input type=\"hidden\" id=\"searchStage\" value=\"all\">\n                            <div id=\"searchStageMenu\" class=\"dropdown-menu hide absolute top-full right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] w-full overflow-hidden text-right\">\n                                <div class=\"p-1.5 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('searchStage', 'searchStageDisplay', 'searchStageMenu', 'all', 'كل اللجان')\">كل اللجان</div>\n                                <div class=\"p-1.5 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('searchStage', 'searchStageDisplay', 'searchStageMenu', 'HR', 'HR')\">HR</div>\n                                <div class=\"p-1.5 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('searchStage', 'searchStageDisplay', 'searchStageMenu', 'PR', 'PR')\">PR</div>\n                                <div class=\"p-1.5 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('searchStage', 'searchStageDisplay', 'searchStageMenu', 'OR', 'OR')\">OR</div>\n                                <div class=\"p-1.5 text-xs hover:bg-blue-50 cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('searchStage', 'searchStageDisplay', 'searchStageMenu', 'SM', 'SM')\">SM</div>\n                            </div>\n                        </div>\n                        <div class=\"input-wrapper flex-1\">\n                            <input type=\"text\" id=\"reportStudentSearch\" placeholder=\"ابحث بالاسم الأول أو الكود\" class=\"w-full p-1 text-xs md:text-sm md:p-2\">\n                        </div>\n                        <button id=\"btnSearchStudentReport\" onclick=\"toggleStudentReportSearch()\" class=\"bg-gray-800 text-white px-3 rounded font-bold text-[10px] md:text-sm transition-all shrink-0\">بحث</button>\n                    </div>\n                    <div id=\"studentReportResult\" class=\"hidden bg-gray-50 p-2 rounded border border-gray-200 text-[10px] md:text-sm\"></div>\n                </div>\n\n                <div class=\"glass-card border-t-4 border-blue-800 mb-4\">\n                    <h3 class=\"font-bold mb-1 text-blue-900 text-xs md:text-base\">📊 التقارير العامة والإحصائيات</h3>\n                    <div class=\"grid grid-cols-1 md:grid-cols-2 gap-1 mb-2\">\n                        <div>\n                            <label class=\"text-[9px] text-gray-500 block mb-0.5 md:text-xs\">المدة الزمنية</label>\n                            <div class=\"relative w-full\" id=\"reportTypeContainer\">\n                                <input type=\"text\" id=\"reportTypeDisplay\" readonly value=\"تقرير يومي\" class=\"w-full p-1 bg-white text-[10px] md:text-sm md:p-2 font-bold border rounded cursor-pointer\" onclick=\"toggleCustomDropdown(event, 'reportTypeMenu')\">\n                                <input type=\"hidden\" id=\"reportType\" value=\"daily\">\n                                <div id=\"reportTypeMenu\" class=\"dropdown-menu hide absolute top-full right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] w-full overflow-hidden text-right\">\n                                    <div class=\"p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('reportType', 'reportTypeDisplay', 'reportTypeMenu', 'daily', 'تقرير يومي', toggleReportInputs)\">تقرير يومي</div>\n                                    <div class=\"p-2 text-xs hover:bg-blue-50 cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('reportType', 'reportTypeDisplay', 'reportTypeMenu', 'monthly', 'تقرير شهري', toggleReportInputs)\">تقرير شهري</div>\n                                </div>\n                            </div>\n                        </div>\n                        <div>\n                            <label class=\"text-[9px] text-gray-500 block mb-0.5 md:text-xs\">اللجنة المستهدفة</label>\n                            <div class=\"relative w-full\" id=\"reportStageContainer\">\n                                <input type=\"text\" id=\"reportStageDisplay\" readonly value=\"كل اللجان\" class=\"w-full p-1 bg-white text-[10px] md:text-sm md:p-2 font-bold border rounded cursor-pointer\" onclick=\"toggleCustomDropdown(event, 'reportStageMenu')\">\n                                <input type=\"hidden\" id=\"reportStage\" value=\"all\">\n                                <div id=\"reportStageMenu\" class=\"dropdown-menu hide absolute top-full right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] w-full overflow-hidden text-right\">\n                                    <div class=\"p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('reportStage', 'reportStageDisplay', 'reportStageMenu', 'all', 'كل اللجان')\">كل اللجان</div>\n                                    <div class=\"p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('reportStage', 'reportStageDisplay', 'reportStageMenu', 'HR', 'الموارد البشرية (HR)')\">الموارد البشرية (HR)</div>\n                                    <div class=\"p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('reportStage', 'reportStageDisplay', 'reportStageMenu', 'PR', 'العلاقات العامة (PR)')\">العلاقات العامة (PR)</div>\n                                    <div class=\"p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('reportStage', 'reportStageDisplay', 'reportStageMenu', 'OR', 'التنظيم (OR)')\">التنظيم (OR)</div>\n                                    <div class=\"p-2 text-xs hover:bg-blue-50 cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('reportStage', 'reportStageDisplay', 'reportStageMenu', 'SM', 'السوشيال ميديا (SM)')\">السوشيال ميديا (SM)</div>\n                                </div>\n                            </div>\n                        </div>\n                        <div id=\"divDateInput\">\n                            <label class=\"text-[9px] text-gray-500 block mb-0.5 md:text-xs\">تاريخ اليوم</label>\n                            <input type=\"date\" id=\"reportDate\" class=\"w-full p-1 text-[10px] md:text-sm md:p-2\">\n                        </div>\n                        <div id=\"divMonthInput\" class=\"hidden\">\n                            <label class=\"text-[9px] text-gray-500 block mb-0.5 md:text-xs\">الشهر</label>\n                            <input type=\"month\" id=\"reportMonth\" class=\"w-full p-1 text-[10px] md:text-sm md:p-2\">\n                        </div>\n                        <div class=\"col-span-1 md:col-span-2\">\n                            <label class=\"text-[9px] text-gray-500 block mb-0.5 md:text-xs\">نوع التقرير المطلوب</label>\n                            <div class=\"relative w-full\" id=\"reportCategoryContainer\">\n                                <input type=\"text\" id=\"reportCategoryDisplay\" readonly value=\"🌟 تقرير شامل (الحضور والنقاط)\" class=\"w-full p-1 bg-white text-[10px] md:text-sm md:p-2 font-bold text-blue-900 border border-blue-400 rounded cursor-pointer\" onclick=\"toggleCustomDropdown(event, 'reportCategoryMenu')\">\n                                <input type=\"hidden\" id=\"reportCategory\" value=\"combined\">\n                                <div id=\"reportCategoryMenu\" class=\"dropdown-menu hide absolute top-full right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] w-full overflow-hidden text-right\">\n                                    <div class=\"p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('reportCategory', 'reportCategoryDisplay', 'reportCategoryMenu', 'combined', '🌟 تقرير شامل (الحضور والنقاط)')\">🌟 تقرير شامل (الحضور والنقاط)</div>\n                                    <div class=\"p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('reportCategory', 'reportCategoryDisplay', 'reportCategoryMenu', 'attendance', '📅 تقارير الحضور والغياب فقط')\">📅 تقارير الحضور والغياب فقط</div>\n                                    <div class=\"p-2 text-xs hover:bg-blue-50 cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('reportCategory', 'reportCategoryDisplay', 'reportCategoryMenu', 'points', '⭐ تقارير المهام والنقاط فقط')\">⭐ تقارير المهام والنقاط فقط</div>\n                                </div>\n                            </div>\n                        </div>\n                    </div>\n                    <button id=\"btnGenerateReport\" onclick=\"handleReportBtnClick()\" class=\"w-full bg-blue-900 text-white py-1.5 rounded font-bold shadow hover:bg-blue-950 text-[10px] md:text-sm md:py-2 transition-all\">توليد التقرير</button>\n                    <div id=\"reportResult\" class=\"mt-2 hidden\"></div>\n                </div>\n                \n                <div class=\"glass-card border-t-4 border-yellow-500\">\n                    <h3 class=\"font-bold mb-1 flex items-center gap-2 text-yellow-800 text-xs md:text-base\"><span>💾</span> النسخ الاحتياطي</h3>\n                    <div class=\"flex gap-2\">\n                        <button onclick=\"exportData()\" class=\"flex-1 bg-yellow-100 text-yellow-800 py-1 rounded font-bold text-[10px] border border-yellow-300 md:text-sm md:py-2\">تحميل نسخة</button>\n                        <div class=\"relative flex-1\">\n                            <input type=\"file\" id=\"importFile\" onchange=\"importData(this)\" class=\"absolute inset-0 w-full h-full opacity-0 cursor-pointer\">\n                            <button class=\"w-full bg-gray-100 text-gray-700 py-1 rounded font-bold text-[10px] border border-gray-300 md:text-sm md:py-2\">استعادة</button>\n                        </div>\n                    </div>\n                </div>\n            </section>\n        </main>\n    </div>\n\n    <!-- Internal Pages -->\n    <div id=\"internalAttendancePage\" class=\"internal-page\">\n        <div class=\"internal-header no-print flex items-center gap-2\">\n            <button class=\"circle-back-btn shrink-0\" onclick=\"closeInternalPage('internalAttendancePage')\" aria-label=\"رجوع\">➔</button>\n            <div class=\"relative flex-1 max-w-[120px]\">\n                <input type=\"text\" id=\"intAttFilterDisplay\" readonly value=\"كل اللجان\" class=\"w-full !h-[28px] p-1 text-center font-bold text-gray-900 text-[10px] bg-white cursor-pointer border border-gray-400 rounded\" onclick=\"toggleCustomDropdown(event, 'intAttFilterMenu')\">\n                <input type=\"hidden\" id=\"intAttFilter\" value=\"all\">\n                <div id=\"intAttFilterMenu\" class=\"dropdown-menu hide absolute top-full left-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] overflow-hidden text-right min-w-[100px]\">\n                    <div class=\"p-2 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('intAttFilter', 'intAttFilterDisplay', 'intAttFilterMenu', 'all', 'كل اللجان', applyInternalAttFilter)\">كل اللجان</div>\n                    <div class=\"p-2 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('intAttFilter', 'intAttFilterDisplay', 'intAttFilterMenu', 'HR', 'HR', applyInternalAttFilter)\">HR</div>\n                    <div class=\"p-2 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('intAttFilter', 'intAttFilterDisplay', 'intAttFilterMenu', 'PR', 'PR', applyInternalAttFilter)\">PR</div>\n                    <div class=\"p-2 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('intAttFilter', 'intAttFilterDisplay', 'intAttFilterMenu', 'OR', 'OR', applyInternalAttFilter)\">OR</div>\n                    <div class=\"p-2 text-[10px] hover:bg-blue-50 cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('intAttFilter', 'intAttFilterDisplay', 'intAttFilterMenu', 'SM', 'SM', applyInternalAttFilter)\">SM</div>\n                </div>\n            </div>\n            <div class=\"input-wrapper flex-1 max-w-[140px]\">\n                <svg class=\"input-icon\" style=\"width:12px; height:12px; left:4px;\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z\"></path></svg>\n                <input type=\"text\" id=\"intAttSearch\" onkeyup=\"applyInternalAttFilter()\" placeholder=\"بحث...\" class=\"text-[10px] px-1 w-full !h-[28px]\">\n            </div>\n            <div class=\"flex gap-1 shrink-0\">\n                <button onclick=\"printContent('intAttTableArea', document.getElementById('intAttTitle').innerText)\" class=\"bg-gray-800 text-white px-2 py-1 rounded font-bold text-[9px] shadow\" aria-label=\"طباعة الجدول\">🖨️ طباعة</button>\n                <button onclick=\"pdfContent('intAttTableArea', document.getElementById('intAttTitle').innerText)\" class=\"bg-red-700 text-white px-2 py-1 rounded font-bold text-[9px] shadow\" aria-label=\"حفظ الجدول كـ PDF\">📄 PDF</button>\n            </div>\n        </div>\n        <div class=\"a4-container\">\n            <div class=\"print-header-sim\">\n                <div class=\"meta\">تاريخ: <span id=\"intAttDate\"></span><br>YLY System</div>\n                <div class=\"title\"><h1 id=\"intAttTitle\"></h1></div>\n                <div><img src=\"https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png\" alt=\"Logo\" loading=\"lazy\"></div>\n            </div>\n            <div id=\"intAttTableArea\">\n                <table class=\"ultra-compact-table\">\n                    <thead id=\"intAttHead\"></thead>\n                    <tbody id=\"intAttBody\"></tbody>\n                </table>\n            </div>\n        </div>\n    </div>\n\n    <div id=\"internalReportPage\" class=\"internal-page\">\n        <div class=\"internal-header no-print flex items-center gap-2\">\n            <button class=\"circle-back-btn shrink-0\" onclick=\"closeInternalPage('internalReportPage')\" aria-label=\"رجوع\">➔</button>\n            <div class=\"relative flex-1 max-w-[110px]\">\n                <input type=\"text\" id=\"intRepFilterDisplay\" readonly value=\"كل اللجان\" class=\"w-full !h-[28px] p-1 text-center font-bold text-gray-900 text-[9px] bg-white cursor-pointer border border-gray-400 rounded\" onclick=\"toggleCustomDropdown(event, 'intRepFilterMenu')\">\n                <input type=\"hidden\" id=\"intRepFilter\" value=\"all\">\n                <div id=\"intRepFilterMenu\" class=\"dropdown-menu hide absolute top-full left-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] overflow-hidden text-right min-w-[100px]\">\n                    <div class=\"p-2 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('intRepFilter', 'intRepFilterDisplay', 'intRepFilterMenu', 'all', 'كل اللجان', renderInternalReportList)\">كل اللجان</div>\n                    <div class=\"p-2 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('intRepFilter', 'intRepFilterDisplay', 'intRepFilterMenu', 'HR', 'HR', renderInternalReportList)\">HR</div>\n                    <div class=\"p-2 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('intRepFilter', 'intRepFilterDisplay', 'intRepFilterMenu', 'PR', 'PR', renderInternalReportList)\">PR</div>\n                    <div class=\"p-2 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('intRepFilter', 'intRepFilterDisplay', 'intRepFilterMenu', 'OR', 'OR', renderInternalReportList)\">OR</div>\n                    <div class=\"p-2 text-[10px] hover:bg-blue-50 cursor-pointer font-bold text-blue-900\" onclick=\"selectCustomOption('intRepFilter', 'intRepFilterDisplay', 'intRepFilterMenu', 'SM', 'SM', renderInternalReportList)\">SM</div>\n                </div>\n            </div>\n            <div class=\"input-wrapper flex-1 max-w-[130px]\">\n                <svg class=\"input-icon\" style=\"width:12px; height:12px; left:4px;\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z\"></path></svg>\n                <input type=\"text\" id=\"intRepSearch\" onkeyup=\"renderInternalReportList()\" placeholder=\"بحث...\" class=\"text-[9px] px-1 w-full !h-[28px]\">\n            </div>\n            <div class=\"flex gap-1 shrink-0\">\n                <button id=\"intRepBtnExcel\" class=\"bg-green-700 text-white px-2 py-1 rounded font-bold text-[9px] shadow\" aria-label=\"تصدير Excel\">📊</button>\n                <button id=\"intRepBtnPdf\" class=\"bg-red-700 text-white px-2 py-1 rounded font-bold text-[9px] shadow\" aria-label=\"تصدير PDF\">📄</button>\n                <button id=\"intRepBtnPrint\" class=\"bg-gray-800 text-white px-2 py-1 rounded font-bold text-[9px] shadow\" aria-label=\"طباعة\">🖨️</button>\n            </div>\n        </div>\n        <div class=\"a4-container\">\n            <div class=\"print-header-sim\">\n                <div class=\"meta\">تاريخ: <span id=\"intRepDate\"></span><br>YLY System</div>\n                <div class=\"title\"><h1 id=\"intRepTitle\"></h1></div>\n                <div><img src=\"https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png\" alt=\"Logo\" loading=\"lazy\"></div>\n            </div>\n            <div id=\"intRepTableArea\">\n                <table class=\"ultra-compact-table\">\n                    <thead id=\"intRepHead\"></thead>\n                    <tbody id=\"intRepBody\"></tbody>\n                </table>\n            </div>\n            <div id=\"intRepPagination\" class=\"flex justify-between items-center mt-3 bg-white p-2 rounded border shadow-sm no-print hidden\"></div>\n        </div>\n    </div>\n\n    <div id=\"internalStudentDashPage\" class=\"internal-page\">\n        <div class=\"internal-header no-print\">\n            <div class=\"flex gap-2 items-center\">\n                <button class=\"circle-back-btn\" onclick=\"closeInternalPage('internalStudentDashPage')\" aria-label=\"رجوع\">➔</button>\n                <span class=\"font-bold text-blue-900 text-xs\">ملف العضو الكامل</span>\n            </div>\n        </div>\n        <div class=\"p-3 flex-1 overflow-auto max-w-5xl mx-auto w-full\">\n            <div class=\"flex justify-end mb-2 no-print gap-1\">\n                <button onclick=\"excelDetailedStudentReport(document.getElementById('intDashCode').innerText)\" class=\"bg-green-700 text-white px-2 py-1 rounded text-[10px] font-bold shadow\">📊 Excel</button>\n                <button onclick=\"pdfDetailedStudentReport(document.getElementById('intDashCode').innerText)\" class=\"bg-red-700 text-white px-2 py-1 rounded text-[10px] font-bold shadow\">📄 PDF</button>\n                <button onclick=\"printInternalStudentDash()\" class=\"bg-gray-800 text-white px-2 py-1 rounded text-[10px] font-bold shadow\">🖨️ طباعة</button>\n            </div>\n            <div class=\"grid md:grid-cols-3 gap-4\" id=\"intStdDashContainer\">\n                <div class=\"std-dash-card text-center md:col-span-1 border-t-4 border-blue-600 bg-white\">\n                    <div class=\"mb-3 relative inline-block\">\n                        <div id=\"intDashQr\" class=\"p-2 bg-white border rounded-lg\"></div>\n                    </div>\n                    <div class=\"text-center space-y-1\">\n                        <h2 class=\"text-xl font-bold text-gray-900\" id=\"intDashName\"></h2>\n                        <p class=\"text-gray-500 font-mono text-lg font-bold\" id=\"intDashCode\"></p>\n                        <div class=\"bg-blue-100 rounded-lg p-2 text-xs text-blue-900 font-bold inline-block mt-1\" id=\"intDashLevel\"></div>\n                        <div class=\"mt-3 pt-2 border-t border-dashed border-gray-300\">\n                            <div class=\"flex justify-between text-xs\">\n                                <span class=\"text-gray-500 font-bold\">الهاتف:</span>\n                                <span id=\"intDashOwnPhone\" class=\"font-bold text-gray-900\"></span>\n                            </div>\n                        </div>\n                        <div class=\"mt-1 pt-2 border-t border-dashed border-gray-300\">\n                            <div class=\"flex justify-between text-xs\">\n                                <span class=\"text-gray-500 font-bold\">الرقم السري:</span>\n                                <span id=\"intDashPassword\" class=\"font-bold font-mono text-red-600\">••••••••</span>\n                            </div>\n                        </div>\n                    </div>\n                    <div class=\"grid grid-cols-2 gap-2 mt-4\">\n                        <div class=\"bg-green-50 p-2 rounded border border-green-100\">\n                            <div class=\"text-2xl font-bold text-green-600\" id=\"intDashPresent\">0</div>\n                            <div class=\"text-[10px] text-green-800\">أيام الحضور</div>\n                        </div>\n                        <div class=\"bg-red-50 p-2 rounded border border-red-100\">\n                            <div class=\"text-2xl font-bold text-red-600\" id=\"intDashAbsent\">0</div>\n                            <div class=\"text-[10px] text-red-800\">أيام الغياب</div>\n                        </div>\n                    </div>\n                </div>\n                <div class=\"md:col-span-2 space-y-4\">\n                    <div class=\"std-dash-card bg-white\">\n                        <h3 class=\"font-bold text-sm text-blue-900 border-b pb-2 mb-2\">◇ بيانات العضو</h3>\n                        <div class=\"std-info-row\"><span class=\"std-info-label\">تاريخ الانضمام</span><span class=\"std-info-val\" id=\"intDashJoinDate\"></span></div>\n                        <div class=\"std-info-row\"><span class=\"std-info-label\">مدة الانضمام</span><span class=\"std-info-val\" id=\"intDashDuration\"></span></div>\n                        <div class=\"std-info-row\"><span class=\"std-info-label\">إجمالي النقاط</span><span class=\"std-info-val text-blue-700 text-lg font-black\" id=\"intDashPaymentsTotal\"></span></div>\n                    </div>\n                    <div class=\"std-dash-card bg-white\">\n                        <h3 class=\"font-bold text-sm text-blue-900 border-b pb-2 mb-2\">◇ سجل المهام والنقاط</h3>\n                        <div class=\"overflow-x-auto max-h-48 overflow-y-auto\">\n                            <table class=\"custom-table w-full text-center\">\n                                <thead><tr><th>التاريخ</th><th>المهمة/التقييم</th><th>النقاط</th></tr></thead>\n                                <tbody id=\"intDashPaymentsTable\"></tbody>\n                            </table>\n                        </div>\n                    </div>\n                    <div class=\"std-dash-card bg-white\">\n                        <h3 class=\"font-bold text-sm text-blue-900 border-b pb-2 mb-2\">◇ سجل حضور الفعاليات</h3>\n                        <div id=\"intDashHistory\" class=\"max-h-48 overflow-y-auto pr-1 space-y-1\"></div>\n                    </div>\n                </div>\n            </div>\n        </div>\n    </div>\n\n    <!-- Student Card Modal -->\n    <div id=\"studentModal\" class=\"fixed inset-0 bg-black/80 hidden z-[150] flex items-center justify-center p-4 no-print\">\n        <div class=\"bg-white rounded-xl w-full max-w-xs p-4 text-center relative shadow-2xl md:max-w-sm\">\n            <button onclick=\"closeModal('studentModal')\" class=\"close-btn-modern\" style=\"top: 10px; right: 10px; position: absolute;\" aria-label=\"إغلاق\">&times;</button>\n            <div id=\"studentCardDisplay\" class=\"unified-card\"></div>\n            <div class=\"grid grid-cols-2 gap-2 mb-2\">\n                <button onclick=\"printStudentCard()\" class=\"bg-gray-800 text-white py-1 rounded text-[10px] font-bold md:text-sm md:py-2\">🖨️ طباعة الكارنيه</button>\n                <button onclick=\"shareStudentPdf()\" class=\"bg-red-700 text-white py-1 rounded text-[10px] font-bold md:text-sm md:py-2\">📄 PDF</button>\n            </div>\n            <button onclick=\"closeModal('studentModal')\" class=\"w-full bg-gray-200 text-gray-800 py-1.5 rounded font-bold text-[11px] hover:bg-gray-300 transition border border-gray-300\">إغلاق النافذة</button>\n        </div>\n    </div>\n\n    <!-- PWA Install Banner -->\n    <div id=\"pwaInstallBanner\" class=\"fixed bottom-4 left-4 z-[999999] translate-y-24 opacity-0 transition-all duration-500 ease-out hidden w-auto max-w-[280px] no-print\">\n        <div class=\"bg-blue-900/95 backdrop-blur-md border border-blue-700 rounded-2xl p-3 shadow-2xl flex items-center justify-between gap-3\">\n            <div class=\"flex items-center gap-2\">\n                <div class=\"bg-blue-800 p-1.5 rounded-xl border border-blue-600\"><span class=\"text-xl\">📲</span></div>\n                <div>\n                    <h4 class=\"text-white font-bold text-xs\">تثبيت التطبيق</h4>\n                    <p class=\"text-blue-200 text-[9px]\">YLY System</p>\n                </div>\n            </div>\n            <button id=\"pwaInstallBtn\" class=\"bg-red-600 text-white px-3 py-1.5 rounded-lg font-bold text-[10px] shadow-lg hover:bg-red-500 transition transform active:scale-95 whitespace-nowrap\">تثبيت</button>\n            <button onclick=\"dismissInstallBanner()\" class=\"absolute -top-2 -left-2 bg-gray-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] shadow-md\" aria-label=\"إلغاء\">&times;</button>\n        </div>\n    </div>\n\n    <!-- Toast Notification -->\n    <div id=\"toast\" class=\"fixed top-5 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-full shadow-xl hidden font-bold text-[10px] max-w-[90%] w-auto text-center whitespace-nowrap no-print\"></div>\n\n    <script type=\"module\" src=\"app.js\"></script>\n\n    <script>\n      if ('serviceWorker' in navigator) {\n        window.addEventListener('load', () => {\n          navigator.serviceWorker.register('./service-worker.js')\n            .then(reg => console.log('Service Worker Registered!', reg))\n            .catch(err => console.error('Service Worker Registration Failed!', err));\n        });\n      }\n    </script>\n</body>\n</html>"}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta property="og:title" content="YLY Management | Pro System">
+    <meta property="og:description" content="نظام إدارة اللجان والأعضاء لمبادرة شباب يدير شباب YLY">
+    <meta property="og:image" content="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657868/etyefoyw9madba5a5u1z.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657868/etyefoyw9madba5a5u1z.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1e3a8a">
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png">
+    
+    <title>YLY Management | Pro System</title>
+    
+    <!-- الملف الشامل والمستقل المولد حديثاً -->
+    <link rel="stylesheet" href="tailwind.min.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- سيتم إدراج CSS هنا في المرحلة الثانية -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="text-gray-800" onclick="if(window.closeAllDropdowns) window.closeAllDropdowns(event)">
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay">
+        <div class="spinner-box">
+            <div class="modern-spinner"></div>
+            <img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" class="w-14 h-14 object-contain z-10 drop-shadow-xl" alt="YLY Logo">
+        </div>
+        <div class="text-2xl font-black tracking-wider text-white mb-2">
+            YLY <span class="text-red-500">System</span>
+        </div>
+        <div class="text-[10px] text-gray-400 font-mono text-center leading-relaxed">جاري تأمين النظام وتهيئته...</div>
+    </div>
+
+    <!-- Login Overlay -->
+    <div id="loginOverlay">
+        <div class="login-card">
+            <div class="mb-3">
+                <img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" class="w-16 h-16 object-contain mx-auto mb-1 drop-shadow-md" alt="YLY Logo" loading="lazy">
+                <h1 class="text-2xl font-black text-gray-900 mb-0">YLY System</h1>
+                <p class="text-gray-500 text-[10px] font-bold">نظام إدارة اللجان والأعضاء</p>
+            </div>
+            <div class="flex border-b mb-3">
+                <div onclick="setLoginMode('admin')" id="tabAdmin" class="login-tab active">القيادة / HR</div>
+                <div onclick="setLoginMode('student')" id="tabStudent" class="login-tab">الأعضاء</div>
+            </div>
+            <div id="loginForm">
+                <div class="input-wrapper mb-2">
+                    <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    <input type="text" id="loginCode" class="login-input" placeholder="البريد الإلكتروني للادارة">
+                </div>
+                <div class="input-wrapper mb-3">
+                    <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    <input type="password" id="loginPass" class="login-input" placeholder="كلمة المرور">
+                </div>
+                <button onclick="handleLogin()" class="login-btn shadow-lg">تسجيل الدخول</button>
+            </div>
+            <p id="loginError" class="text-red-500 text-[10px] mt-2 hidden font-bold bg-red-50 p-2 rounded">بيانات الدخول غير صحيحة أو لا تملك صلاحية</p>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="customAlertModal">
+        <div class="alert-card">
+            <div id="alertIcon" class="alert-icon">⚠️</div>
+            <h3 id="alertTitle" class="text-base font-bold text-gray-800 mb-1">تنبيه</h3>
+            <p id="alertMessage" class="text-[11px] text-gray-600 font-bold mb-4"></p>
+            <button onclick="closeCustomAlert()" class="alert-btn shadow-lg">حسناً</button>
+        </div>
+    </div>
+
+    <div id="paymentConfirmModal">
+        <div class="alert-card border-t-4 border-blue-600">
+            <div class="text-4xl mb-2">⭐</div>
+            <h3 class="text-base font-bold text-gray-800 mb-1">تأكيد تقييم</h3>
+            <p id="payConfirmMsg" class="text-[11px] text-gray-600 font-bold mb-4"></p>
+            <div class="flex gap-2">
+                <button onclick="proceedWithPayment()" class="flex-1 bg-blue-600 text-white py-2 rounded font-bold text-xs shadow">نعم</button>
+                <button onclick="closePaymentConfirm()" class="flex-1 bg-gray-500 text-white py-2 rounded font-bold text-xs">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="checkResultModal" class="fixed inset-0 bg-black/80 hidden z-[250] flex items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-xl w-full max-w-md p-4 shadow-2xl relative h-[85vh] flex flex-col">
+            <div class="flex justify-between items-center border-b pb-2 mb-2">
+                <h3 class="font-bold text-lg text-gray-900 flex-1 text-center">ملف العضو</h3>
+                <button onclick="closeModal('checkResultModal')" class="close-btn-modern">&times;</button>
+            </div>
+            <div class="overflow-y-auto flex-1 p-1">
+                <div class="flex gap-3 mb-3 bg-gray-50 p-2 rounded border">
+                    <div id="checkResultQr" class="bg-white p-1 border rounded"></div>
+                    <div class="flex-1 space-y-1">
+                        <div class="font-black text-lg text-blue-900" id="checkResName"></div>
+                        <div class="text-xs font-mono bg-gray-200 inline-block px-1 rounded" id="checkResCode"></div>
+                        <div class="text-xs font-bold text-red-600" id="checkResLevel"></div>
+                        <div class="text-[10px] text-gray-500 mt-1">تاريخ الانضمام: <span id="checkResDate"></span></div>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <div class="border rounded p-2 border-blue-200 bg-blue-50/30">
+                        <h4 class="font-bold text-xs border-b pb-1 mb-1 flex justify-between">
+                            <span class="text-blue-800">⭐ سجل التقييمات</span>
+                            <span class="text-blue-700 font-black" id="checkResTotalPay"></span>
+                        </h4>
+                        <div class="max-h-24 overflow-y-auto">
+                            <table class="w-full text-[10px] text-center">
+                                <thead class="bg-blue-100"><tr><th>التاريخ</th><th>المهمة</th><th>النقاط</th></tr></thead>
+                                <tbody id="checkResPayTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="border rounded p-2 border-green-200 bg-green-50/30">
+                        <h4 class="font-bold text-xs border-b pb-1 mb-1 text-green-700">✅ سجل الحضور (<span id="checkResPresentCount">0</span>)</h4>
+                        <div class="max-h-24 overflow-y-auto">
+                            <table class="w-full text-[10px] text-center">
+                                <thead class="bg-green-100"><tr><th>التاريخ</th><th>الوقت</th></tr></thead>
+                                <tbody id="checkResPresentTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="border rounded p-2 border-red-200 bg-red-50/30">
+                        <h4 class="font-bold text-xs border-b pb-1 mb-1 text-red-700">❌ سجل الغياب (<span id="checkResAbsentCount">0</span>)</h4>
+                        <div class="max-h-24 overflow-y-auto">
+                            <table class="w-full text-[10px] text-center">
+                                <thead class="bg-red-100"><tr><th>التاريخ</th><th>اليوم</th></tr></thead>
+                                <tbody id="checkResAbsentTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2 mt-2 pt-2 border-t">
+                <div class="text-center bg-gray-100 p-1 rounded border border-gray-300">
+                    <div class="text-[9px] text-gray-500">كلمة المرور</div>
+                    <div class="font-bold text-gray-800 font-mono" id="checkResPass"></div>
+                </div>
+                <button onclick="closeModal('checkResultModal')" class="bg-blue-900 text-white rounded font-bold text-xs">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Print Container (For Iframe Printing) -->
+    <div id="print-container"></div>
+
+    <!-- Main App Content -->
+    <div id="appContent" class="hidden">
+        
+        <!-- Header -->
+        <header id="mainHeader" class="bg-blue-900 text-white shadow-md sticky top-0 z-50 no-print">
+            <div class="container mx-auto px-4 py-2 flex justify-between items-center">
+                <h1 class="text-sm font-bold flex items-center gap-2 md:text-xl">
+                    <img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" class="w-7 h-7 object-cover drop-shadow-md" alt="YLY Logo" loading="lazy">
+                    YLY System <span class="text-[8px] bg-red-600 px-1 py-0.5 rounded text-white md:text-xs shadow-sm">pro</span>
+                </h1>
+                <div class="flex items-center gap-2">
+                    <div class="text-[9px] bg-blue-800 px-2 py-1 rounded-full font-mono border border-blue-700 md:text-xs" id="headerDate">--/--/----</div>
+                    <button onclick="logout()" class="text-[9px] bg-red-600 px-2 py-1 rounded font-bold hover:bg-red-700 transition md:text-xs md:px-3 border border-red-800">خروج</button>
+                </div>
+            </div>
+            <div class="bg-blue-950 border-t border-blue-800" id="navBar">
+                <div class="container mx-auto px-2">
+                    <div class="flex w-full gap-1.5 py-1.5 md:gap-4 md:py-2">
+                        <button id="nav-students" onclick="showTab('students', this)" class="nav-item flex-1 py-1.5 rounded text-[11px] text-blue-100 flex-shrink-0 text-center transition-all md:text-sm">الأعضاء</button>
+                        <button id="nav-attendance" onclick="showTab('attendance', this)" class="nav-item flex-1 py-1.5 rounded text-[11px] text-blue-100 flex-shrink-0 text-center transition-all md:text-sm">الحضور</button>
+                        <button id="nav-accounting" onclick="showTab('accounting', this)" class="nav-item flex-1 py-1.5 rounded text-[11px] text-blue-100 flex-shrink-0 text-center transition-all md:text-sm">التقييمات</button>
+                        <button id="nav-reports" onclick="showTab('reports', this)" class="nav-item flex-1 py-1.5 rounded text-[11px] text-blue-100 flex-shrink-0 text-center transition-all md:text-sm">التقارير</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main id="mainContent" class="container mx-auto p-3 max-w-4xl md:max-w-6xl">
+            
+            <!-- Student Dashboard Tab -->
+            <section id="studentDashboard" class="tab-content">
+                <div class="flex justify-end mb-2 no-print gap-2">
+                    <button onclick="printStudentDashboard()" class="bg-blue-900 text-white px-3 py-1 rounded text-xs font-bold md:text-sm md:px-4 md:py-2">🖨️ طباعة تقرير</button>
+                    <button onclick="pdfStudentDashboard()" class="bg-red-700 text-white px-3 py-1 rounded text-xs font-bold md:text-sm md:px-4 md:py-2">📄 حفظ PDF</button>
+                </div>
+                <div class="grid md:grid-cols-3 gap-4" id="stdDashContainer">
+                    <div class="std-dash-card text-center md:col-span-1 border-t-4 border-blue-600">
+                        <div class="mb-3 relative inline-block">
+                            <div id="dashQr" class="p-2 bg-white border rounded-lg"></div>
+                        </div>
+                        <div class="text-center space-y-1">
+                            <p class="text-[10px] text-gray-500 font-bold">اسم العضو:</p>
+                            <h2 class="text-xl font-bold text-gray-900 md:text-2xl" id="dashName"></h2>
+                            <p class="text-[10px] text-gray-500 font-bold mt-2">كود العضو:</p>
+                            <p class="text-gray-500 font-mono text-lg font-bold md:text-xl" id="dashCode"></p>
+                            <p class="text-[10px] text-gray-500 font-bold mt-2">اللجنة:</p>
+                            <div class="bg-blue-100 rounded-lg p-2 text-xs text-blue-900 font-bold inline-block" id="dashLevel"></div>
+                            <div class="mt-3 pt-2 border-t border-dashed border-gray-300">
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-gray-500 font-bold">رقم الهاتف:</span>
+                                    <span id="dashOwnPhone" class="font-bold text-gray-900"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 mt-4">
+                            <div class="bg-green-50 p-2 rounded border border-green-100">
+                                <div class="text-2xl font-bold text-green-600 md:text-3xl" id="dashPresent">0</div>
+                                <div class="text-[10px] text-green-800 md:text-xs">أيام الحضور</div>
+                            </div>
+                            <div class="bg-red-50 p-2 rounded border border-red-100">
+                                <div class="text-2xl font-bold text-red-600 md:text-3xl" id="dashAbsent">0</div>
+                                <div class="text-[10px] text-red-800 md:text-xs">أيام الغياب</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="md:col-span-2 space-y-4">
+                        <div class="std-dash-card">
+                            <h3 class="font-bold text-sm text-blue-900 border-b pb-2 mb-2 flex items-center gap-2 md:text-base">◇ بيانات العضو</h3>
+                            <div class="std-info-row"><span class="std-info-label">تاريخ الانضمام</span><span class="std-info-val" id="dashJoinDate"></span></div>
+                            <div class="std-info-row"><span class="std-info-label">مدة الانضمام</span><span class="std-info-val" id="dashDuration"></span></div>
+                            <div class="std-info-row"><span class="std-info-label">إجمالي النقاط</span><span class="std-info-val text-blue-700 text-lg font-black" id="dashPaymentsTotal"></span></div>
+                        </div>
+                        <div class="std-dash-card">
+                            <h3 class="font-bold text-sm text-blue-900 border-b pb-2 mb-2 md:text-base">◇ سجل المهام والنقاط</h3>
+                            <div class="overflow-x-auto">
+                                <table class="custom-table">
+                                    <thead><tr><th>التاريخ</th><th>المهمة/التقييم</th><th>النقاط</th></tr></thead>
+                                    <tbody id="dashPaymentsTable"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="std-dash-card">
+                            <h3 class="font-bold text-sm text-blue-900 border-b pb-2 mb-2 md:text-base">◇ سجل حضور الفعاليات</h3>
+                            <div id="dashHistory" class="max-h-48 overflow-y-auto pr-1 space-y-1"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Students Tab -->
+            <section id="students" class="tab-content">
+                <div class="glass-card border-r-4 border-blue-700 no-print mb-4">
+                    <h2 class="font-bold text-gray-900 mb-2 text-xs md:text-base">تسجيل عضو جديد</h2>
+                    <div class="space-y-2 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
+                        <div class="input-wrapper">
+                            <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                            <input type="text" id="stdName" class="w-full p-2 text-xs md:text-sm" placeholder="الاسم رباعي">
+                        </div>
+                        <div class="flex items-center border border-gray-400 rounded bg-white overflow-hidden h-[30px] md:h-[36px]">
+                            <span class="bg-gray-100 px-2 py-1 text-gray-600 text-[10px] font-bold border-l border-gray-400 md:text-sm h-full flex items-center">+20</span>
+                            <div class="input-wrapper flex-1 h-full">
+                                <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                                <input type="tel" id="stdOwnPhone" oninput="validatePhone(this)" class="w-full p-2 text-xs outline-none md:text-sm !border-0 h-full" placeholder="رقم الهاتف">
+                            </div>
+                        </div>
+                        <div class="input-wrapper md:col-span-2 relative" id="levelDropdownContainer">
+                            <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                            <input type="text" id="stdLevelDisplay" readonly class="w-full p-2 text-xs md:text-sm h-full cursor-pointer bg-white" placeholder="اختر اللجنة..." onclick="toggleCustomDropdown(event, 'levelMenu')">
+                            <input type="hidden" id="stdLevel" value="">
+                            <div id="levelMenu" class="dropdown-menu hide absolute top-full left-0 right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] overflow-hidden">
+                                <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900 transition flex items-center gap-2" onclick="selectLevel('HR', 'الموارد البشرية (HR)')"> الموارد البشرية (HR)</div>
+                                <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900 transition flex items-center gap-2" onclick="selectLevel('PR', 'العلاقات العامة (PR)')"> العلاقات العامة (PR)</div>
+                                <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900 transition flex items-center gap-2" onclick="selectLevel('OR', 'التنظيم (OR)')"> التنظيم (OR)</div>
+                                <div class="p-2 text-xs hover:bg-blue-50 cursor-pointer font-bold text-blue-900 transition flex items-center gap-2" onclick="selectLevel('SM', 'السوشيال ميديا (SM)')"> السوشيال ميديا (SM)</div>
+                            </div>
+                        </div>
+                        <button onclick="registerStudent()" class="w-full bg-blue-900 text-white py-2 rounded font-bold shadow hover:bg-blue-800 text-xs transition md:text-sm md:col-span-2 md:py-3">حفظ العضو</button>
+                    </div>
+                </div>
+                
+                <div class="glass-card border-r-4 border-red-600 no-print mb-4">
+                    <h2 class="font-bold text-gray-900 mb-2 text-xs md:text-base">🔍استعلام عن عضو باركود</h2>
+                    <div id="checkReader" class="scanner-wrapper h-32 mb-2 hidden border-2 border-gray-800"></div>
+                    <div class="flex gap-2">
+                        <button onclick="startCheckScanner()" id="btnStartCheck" class="flex-1 bg-gray-800 text-white py-1.5 rounded font-bold text-xs shadow">تشغيل الكاميرا</button>
+                        <button onclick="stopCheckScanner()" id="btnStopCheck" class="flex-1 bg-red-100 text-red-600 py-1.5 rounded font-bold text-xs hidden">إيقاف</button>
+                    </div>
+                </div>
+                
+                <div class="glass-card">
+                    <div class="flex justify-between items-center mb-2 no-print flex-wrap gap-2">
+                        <h2 class="font-bold text-[10px] md:text-sm text-gray-800">قائمة الأعضاء (<span id="stdCount">0</span>)</h2>
+                        <div class="flex gap-1.5 items-center flex-1 justify-end max-w-full">
+                            <div class="relative shrink-0" id="studentListFilterContainer">
+                                <input type="text" id="studentListFilterDisplay" readonly value="كل اللجان" class="text-[10px] px-2 !h-[30px] md:!h-[36px] w-20 md:w-24 text-center font-bold text-gray-800 bg-white border border-gray-400 rounded cursor-pointer" onclick="toggleCustomDropdown(event, 'studentListFilterMenu')">
+                                <input type="hidden" id="studentListFilter" value="all">
+                                <div id="studentListFilterMenu" class="dropdown-menu hide absolute top-full right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] min-w-[100px] overflow-hidden text-right">
+                                    <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('studentListFilter', 'studentListFilterDisplay', 'studentListFilterMenu', 'all', 'كل اللجان', renderStudents)">كل اللجان</div>
+                                    <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('studentListFilter', 'studentListFilterDisplay', 'studentListFilterMenu', 'HR', 'HR', renderStudents)">HR</div>
+                                    <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('studentListFilter', 'studentListFilterDisplay', 'studentListFilterMenu', 'PR', 'PR', renderStudents)">PR</div>
+                                    <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('studentListFilter', 'studentListFilterDisplay', 'studentListFilterMenu', 'OR', 'OR', renderStudents)">OR</div>
+                                    <div class="p-2 text-xs hover:bg-blue-50 cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('studentListFilter', 'studentListFilterDisplay', 'studentListFilterMenu', 'SM', 'SM', renderStudents)">SM</div>
+                                </div>
+                            </div>
+                            <div class="input-wrapper flex-1 min-w-0">
+                                <svg class="input-icon" style="width:14px; height:14px; left:6px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                <input type="text" id="searchStd" onkeyup="handleSearch()" placeholder="بحث باسم أو كود..." class="text-[10px] px-2 w-full !h-[30px] md:!h-[36px] transition-all md:text-sm">
+                            </div>
+                            <button onclick="printStudentsList()" class="bg-blue-900 text-white px-2 h-[30px] md:h-[36px] rounded text-[10px] flex items-center justify-center gap-1 shrink-0">🖨️</button>
+                            <button onclick="pdfStudentsList()" class="bg-red-700 text-white px-2 h-[30px] md:h-[36px] rounded text-[10px] flex items-center justify-center gap-1 shrink-0">PDF</button>
+                        </div>
+                    </div>
+                    <div id="studentsListArea">
+                        <table class="custom-table">
+                            <thead><tr><th class="col-index">م</th><th class="col-code">الكود</th><th>الاسم</th><th>اللجنة</th><th class="col-date">التاريخ</th><th class="no-print col-action">إجراء</th></tr></thead>
+                            <tbody id="studentsTable"></tbody>
+                        </table>
+                    </div>
+                    <div class="flex justify-between items-center mt-3 no-print">
+                        <div class="flex items-center gap-2">
+                            <button onclick="prevPage()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded text-xs">➡️ السابق</button>
+                            <span id="pageIndicator" class="text-xs font-bold"></span>
+                            <button onclick="nextPage()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded text-xs"> التالي ⬅️</button>
+                        </div>
+                        <button onclick="exportStudentsListExcel()" class="bg-green-700 hover:bg-green-800 text-white font-bold py-1 px-3 rounded text-xs flex items-center gap-1 shadow">📊 تصدير Excel</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Attendance Tab -->
+            <section id="attendance" class="tab-content">
+                <div class="glass-card text-center">
+                    <h2 class="text-sm font-bold text-gray-900 mb-2 md:text-lg">سجل حضور الفعاليات</h2>
+                    <div id="exceptionalStatusIndicator" class="hidden bg-blue-100 border border-blue-300 text-blue-900 p-2 rounded mb-2 text-xs font-bold animate-pulse md:text-sm">📅 تم تفعيل الحضور اليوم لـ: <span id="exceptionalLevelName"></span></div>
+                    <div class="mb-2 bg-white p-2 rounded border border-gray-300 shadow-sm">
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="input-wrapper">
+                                <label class="text-[9px] text-gray-600 font-bold block mb-1">تاريخ اليوم</label>
+                                <div class="relative"><input type="date" id="attendanceDate" onchange="changeAttendanceDate()" class="w-full p-1 text-right font-bold text-gray-900 text-xs bg-white"></div>
+                            </div>
+                            <div class="input-wrapper">
+                                <label class="text-[9px] text-gray-600 font-bold block mb-1">اللجنة</label>
+                                <div class="relative" id="attendanceStageContainer">
+                                    <input type="text" id="attendanceStageDisplay" readonly value="كل اللجان" class="w-full p-1 text-center font-bold text-gray-900 text-xs bg-white cursor-pointer border rounded" onclick="toggleCustomDropdown(event, 'attendanceStageMenu')">
+                                    <input type="hidden" id="attendanceStage" value="all">
+                                    <div id="attendanceStageMenu" class="dropdown-menu hide absolute top-full left-0 right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] overflow-hidden text-right">
+                                        <div class="p-2 text-[11px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('attendanceStage', 'attendanceStageDisplay', 'attendanceStageMenu', 'all', 'كل اللجان', updateCounters)">كل اللجان</div>
+                                        <div class="p-2 text-[11px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('attendanceStage', 'attendanceStageDisplay', 'attendanceStageMenu', 'HR', 'الموارد البشرية (HR)', updateCounters)">الموارد البشرية (HR)</div>
+                                        <div class="p-2 text-[11px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('attendanceStage', 'attendanceStageDisplay', 'attendanceStageMenu', 'PR', 'العلاقات العامة (PR)', updateCounters)">العلاقات العامة (PR)</div>
+                                        <div class="p-2 text-[11px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('attendanceStage', 'attendanceStageDisplay', 'attendanceStageMenu', 'OR', 'التنظيم (OR)', updateCounters)">التنظيم (OR)</div>
+                                        <div class="p-2 text-[11px] hover:bg-blue-50 cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('attendanceStage', 'attendanceStageDisplay', 'attendanceStageMenu', 'SM', 'السوشيال ميديا (SM)', updateCounters)">السوشيال ميديا (SM)</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex bg-gray-100 p-1 rounded mb-2 no-print border border-gray-300">
+                        <button onclick="setAttMode('scan')" id="btnAttScan" class="sub-nav-item flex-1 rounded text-[10px] active transition-all">📷 قارئ الباركود</button>
+                        <button onclick="setAttMode('manual')" id="btnAttManual" class="sub-nav-item flex-1 rounded text-[10px] transition-all">⌨️ إدخال يدوي</button>
+                    </div>
+                    
+                    <div id="attScanArea" class="relative">
+                        <div id="reader" class="scanner-wrapper w-full mb-2"></div>
+                        <div id="scanOverlay" class="absolute inset-0 pointer-events-none border-2 border-blue-500 hidden md:block" style="top: 50%; left: 50%; transform: translate(-50%, -50%); width: 250px; height: 250px;"></div>
+                        <div id="scanFeedback" class="absolute inset-0 flex items-center justify-center bg-green-500/90 hidden z-10 rounded-lg">
+                            <div class="text-white font-bold text-lg animate-bounce md:text-2xl">✅ تم التسجيل</div>
+                        </div>
+                        <div class="flex justify-center gap-2 no-print">
+                            <button onclick="startScanner('reader', 'attendance')" class="bg-blue-900 text-white px-4 py-1 rounded shadow text-[10px]">تشغيل الكاميرا</button>
+                            <button onclick="stopScanner()" class="bg-red-100 text-red-600 px-4 py-1 rounded text-[10px]">إيقاف</button>
+                        </div>
+                    </div>
+                    
+                    <div id="attManualArea" class="hidden">
+                        <div class="input-wrapper mb-2">
+                            <input type="number" id="manualAttID" placeholder="كود العضو" class="w-full text-center text-xl font-bold p-2 font-mono md:text-2xl md:p-3">
+                        </div>
+                        <button onclick="manualAttendance()" class="w-full bg-blue-900 text-white py-2 rounded font-bold text-xs md:text-sm md:py-3">تسجيل الحضور</button>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-2 mt-3 no-print md:gap-4">
+                        <div onclick="openInternalAttendance('present')" class="bg-green-50 p-2 rounded border border-green-200 cursor-pointer hover:bg-green-100 transition">
+                            <span class="block text-lg font-bold text-green-600 md:text-2xl" id="presentCount">0</span>
+                            <span class="text-[10px] text-green-800 font-bold md:text-sm">تم الحضور</span>
+                        </div>
+                        <div onclick="openInternalAttendance('absent')" class="bg-red-50 p-2 rounded border border-red-200 cursor-pointer hover:bg-red-100 transition">
+                            <span class="block text-lg font-bold text-red-600 md:text-2xl" id="absentCount">0</span>
+                            <span class="text-[10px] text-red-800 font-bold md:text-sm">غياب اليوم</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col items-center gap-2 mt-5 border-t border-gray-200 pt-5 no-print">
+                        <button onclick="confirmEventDay()" class="w-64 bg-blue-700 text-white py-2 rounded font-bold text-[11px] shadow-sm hover:bg-blue-800 flex justify-center items-center gap-2">✅ تفعيل يوم حضور للجنة المحددة</button>
+                        <button onclick="cancelEventDay()" class="w-64 bg-gray-500 text-white py-2 rounded font-bold text-[11px] shadow-sm hover:bg-gray-600 flex justify-center items-center gap-2"> إلغاء تفعيل اليوم</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Accounting Tab -->
+            <section id="accounting" class="tab-content">
+                <div class="glass-card border-t-4 border-blue-600">
+                    <h3 class="font-bold text-blue-900 mb-2 text-xs md:text-base">⭐ إضافة نقاط وتقييمات الأعضاء</h3>
+                    <div id="defaultPaymentBar" class="bg-blue-50 p-2 rounded mb-2 border border-blue-200">
+                        <div class="text-[9px] text-blue-800 font-bold mb-1">إعدادات التقييم الحالية</div>
+                        <div class="flex gap-1">
+                            <input type="number" id="defScoreAmount" class="w-1/4 p-1 text-center font-bold text-xs" placeholder="النقاط (+)">
+                            <div class="relative w-1/4" id="defScoreTypeContainer">
+                                <input type="text" id="defScoreTypeDisplay" readonly value="كويز" class="w-full p-1 text-[10px] text-center font-bold bg-white border rounded cursor-pointer" onclick="toggleCustomDropdown(event, 'defScoreTypeMenu')">
+                                <input type="hidden" id="defScoreType" value="كويز">
+                                <div id="defScoreTypeMenu" class="dropdown-menu hide absolute top-full right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] w-full overflow-hidden text-right">
+                                    <div class="p-1.5 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('defScoreType', 'defScoreTypeDisplay', 'defScoreTypeMenu', 'كويز', 'كويز')">كويز</div>
+                                    <div class="p-1.5 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('defScoreType', 'defScoreTypeDisplay', 'defScoreTypeMenu', 'مهمة/تاسك', 'مهمة/تاسك')">مهمة/تاسك</div>
+                                    <div class="p-1.5 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('defScoreType', 'defScoreTypeDisplay', 'defScoreTypeMenu', 'تفاعل', 'تفاعل ومشاركة')">تفاعل ومشاركة</div>
+                                    <div class="p-1.5 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('defScoreType', 'defScoreTypeDisplay', 'defScoreTypeMenu', 'تنظيم', 'دور تنظيمي')">دور تنظيمي</div>
+                                    <div class="p-1.5 text-[10px] hover:bg-blue-50 cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('defScoreType', 'defScoreTypeDisplay', 'defScoreTypeMenu', 'أخرى', 'أخرى')">أخرى</div>
+                                </div>
+                            </div>
+                            <input type="text" id="defScoreNote" class="w-2/4 p-1 text-[10px]" placeholder="تفاصيل (اختياري)">
+                        </div>
+                    </div>
+                    
+                    <div class="flex bg-gray-100 p-1 rounded mb-2 no-print border border-gray-300">
+                        <button onclick="togglePayMethod('scan')" id="btnPayScan" class="sub-nav-item flex-1 rounded text-[10px] active font-bold md:text-sm md:py-2">📷 قارئ الباركود</button>
+                        <button onclick="togglePayMethod('manual')" id="btnPayManual" class="sub-nav-item flex-1 rounded text-[10px] font-bold md:text-sm md:py-2">⌨️ إدخال يدوي</button>
+                    </div>
+                    
+                    <div id="payScanDiv" class="mb-2">
+                        <div id="payReader" class="scanner-wrapper h-24 mb-2 md:h-48"></div>
+                        <div class="flex gap-2">
+                            <button onclick="startScanner('payReader', 'payment')" class="flex-1 bg-blue-700 text-white py-1 rounded text-[10px] no-print md:text-sm md:py-2">تشغيل</button>
+                            <button onclick="stopScanner()" class="flex-1 bg-red-100 text-red-600 border border-red-200 py-1 rounded text-[10px] no-print md:text-sm md:py-2 font-bold">إيقاف</button>
+                        </div>
+                    </div>
+                    
+                    <div id="payManualDiv" class="hidden flex gap-2 mb-2">
+                        <div class="input-wrapper flex-1">
+                            <input type="number" id="paySearchID" placeholder="كود العضو" class="w-full p-1 text-center font-bold text-xs md:text-sm md:p-2">
+                        </div>
+                        <button onclick="searchStudentForPay()" class="bg-blue-700 text-white px-2 rounded text-xs md:text-sm md:px-4">🔍 بحث</button>
+                    </div>
+                    
+                    <div id="paymentForm" class="hidden bg-yellow-50 p-2 rounded border border-yellow-200">
+                        <div class="flex justify-between text-[10px] mb-1 font-bold md:text-sm">
+                            <span id="payStdName" class="text-blue-900"></span>
+                            <span id="payStdID" class="font-mono bg-white px-1 rounded"></span>
+                        </div>
+                        <div class="flex gap-1 mb-1">
+                            <input type="number" id="payAmount" class="w-1/3 p-1 text-center font-bold text-xs text-blue-700" placeholder="النقاط">
+                            <div class="relative w-2/3" id="payTypeContainer">
+                                <input type="text" id="payTypeDisplay" readonly value="كويز" class="w-full p-1 text-[10px] text-center font-bold bg-white border rounded cursor-pointer" onclick="toggleCustomDropdown(event, 'payTypeMenu')">
+                                <input type="hidden" id="payType" value="كويز">
+                                <div id="payTypeMenu" class="dropdown-menu hide absolute top-full right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] w-full overflow-hidden text-right">
+                                    <div class="p-1.5 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('payType', 'payTypeDisplay', 'payTypeMenu', 'كويز', 'كويز')">كويز</div>
+                                    <div class="p-1.5 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('payType', 'payTypeDisplay', 'payTypeMenu', 'مهمة/تاسك', 'مهمة/تاسك')">مهمة/تاسك</div>
+                                    <div class="p-1.5 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('payType', 'payTypeDisplay', 'payTypeMenu', 'تفاعل', 'تفاعل ومشاركة')">تفاعل ومشاركة</div>
+                                    <div class="p-1.5 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('payType', 'payTypeDisplay', 'payTypeMenu', 'تنظيم', 'دور تنظيمي')">دور تنظيمي</div>
+                                    <div class="p-1.5 text-[10px] hover:bg-blue-50 cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('payType', 'payTypeDisplay', 'payTypeMenu', 'أخرى', 'أخرى')">أخرى</div>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="text" id="payNote" class="w-full p-1 text-[10px] mb-1" placeholder="تفاصيل إضافية (اسم الكويز أو المهمة)">
+                        <div class="flex gap-2 mt-2">
+                            <button onclick="confirmPayment()" class="flex-1 bg-blue-700 text-white py-1 rounded font-bold shadow text-[10px] md:text-sm md:py-2">✅ تأكيد ومنح النقاط</button>
+                            <button onclick="cancelPayment()" class="flex-1 bg-gray-500 text-white py-1 rounded font-bold shadow text-[10px] md:text-sm md:py-2">إلغاء</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-sky-50 text-sky-950 p-3 rounded-xl shadow-sm mt-4 md:p-5 border-2 border-sky-200">
+                    <div class="text-center mb-2">
+                        <p class="text-[10px] font-bold text-sky-700">إجمالي النقاط الممنوحة اليوم</p>
+                        <p class="text-2xl font-black text-blue-900" id="totalRev">0</p>
+                    </div>
+                    <div class="bg-white p-2 rounded-lg border border-sky-200 shadow-inner md:p-3">
+                        <h4 class="text-[10px] font-bold text-blue-900 mb-2 border-b border-sky-100 pb-1 md:text-sm">أحدث تقييمات اليوم</h4>
+                        <div class="overflow-x-auto max-h-48 overflow-y-auto">
+                            <table class="custom-table text-[10px] md:text-xs">
+                                <thead>
+                                    <tr class="bg-blue-900 text-white">
+                                        <th style="width:35%;">الاسم</th>
+                                        <th style="width:15%;">الكود</th>
+                                        <th style="width:25%;">النقاط المكتسبة اليوم</th>
+                                        <th style="width:25%;">إجمالي النقاط</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="todayRevListBody" class="bg-white text-gray-900"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Reports Tab -->
+            <section id="reports" class="tab-content">
+                <div class="glass-card border-t-4 border-gray-600 mb-4">
+                    <h3 class="font-bold mb-1 text-gray-900 flex items-center gap-2 text-xs md:text-base"><span>👤</span> استعلام عن تقرير عضو</h3>
+                    <div class="flex gap-1 mb-1">
+                        <div class="relative w-1/4 min-w-[80px]" id="searchStageContainer">
+                            <input type="text" id="searchStageDisplay" readonly value="كل اللجان" class="w-full p-1 bg-white text-[10px] md:text-sm md:p-2 text-center font-bold border rounded cursor-pointer" onclick="toggleCustomDropdown(event, 'searchStageMenu')">
+                            <input type="hidden" id="searchStage" value="all">
+                            <div id="searchStageMenu" class="dropdown-menu hide absolute top-full right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] w-full overflow-hidden text-right">
+                                <div class="p-1.5 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('searchStage', 'searchStageDisplay', 'searchStageMenu', 'all', 'كل اللجان')">كل اللجان</div>
+                                <div class="p-1.5 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('searchStage', 'searchStageDisplay', 'searchStageMenu', 'HR', 'HR')">HR</div>
+                                <div class="p-1.5 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('searchStage', 'searchStageDisplay', 'searchStageMenu', 'PR', 'PR')">PR</div>
+                                <div class="p-1.5 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('searchStage', 'searchStageDisplay', 'searchStageMenu', 'OR', 'OR')">OR</div>
+                                <div class="p-1.5 text-xs hover:bg-blue-50 cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('searchStage', 'searchStageDisplay', 'searchStageMenu', 'SM', 'SM')">SM</div>
+                            </div>
+                        </div>
+                        <div class="input-wrapper flex-1">
+                            <input type="text" id="reportStudentSearch" placeholder="ابحث بالاسم الأول أو الكود" class="w-full p-1 text-xs md:text-sm md:p-2">
+                        </div>
+                        <button id="btnSearchStudentReport" onclick="toggleStudentReportSearch()" class="bg-gray-800 text-white px-3 rounded font-bold text-[10px] md:text-sm transition-all shrink-0">بحث</button>
+                    </div>
+                    <div id="studentReportResult" class="hidden bg-gray-50 p-2 rounded border border-gray-200 text-[10px] md:text-sm"></div>
+                </div>
+
+                <div class="glass-card border-t-4 border-blue-800 mb-4">
+                    <h3 class="font-bold mb-1 text-blue-900 text-xs md:text-base">📊 التقارير العامة والإحصائيات</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-1 mb-2">
+                        <div>
+                            <label class="text-[9px] text-gray-500 block mb-0.5 md:text-xs">المدة الزمنية</label>
+                            <div class="relative w-full" id="reportTypeContainer">
+                                <input type="text" id="reportTypeDisplay" readonly value="تقرير يومي" class="w-full p-1 bg-white text-[10px] md:text-sm md:p-2 font-bold border rounded cursor-pointer" onclick="toggleCustomDropdown(event, 'reportTypeMenu')">
+                                <input type="hidden" id="reportType" value="daily">
+                                <div id="reportTypeMenu" class="dropdown-menu hide absolute top-full right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] w-full overflow-hidden text-right">
+                                    <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('reportType', 'reportTypeDisplay', 'reportTypeMenu', 'daily', 'تقرير يومي', toggleReportInputs)">تقرير يومي</div>
+                                    <div class="p-2 text-xs hover:bg-blue-50 cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('reportType', 'reportTypeDisplay', 'reportTypeMenu', 'monthly', 'تقرير شهري', toggleReportInputs)">تقرير شهري</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-[9px] text-gray-500 block mb-0.5 md:text-xs">اللجنة المستهدفة</label>
+                            <div class="relative w-full" id="reportStageContainer">
+                                <input type="text" id="reportStageDisplay" readonly value="كل اللجان" class="w-full p-1 bg-white text-[10px] md:text-sm md:p-2 font-bold border rounded cursor-pointer" onclick="toggleCustomDropdown(event, 'reportStageMenu')">
+                                <input type="hidden" id="reportStage" value="all">
+                                <div id="reportStageMenu" class="dropdown-menu hide absolute top-full right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] w-full overflow-hidden text-right">
+                                    <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('reportStage', 'reportStageDisplay', 'reportStageMenu', 'all', 'كل اللجان')">كل اللجان</div>
+                                    <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('reportStage', 'reportStageDisplay', 'reportStageMenu', 'HR', 'الموارد البشرية (HR)')">الموارد البشرية (HR)</div>
+                                    <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('reportStage', 'reportStageDisplay', 'reportStageMenu', 'PR', 'العلاقات العامة (PR)')">العلاقات العامة (PR)</div>
+                                    <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('reportStage', 'reportStageDisplay', 'reportStageMenu', 'OR', 'التنظيم (OR)')">التنظيم (OR)</div>
+                                    <div class="p-2 text-xs hover:bg-blue-50 cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('reportStage', 'reportStageDisplay', 'reportStageMenu', 'SM', 'السوشيال ميديا (SM)')">السوشيال ميديا (SM)</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="divDateInput">
+                            <label class="text-[9px] text-gray-500 block mb-0.5 md:text-xs">تاريخ اليوم</label>
+                            <input type="date" id="reportDate" class="w-full p-1 text-[10px] md:text-sm md:p-2">
+                        </div>
+                        <div id="divMonthInput" class="hidden">
+                            <label class="text-[9px] text-gray-500 block mb-0.5 md:text-xs">الشهر</label>
+                            <input type="month" id="reportMonth" class="w-full p-1 text-[10px] md:text-sm md:p-2">
+                        </div>
+                        <div class="col-span-1 md:col-span-2">
+                            <label class="text-[9px] text-gray-500 block mb-0.5 md:text-xs">نوع التقرير المطلوب</label>
+                            <div class="relative w-full" id="reportCategoryContainer">
+                                <input type="text" id="reportCategoryDisplay" readonly value="🌟 تقرير شامل (الحضور والنقاط)" class="w-full p-1 bg-white text-[10px] md:text-sm md:p-2 font-bold text-blue-900 border border-blue-400 rounded cursor-pointer" onclick="toggleCustomDropdown(event, 'reportCategoryMenu')">
+                                <input type="hidden" id="reportCategory" value="combined">
+                                <div id="reportCategoryMenu" class="dropdown-menu hide absolute top-full right-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] w-full overflow-hidden text-right">
+                                    <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('reportCategory', 'reportCategoryDisplay', 'reportCategoryMenu', 'combined', '🌟 تقرير شامل (الحضور والنقاط)')">🌟 تقرير شامل (الحضور والنقاط)</div>
+                                    <div class="p-2 text-xs hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('reportCategory', 'reportCategoryDisplay', 'reportCategoryMenu', 'attendance', '📅 تقارير الحضور والغياب فقط')">📅 تقارير الحضور والغياب فقط</div>
+                                    <div class="p-2 text-xs hover:bg-blue-50 cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('reportCategory', 'reportCategoryDisplay', 'reportCategoryMenu', 'points', '⭐ تقارير المهام والنقاط فقط')">⭐ تقارير المهام والنقاط فقط</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="btnGenerateReport" onclick="handleReportBtnClick()" class="w-full bg-blue-900 text-white py-1.5 rounded font-bold shadow hover:bg-blue-950 text-[10px] md:text-sm md:py-2 transition-all">توليد التقرير</button>
+                    <div id="reportResult" class="mt-2 hidden"></div>
+                </div>
+                
+                <div class="glass-card border-t-4 border-yellow-500">
+                    <h3 class="font-bold mb-1 flex items-center gap-2 text-yellow-800 text-xs md:text-base"><span>💾</span> النسخ الاحتياطي</h3>
+                    <div class="flex gap-2">
+                        <button onclick="exportData()" class="flex-1 bg-yellow-100 text-yellow-800 py-1 rounded font-bold text-[10px] border border-yellow-300 md:text-sm md:py-2">تحميل نسخة</button>
+                        <div class="relative flex-1">
+                            <input type="file" id="importFile" onchange="importData(this)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                            <button class="w-full bg-gray-100 text-gray-700 py-1 rounded font-bold text-[10px] border border-gray-300 md:text-sm md:py-2">استعادة</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Internal Pages -->
+    <div id="internalAttendancePage" class="internal-page">
+        <div class="internal-header no-print flex items-center gap-2">
+            <button class="circle-back-btn shrink-0" onclick="closeInternalPage('internalAttendancePage')">➔</button>
+            <div class="relative flex-1 max-w-[120px]">
+                <input type="text" id="intAttFilterDisplay" readonly value="كل اللجان" class="w-full !h-[28px] p-1 text-center font-bold text-gray-900 text-[10px] bg-white cursor-pointer border border-gray-400 rounded" onclick="toggleCustomDropdown(event, 'intAttFilterMenu')">
+                <input type="hidden" id="intAttFilter" value="all">
+                <div id="intAttFilterMenu" class="dropdown-menu hide absolute top-full left-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] overflow-hidden text-right min-w-[100px]">
+                    <div class="p-2 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('intAttFilter', 'intAttFilterDisplay', 'intAttFilterMenu', 'all', 'كل اللجان', applyInternalAttFilter)">كل اللجان</div>
+                    <div class="p-2 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('intAttFilter', 'intAttFilterDisplay', 'intAttFilterMenu', 'HR', 'HR', applyInternalAttFilter)">HR</div>
+                    <div class="p-2 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('intAttFilter', 'intAttFilterDisplay', 'intAttFilterMenu', 'PR', 'PR', applyInternalAttFilter)">PR</div>
+                    <div class="p-2 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('intAttFilter', 'intAttFilterDisplay', 'intAttFilterMenu', 'OR', 'OR', applyInternalAttFilter)">OR</div>
+                    <div class="p-2 text-[10px] hover:bg-blue-50 cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('intAttFilter', 'intAttFilterDisplay', 'intAttFilterMenu', 'SM', 'SM', applyInternalAttFilter)">SM</div>
+                </div>
+            </div>
+            <div class="input-wrapper flex-1 max-w-[140px]">
+                <svg class="input-icon" style="width:12px; height:12px; left:4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <input type="text" id="intAttSearch" onkeyup="applyInternalAttFilter()" placeholder="بحث..." class="text-[10px] px-1 w-full !h-[28px]">
+            </div>
+            <div class="flex gap-1 shrink-0">
+                <button onclick="printContent('intAttTableArea', document.getElementById('intAttTitle').innerText)" class="bg-gray-800 text-white px-2 py-1 rounded font-bold text-[9px] shadow">🖨️ طباعة</button>
+                <button onclick="pdfContent('intAttTableArea', document.getElementById('intAttTitle').innerText)" class="bg-red-700 text-white px-2 py-1 rounded font-bold text-[9px] shadow">📄 PDF</button>
+            </div>
+        </div>
+        <div class="a4-container">
+            <div class="print-header-sim">
+                <div class="meta">تاريخ: <span id="intAttDate"></span><br>YLY System</div>
+                <div class="title"><h1 id="intAttTitle"></h1></div>
+                <div><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" alt="Logo" loading="lazy"></div>
+            </div>
+            <div id="intAttTableArea">
+                <table class="ultra-compact-table">
+                    <thead id="intAttHead"></thead>
+                    <tbody id="intAttBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="internalReportPage" class="internal-page">
+        <div class="internal-header no-print flex items-center gap-2">
+            <button class="circle-back-btn shrink-0" onclick="closeInternalPage('internalReportPage')">➔</button>
+            <div class="relative flex-1 max-w-[110px]">
+                <input type="text" id="intRepFilterDisplay" readonly value="كل اللجان" class="w-full !h-[28px] p-1 text-center font-bold text-gray-900 text-[9px] bg-white cursor-pointer border border-gray-400 rounded" onclick="toggleCustomDropdown(event, 'intRepFilterMenu')">
+                <input type="hidden" id="intRepFilter" value="all">
+                <div id="intRepFilterMenu" class="dropdown-menu hide absolute top-full left-0 mt-1 bg-white border border-blue-200 rounded-lg shadow-2xl z-[100] overflow-hidden text-right min-w-[100px]">
+                    <div class="p-2 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('intRepFilter', 'intRepFilterDisplay', 'intRepFilterMenu', 'all', 'كل اللجان', renderInternalReportList)">كل اللجان</div>
+                    <div class="p-2 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('intRepFilter', 'intRepFilterDisplay', 'intRepFilterMenu', 'HR', 'HR', renderInternalReportList)">HR</div>
+                    <div class="p-2 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('intRepFilter', 'intRepFilterDisplay', 'intRepFilterMenu', 'PR', 'PR', renderInternalReportList)">PR</div>
+                    <div class="p-2 text-[10px] hover:bg-blue-50 border-b cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('intRepFilter', 'intRepFilterDisplay', 'intRepFilterMenu', 'OR', 'OR', renderInternalReportList)">OR</div>
+                    <div class="p-2 text-[10px] hover:bg-blue-50 cursor-pointer font-bold text-blue-900" onclick="selectCustomOption('intRepFilter', 'intRepFilterDisplay', 'intRepFilterMenu', 'SM', 'SM', renderInternalReportList)">SM</div>
+                </div>
+            </div>
+            <div class="input-wrapper flex-1 max-w-[130px]">
+                <svg class="input-icon" style="width:12px; height:12px; left:4px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <input type="text" id="intRepSearch" onkeyup="renderInternalReportList()" placeholder="بحث..." class="text-[9px] px-1 w-full !h-[28px]">
+            </div>
+            <div class="flex gap-1 shrink-0">
+                <button id="intRepBtnExcel" class="bg-green-700 text-white px-2 py-1 rounded font-bold text-[9px] shadow">📊</button>
+                <button id="intRepBtnPdf" class="bg-red-700 text-white px-2 py-1 rounded font-bold text-[9px] shadow">📄</button>
+                <button id="intRepBtnPrint" class="bg-gray-800 text-white px-2 py-1 rounded font-bold text-[9px] shadow">🖨️</button>
+            </div>
+        </div>
+        <div class="a4-container">
+            <div class="print-header-sim">
+                <div class="meta">تاريخ: <span id="intRepDate"></span><br>YLY System</div>
+                <div class="title"><h1 id="intRepTitle"></h1></div>
+                <div><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" alt="Logo" loading="lazy"></div>
+            </div>
+            <div id="intRepTableArea">
+                <table class="ultra-compact-table">
+                    <thead id="intRepHead"></thead>
+                    <tbody id="intRepBody"></tbody>
+                </table>
+            </div>
+            <div id="intRepPagination" class="flex justify-between items-center mt-3 bg-white p-2 rounded border shadow-sm no-print hidden"></div>
+        </div>
+    </div>
+
+    <div id="internalStudentDashPage" class="internal-page">
+        <div class="internal-header no-print">
+            <div class="flex gap-2 items-center">
+                <button class="circle-back-btn" onclick="closeInternalPage('internalStudentDashPage')">➔</button>
+                <span class="font-bold text-blue-900 text-xs">ملف العضو الكامل</span>
+            </div>
+        </div>
+        <div class="p-3 flex-1 overflow-auto max-w-5xl mx-auto w-full">
+            <div class="flex justify-end mb-2 no-print gap-1">
+                <button onclick="excelDetailedStudentReport(document.getElementById('intDashCode').innerText)" class="bg-green-700 text-white px-2 py-1 rounded text-[10px] font-bold shadow">📊 Excel</button>
+                <button onclick="pdfDetailedStudentReport(document.getElementById('intDashCode').innerText)" class="bg-red-700 text-white px-2 py-1 rounded text-[10px] font-bold shadow">📄 PDF</button>
+                <button onclick="printInternalStudentDash()" class="bg-gray-800 text-white px-2 py-1 rounded text-[10px] font-bold shadow">🖨️ طباعة</button>
+            </div>
+            <div class="grid md:grid-cols-3 gap-4" id="intStdDashContainer">
+                <div class="std-dash-card text-center md:col-span-1 border-t-4 border-blue-600 bg-white">
+                    <div class="mb-3 relative inline-block">
+                        <div id="intDashQr" class="p-2 bg-white border rounded-lg"></div>
+                    </div>
+                    <div class="text-center space-y-1">
+                        <h2 class="text-xl font-bold text-gray-900" id="intDashName"></h2>
+                        <p class="text-gray-500 font-mono text-lg font-bold" id="intDashCode"></p>
+                        <div class="bg-blue-100 rounded-lg p-2 text-xs text-blue-900 font-bold inline-block mt-1" id="intDashLevel"></div>
+                        <div class="mt-3 pt-2 border-t border-dashed border-gray-300">
+                            <div class="flex justify-between text-xs">
+                                <span class="text-gray-500 font-bold">الهاتف:</span>
+                                <span id="intDashOwnPhone" class="font-bold text-gray-900"></span>
+                            </div>
+                        </div>
+                        <div class="mt-1 pt-2 border-t border-dashed border-gray-300">
+                            <div class="flex justify-between text-xs">
+                                <span class="text-gray-500 font-bold">الرقم السري:</span>
+                                <span id="intDashPassword" class="font-bold font-mono text-red-600"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mt-4">
+                        <div class="bg-green-50 p-2 rounded border border-green-100">
+                            <div class="text-2xl font-bold text-green-600" id="intDashPresent">0</div>
+                            <div class="text-[10px] text-green-800">أيام الحضور</div>
+                        </div>
+                        <div class="bg-red-50 p-2 rounded border border-red-100">
+                            <div class="text-2xl font-bold text-red-600" id="intDashAbsent">0</div>
+                            <div class="text-[10px] text-red-800">أيام الغياب</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="md:col-span-2 space-y-4">
+                    <div class="std-dash-card bg-white">
+                        <h3 class="font-bold text-sm text-blue-900 border-b pb-2 mb-2">◇ بيانات العضو</h3>
+                        <div class="std-info-row"><span class="std-info-label">تاريخ الانضمام</span><span class="std-info-val" id="intDashJoinDate"></span></div>
+                        <div class="std-info-row"><span class="std-info-label">مدة الانضمام</span><span class="std-info-val" id="intDashDuration"></span></div>
+                        <div class="std-info-row"><span class="std-info-label">إجمالي النقاط</span><span class="std-info-val text-blue-700 text-lg font-black" id="intDashPaymentsTotal"></span></div>
+                    </div>
+                    <div class="std-dash-card bg-white">
+                        <h3 class="font-bold text-sm text-blue-900 border-b pb-2 mb-2">◇ سجل المهام والنقاط</h3>
+                        <div class="overflow-x-auto max-h-48 overflow-y-auto">
+                            <table class="custom-table w-full text-center">
+                                <thead><tr><th>التاريخ</th><th>المهمة/التقييم</th><th>النقاط</th></tr></thead>
+                                <tbody id="intDashPaymentsTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="std-dash-card bg-white">
+                        <h3 class="font-bold text-sm text-blue-900 border-b pb-2 mb-2">◇ سجل حضور الفعاليات</h3>
+                        <div id="intDashHistory" class="max-h-48 overflow-y-auto pr-1 space-y-1"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Card Modal -->
+    <div id="studentModal" class="fixed inset-0 bg-black/80 hidden z-[150] flex items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-xl w-full max-w-xs p-4 text-center relative shadow-2xl md:max-w-sm">
+            <button onclick="closeModal('studentModal')" class="close-btn-modern" style="top: 10px; right: 10px; position: absolute;">&times;</button>
+            <div id="studentCardDisplay" class="unified-card"></div>
+            <div class="grid grid-cols-2 gap-2 mb-2">
+                <button onclick="printStudentCard()" class="bg-gray-800 text-white py-1 rounded text-[10px] font-bold md:text-sm md:py-2">🖨️ طباعة الكارنيه</button>
+                <button onclick="shareStudentPdf()" class="bg-red-700 text-white py-1 rounded text-[10px] font-bold md:text-sm md:py-2">📄 PDF</button>
+            </div>
+            <button onclick="closeModal('studentModal')" class="w-full bg-gray-200 text-gray-800 py-1.5 rounded font-bold text-[11px] hover:bg-gray-300 transition border border-gray-300">إغلاق النافذة</button>
+        </div>
+    </div>
+
+    <!-- PWA Install Banner -->
+    <div id="pwaInstallBanner" class="fixed bottom-4 left-4 z-[999999] translate-y-24 opacity-0 transition-all duration-500 ease-out hidden w-auto max-w-[280px]">
+        <div class="bg-blue-900/95 backdrop-blur-md border border-blue-700 rounded-2xl p-3 shadow-2xl flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2">
+                <div class="bg-blue-800 p-1.5 rounded-xl border border-blue-600"><span class="text-xl">📲</span></div>
+                <div>
+                    <h4 class="text-white font-bold text-xs">تثبيت التطبيق</h4>
+                    <p class="text-blue-200 text-[9px]">YLY System</p>
+                </div>
+            </div>
+            <button id="pwaInstallBtn" class="bg-red-600 text-white px-3 py-1.5 rounded-lg font-bold text-[10px] shadow-lg hover:bg-red-500 transition transform active:scale-95 whitespace-nowrap">تثبيت</button>
+            <button onclick="dismissInstallBanner()" class="absolute -top-2 -left-2 bg-gray-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] shadow-md">&times;</button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-full shadow-xl hidden font-bold text-[10px] max-w-[90%] w-auto text-center whitespace-nowrap"></div>
+
+    <!-- سيتم إدراج JavaScript هنا في المرحلة الثالثة -->
+    <script type="module" src="app.js"></script>
+
+<!-- كود تشغيل الـ Service Worker ليعمل التطبيق بدون إنترنت -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(reg => console.log('Service Worker Registered!', reg))
+        .catch(err => console.error('Service Worker Registration Failed!', err));
+    });
+  }
+</script>
+</body>
+</html>

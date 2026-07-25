@@ -85,9 +85,13 @@ window.showToast = function(msg, type) {
     const t = document.getElementById('toast');
     if(!t) return;
     t.innerText = msg;
-    t.className = `fixed top-5 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-full shadow-xl font-bold text-xs md:text-sm md:px-8 md:py-4 max-w-[90%] w-auto text-center whitespace-nowrap text-white z-[500] ${type === 'success' ? 'bg-green-600' : 'bg-red-600'}`;
-    t.classList.remove('hidden');
-    setTimeout(() => t.classList.add('hidden'), 3000);
+    // إعادة تعيين الكلاسات الأساسية مع تغيير لون الخلفية بناءً على الحالة
+    t.className = `fixed top-5 left-1/2 transform -translate-x-1/2 text-white px-6 py-3 rounded-full shadow-2xl font-bold text-[11px] md:text-sm max-w-[90%] w-auto text-center whitespace-nowrap z-[999999] transition-all duration-300 ${type === 'success' ? 'bg-green-600' : 'bg-red-600'}`;
+    
+    // إخفاء الإشعار بعد 3 ثواني
+    setTimeout(() => {
+        t.classList.add('hidden');
+    }, 3000);
 }
 
 let audioCtx = null;
@@ -1466,7 +1470,10 @@ function getPrintTemplate(title, content, isLandscape = false) {
         .print-title-area { text-align: center; flex: 1; padding: 0 10px; }
         .print-title-area h1 { font-size: 18pt; font-weight: 900; margin: 0; color: #1e3a8a; }
         .print-title-area h2 { font-size: 12pt; font-weight: 800; margin: 4px 0 0 0; color: #dc2626; border-bottom: 1px solid #ddd; padding-bottom: 3px; display: inline-block; }
-        table { width: 100% !important; border-collapse: collapse; margin-top: 10px; font-size: 11px !important; table-layout: fixed; }
+        table { width: 100% !important; border-collapse: collapse; margin-top: 10px; font-size: 11px !important; table-layout: fixed; page-break-inside: auto; }
+        tr { page-break-inside: avoid; page-break-after: auto; }
+        thead { display: table-header-group; }
+        tfoot { display: table-footer-group; }
         th { background-color: #1e3a8a !important; color: #ffffff !important; font-weight: 800 !important; border: 1px solid #1e3a8a !important; padding: 8px 4px !important; text-align: center !important; font-size: 12px !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         td { border: 1px solid #d1d5db !important; padding: 6px 4px !important; font-size: 11px !important; font-weight: 700 !important; text-align: center !important; word-wrap: break-word !important; }
         .print-student-card { border: 4px double #1e3a8a !important; border-radius: 15px; padding: 15px; width: 330px; margin: 10px auto; text-align: center; page-break-inside: avoid; background: #fff; }
@@ -1500,7 +1507,7 @@ window.printHTML = async function(title, content, isLandscape = false) {
         
         const iframeDoc = printIframe.contentWindow.document;
         iframeDoc.open();
-        iframeDoc.write(`<!DOCTYPE html><html dir="rtl" lang="ar"><head><title>${escapeHTML(title)}</title><style>@page { size: A4 ${isLandscape ? 'landscape' : 'portrait'}; margin: 8mm; }</style></head><body>${getPrintTemplate(title, content, isLandscape)}</body></html>`);
+        iframeDoc.write(`<!DOCTYPE html><html dir="rtl" lang="ar"><head><title>${escapeHTML(title)}</title><style>@page { size: A4 ${isLandscape ? 'landscape' : 'portrait'}; margin: 5mm; }</style></head><body>${getPrintTemplate(title, content, isLandscape)}</body></html>`);
         iframeDoc.close();
         
         setTimeout(() => {

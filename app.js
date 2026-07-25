@@ -39,6 +39,7 @@ const state = {
     currentReportCategory: 'combined',
     html5QrCode: null,
     isScannerRunning: false,
+    isScannerTransitioning: false, // حماية التشغيل والإيقاف السريع
     isPaused: false,
     isLoggingOut: false,
     currentPayStudent: null,
@@ -146,7 +147,7 @@ async function generateQRBase64(text) {
         const holder = document.createElement('div');
         holder.style.display = 'none';
         document.body.appendChild(holder);
-        new QRCode(holder, { text: text, width: 120, height: 120, correctLevel : QRCode.CorrectLevel.H });
+        new QRCode(holder, { text: text, width: 100, height: 100, correctLevel : QRCode.CorrectLevel.H });
         setTimeout(() => {
             const img = holder.querySelector('img');
             const canvas = holder.querySelector('canvas');
@@ -154,7 +155,7 @@ async function generateQRBase64(text) {
             if (img && img.src) src = img.src;
             else if (canvas) src = canvas.toDataURL();
             document.body.removeChild(holder);
-            resolve(src ? `<img src="${src}" style="width:100px; height:100px; margin:0 auto; display:block;" />` : '');
+            resolve(src ? `<img src="${src}" style="width:100px !important; height:100px !important; margin:0 auto !important; display:block !important;" />` : '');
         }, 300);
     });
 }
@@ -542,7 +543,11 @@ window.openStudentModal = async function(id) {
     `;
     
     await requireQRScanner();
-    new QRCode(document.getElementById("modalQr"), { text: s.id, width: 100, height: 100 });
+    const qrDiv = document.getElementById("modalQr");
+    if(qrDiv) {
+        qrDiv.innerHTML = '';
+        new QRCode(qrDiv, { text: s.id, width: 100, height: 100 });
+    }
     document.getElementById('studentModal').classList.remove('hidden');
     document.body.classList.add('modal-open');
 }
@@ -739,10 +744,13 @@ async function handleAttendanceScan(id) {
 }
 
 // ==========================================
-// 9. Scanner Logic
+// 9. Scanner Logic (بدون تشغيل تلقائي + حماية التشغيل السريع)
 // ==========================================
 window.startScanner = async function(elemId, mode) {
+    if(state.isScannerTransitioning) return;
     if(state.isScannerRunning && state.html5QrCode) return;
+    
+    state.isScannerTransitioning = true;
     await requireQRScanner();
     
     state.html5QrCode = new Html5Qrcode(elemId);
@@ -757,18 +765,21 @@ window.startScanner = async function(elemId, mode) {
                 else if(mode === 'payment') handlePaymentScan(decodedText);
                 else if(mode === 'check') await handleCheckScan(decodedText);
             } catch(err) {
-                window.showToast("خطأ في المعالجة", "error");
                 state.isPaused = false;
             }
         });
         state.isScannerRunning = true;
     } catch (err) {
         window.showToast("تعذر تشغيل الكاميرا", "error");
+    } finally {
+        state.isScannerTransitioning = false;
     }
 }
 
 window.stopScanner = async function() {
+    if(state.isScannerTransitioning) return;
     if(state.html5QrCode) {
+        state.isScannerTransitioning = true;
         try {
             await state.html5QrCode.stop();
             state.html5QrCode.clear();
@@ -776,6 +787,7 @@ window.stopScanner = async function() {
         state.html5QrCode = null;
         state.isScannerRunning = false;
         state.isPaused = false;
+        state.isScannerTransitioning = false;
     }
 }
 
@@ -805,8 +817,12 @@ async function handleCheckScan(id) {
             document.getElementById('checkResLevel').innerText = stageMap[member.level] || member.level;
             document.getElementById('checkResDate').innerText = member.date;
             document.getElementById('checkResPass').innerText = member.password || '---';
-            document.getElementById('checkResultQr').innerHTML = '';
-            new QRCode(document.getElementById("checkResultQr"), { text: member.id, width: 60, height: 60 });
+            
+            const qrDiv = document.getElementById("checkResultQr");
+            if(qrDiv) {
+                qrDiv.innerHTML = '';
+                new QRCode(qrDiv, { text: member.id, width: 60, height: 60 });
+            }
 
             let memberPoints = state.accounting.filter(a => a.stdId === id);
             let memberAtt = state.attendance;
@@ -861,7 +877,6 @@ window.setAttMode = function(mode) {
             document.getElementById('attScanArea').classList.remove('hidden');
             document.getElementById('attManualArea').classList.add('hidden');
             btnScan.classList.add('active'); btnManual.classList.remove('active');
-            window.startScanner('reader', 'attendance');
         } else {
             document.getElementById('attScanArea').classList.add('hidden');
             document.getElementById('attManualArea').classList.remove('hidden');
@@ -880,7 +895,6 @@ window.togglePayMethod = function(method) {
         document.getElementById('payScanDiv').classList.remove('hidden');
         document.getElementById('payManualDiv').classList.add('hidden');
         btnScan.classList.add('active'); btnManual.classList.remove('active');
-        window.startScanner('payReader', 'payment');
     } else {
         document.getElementById('payScanDiv').classList.add('hidden');
         document.getElementById('payManualDiv').classList.remove('hidden');
@@ -1313,8 +1327,11 @@ window.openAdminStudentDash = async function(studentId) {
     document.getElementById('intDashDuration').innerText = `${diffDays} يوم`;
     
     await requireQRScanner();
-    document.getElementById('intDashQr').innerHTML = '';
-    new QRCode(document.getElementById("intDashQr"), { text: member.id, width: 80, height: 80 });
+    const qrDiv = document.getElementById('intDashQr');
+    if(qrDiv) {
+        qrDiv.innerHTML = '';
+        new QRCode(qrDiv, { text: member.id, width: 80, height: 80 });
+    }
     
     document.getElementById('intDashOwnPhone').innerText = member.ownPhone || member.phone || 'غير مسجل';
     document.getElementById('intDashPassword').innerText = member.password || '---';
@@ -1396,8 +1413,11 @@ async function updateStudentDashboardData(member) {
     document.getElementById('dashDuration').innerText = `${diffDays} يوم`;
 
     await requireQRScanner();
-    document.getElementById('dashQr').innerHTML = '';
-    new QRCode(document.getElementById("dashQr"), { text: member.id, width: 80, height: 80 });
+    const qrDiv = document.getElementById("dashQr");
+    if(qrDiv) {
+        qrDiv.innerHTML = '';
+        new QRCode(qrDiv, { text: member.id, width: 80, height: 80 });
+    }
     
     const stats = calculateStudentStats(member, state.attendance);
     document.getElementById('dashPresent').innerText = stats.present;
@@ -1420,7 +1440,7 @@ async function updateStudentDashboardData(member) {
 }
 
 // ==========================================
-// 13. Printing & PDF System (مطابق تماماً للأصلي)
+// 13. Printing & PDF System
 // ==========================================
 function getReportTitleHeader(baseTitle) {
     const type = document.getElementById('reportType').value;
@@ -1444,7 +1464,7 @@ function getPrintTemplate(title, content, isLandscape = false) {
         .print-title-area h1 { font-size: 18pt; font-weight: 900; margin: 0; color: #1e3a8a; }
         .print-title-area h2 { font-size: 12pt; font-weight: 800; margin: 4px 0 0 0; color: #dc2626; border-bottom: 1px solid #ddd; padding-bottom: 3px; display: inline-block; }
         table { width: 100% !important; border-collapse: collapse; margin-top: 10px; font-size: 11px !important; table-layout: fixed; }
-        th { background-color: #1e3a8a !important; color: #ffffff !important; font-weight: 800 !important; border: 1px solid #1e3a8a !important; padding: 8px 4px !important; text-align: center !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        th { background-color: #1e3a8a !important; color: #ffffff !important; font-weight: 800 !important; border: 1px solid #1e3a8a !important; padding: 8px 4px !important; text-align: center !important; font-size: 12px !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         td { border: 1px solid #d1d5db !important; padding: 6px 4px !important; font-size: 11px !important; font-weight: 700 !important; text-align: center !important; word-wrap: break-word !important; }
         .print-student-card { border: 4px double #1e3a8a !important; border-radius: 15px; padding: 15px; width: 330px; margin: 10px auto; text-align: center; page-break-inside: avoid; background: #fff; }
         .print-card-title { font-size: 14pt; font-weight: bold; margin-bottom: 8px; color: #dc2626; }
@@ -1605,6 +1625,7 @@ window.printInternalStudentDash = async function() {
     window.printHTML(`تقرير_العضو_${s.name}`, content);
 }
 
+// إعادة تصميم وتنسيق إكسيل التقرير المفصل للعضو بالكامل بدون أي دمج
 window.excelDetailedStudentReport = async function(code) {
     const s = state.members.find(st => st.id === code);
     if(!s) return;
@@ -1620,11 +1641,35 @@ window.excelDetailedStudentReport = async function(code) {
     }
     const stats = calculateStudentStats(s, sAtt);
     const points = sAcc.filter(r => r.category === 'points' && r.stdId === s.id);
-    const headers = ["نوع السجل", "التاريخ / اليوم", "التقييم / الحالة", "النقاط المكتسبة"];
+    const totalPoints = points.reduce((sum, p) => sum + p.amount, 0);
+
+    const reportTitle = `تقرير متابعة العضو التفصيلي - ${s.name}`;
+    const headers = ["القسم", "البيان / التاريخ", "التفاصيل / المهمة / الحالة", "النقاط المكتسبة"];
     const rows = [];
-    points.forEach(p => rows.push(["نقاط وتقييمات", p.date, p.type, p.amount]));
-    stats.history.forEach(h => rows.push(["حضور وغياب", `${h.date} (${h.day})`, h.status === 'present' ? 'حضور' : 'غياب', '-']));
-    window.exportToExcelStyle(headers, rows, `تقرير متابعة عضو - ${s.name} (${s.id})`, `تقرير_العضو_${s.name}`);
+
+    // 1. البيانات الشخصية
+    rows.push(["البيانات الشخصية", "اسم العضو", s.name, "-"]);
+    rows.push(["البيانات الشخصية", "كود العضو", s.id, "-"]);
+    rows.push(["البيانات الشخصية", "اللجنة", stageMap[s.level] || s.level, "-"]);
+    rows.push(["البيانات الشخصية", "رقم الهاتف", s.ownPhone || s.phone || 'غير مسجل', "-"]);
+    rows.push(["البيانات الشخصية", "تاريخ الانضمام", s.date || '-', "-"]);
+
+    // 2. الملخص
+    rows.push(["ملخص النشاط", "أيام الحضور", `${stats.present} يوم`, "-"]);
+    rows.push(["ملخص النشاط", "أيام الغياب", `${stats.absent} يوم`, "-"]);
+    rows.push(["ملخص النشاط", "إجمالي النقاط", `${totalPoints} نقطة`, totalPoints]);
+
+    // 3. سجل التقييمات
+    points.forEach(p => {
+        rows.push(["سجل التقييمات والنقاط", p.date, p.type, p.amount]);
+    });
+
+    // 4. سجل الحضور
+    stats.history.forEach(h => {
+        rows.push(["سجل الحضور والغياب", `${h.date} (${h.day})`, h.status === 'present' ? 'حضور' : 'غياب', '-']);
+    });
+
+    window.exportToExcelStyle(headers, rows, reportTitle, `تقرير_العضو_${s.name}`);
 }
 
 window.pdfDetailedStudentReport = function(code) { window.printInternalStudentDash(); }
@@ -1748,7 +1793,7 @@ window.exportToExcelStyle = async function(headers, rows, reportTitle, fileName)
                 if (len > maxLen) maxLen = len;
             }
         }
-        return { wch: Math.min(Math.max(maxLen + 4, 12), 35) };
+        return { wch: Math.min(Math.max(maxLen + 4, 14), 40) };
     });
 
     ws['!rows'] = [{ hpt: 35 }, { hpt: 26 }];

@@ -614,29 +614,8 @@ input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
         background: white !important;
-        overflow: visible !important;
-        height: auto !important;
     }
-
-    .internal-page,
-    .internal-page.active {
-        position: static !important;
-        inset: auto !important;
-        overflow: visible !important;
-        height: auto !important;
-        display: block !important;
-        background: white !important;
-    }
-
-    .a4-container {
-        box-shadow: none !important;
-        width: 100% !important;
-        max-width: none !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        border-radius: 0 !important;
-    }
-
+    
     th, .ultra-compact-table th, .custom-table th {
         background-color: #1e3a8a !important;
         color: white !important;
@@ -652,6 +631,5 @@ input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
         line-height: 1.4 !important;
     }
     
-    .no-print,
-    .internal-header { display: none !important; }
+    .no-print { display: none !important; }
 }

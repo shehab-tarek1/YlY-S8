@@ -109,13 +109,13 @@ function playSound(type) {
 }
 
 // ==========================================
-// 4. Lazy Loaders (بدون إشعارات مزعجة)
+// 4. Lazy Loaders
 // ==========================================
 let isXlsxLoaded = false;
 async function requireXLSX() {
     if (isXlsxLoaded) return;
     return new Promise((resolve, reject) => {
-        window.showToast('جاري تحضير ملف الإكسيل...', 'success');
+        window.showToast('جاري تحضير الإكسيل...', 'success');
         const script = document.createElement('script');
         script.src = "https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js";
         script.onload = () => { isXlsxLoaded = true; resolve(); };
@@ -128,7 +128,6 @@ let isQrLoaded = false;
 async function requireQRScanner() {
     if (isQrLoaded) return;
     return new Promise((resolve, reject) => {
-        // تم إزالة الإشعار المنبثق لعدم إزعاج المستخدم عند فتح كارت العضو
         const script1 = document.createElement('script');
         script1.src = "https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js";
         script1.onload = () => {
@@ -138,6 +137,25 @@ async function requireQRScanner() {
             document.head.appendChild(script2);
         };
         document.head.appendChild(script1);
+    });
+}
+
+async function generateQRBase64(text) {
+    await requireQRScanner();
+    return new Promise((resolve) => {
+        const holder = document.createElement('div');
+        holder.style.display = 'none';
+        document.body.appendChild(holder);
+        new QRCode(holder, { text: text, width: 120, height: 120, correctLevel : QRCode.CorrectLevel.H });
+        setTimeout(() => {
+            const img = holder.querySelector('img');
+            const canvas = holder.querySelector('canvas');
+            let src = '';
+            if (img && img.src) src = img.src;
+            else if (canvas) src = canvas.toDataURL();
+            document.body.removeChild(holder);
+            resolve(src ? `<img src="${src}" style="width:100px; height:100px; margin:0 auto; display:block;" />` : '');
+        }, 300);
     });
 }
 
@@ -200,6 +218,20 @@ onAuthStateChanged(auth, (user) => {
                     document.getElementById('appContent').classList.remove('hidden');
                 }
                 if(loading) { loading.style.opacity = '0'; setTimeout(() => loading.style.display = 'none', 300); }
+            });
+
+            unsubAttendance = onSnapshot(query(collection(db, "attendance"), where("studentId", "in", [memberCode, "EVENT_MARKER"])), (snapshot) => {
+                if (localStorage.getItem('loginMode') !== 'student') return;
+                state.attendance = [];
+                snapshot.forEach(doc => state.attendance.push({ ...doc.data(), docId: doc.id }));
+                if(state.members.length > 0) updateStudentDashboardData(state.members[0]);
+            });
+
+            unsubAccounting = onSnapshot(query(collection(db, "accounting"), where("stdId", "==", memberCode)), (snapshot) => {
+                if (localStorage.getItem('loginMode') !== 'student') return;
+                state.accounting = [];
+                snapshot.forEach(doc => state.accounting.push({ ...doc.data(), docId: doc.id }));
+                if(state.members.length > 0) updateStudentDashboardData(state.members[0]);
             });
         }
     } else {
@@ -761,6 +793,66 @@ window.stopCheckScanner = function() {
     document.getElementById('btnStopCheck').classList.add('hidden');
 }
 
+async function handleCheckScan(id) {
+    state.isPaused = true;
+    try {
+        if(state.html5QrCode) state.html5QrCode.pause();
+        const member = state.members.find(s => s.id === id);
+
+        if(member) {
+            document.getElementById('checkResName').innerText = member.name;
+            document.getElementById('checkResCode').innerText = member.id;
+            document.getElementById('checkResLevel').innerText = stageMap[member.level] || member.level;
+            document.getElementById('checkResDate').innerText = member.date;
+            document.getElementById('checkResPass').innerText = member.password || '---';
+            document.getElementById('checkResultQr').innerHTML = '';
+            new QRCode(document.getElementById("checkResultQr"), { text: member.id, width: 60, height: 60 });
+
+            let memberPoints = state.accounting.filter(a => a.stdId === id);
+            let memberAtt = state.attendance;
+
+            const points = memberPoints.filter(a => a.category === 'points').sort((a,b) => new Date(b.date) - new Date(a.date));
+            const totalPoints = points.reduce((sum, p) => sum + p.amount, 0);
+            document.getElementById('checkResTotalPay').innerText = totalPoints + ' نقطة';
+            document.getElementById('checkResPayTable').innerHTML = points.length ? points.map(p => `<tr><td>${escapeHTML(p.date)}</td><td>${escapeHTML(p.type)}</td><td class="text-blue-600 font-bold">${p.amount}</td></tr>`).join('') : '<tr><td colspan="3">لا يوجد</td></tr>';
+
+            let presentCount = 0; let absentCount = 0; let presentRows = ''; let absentRows = '';
+            const eventDates = new Set(memberAtt.map(a => a.date));
+
+            Array.from(eventDates).forEach(d => {
+                const attRec = memberAtt.find(a => a.date === d && a.studentId === id);
+                const eventRec = memberAtt.find(a => a.date === d && a.studentId === "EVENT_MARKER");
+                const isExpected = eventRec && (!eventRec.levels || eventRec.levels.includes('all') || eventRec.levels.includes(member.level));
+                const dayAr = new Date(d + "T12:00:00").toLocaleDateString('ar-EG', {weekday: 'long'});
+                if (attRec) {
+                    presentCount++;
+                    presentRows += `<tr><td>${escapeHTML(d)}</td><td>${escapeHTML(attRec.time || 'حاضر')}</td></tr>`;
+                } else if (isExpected && d <= today) {
+                    absentCount++;
+                    absentRows += `<tr><td>${escapeHTML(d)}</td><td>${escapeHTML(dayAr)}</td></tr>`;
+                }
+            });
+
+            document.getElementById('checkResPresentCount').innerText = presentCount;
+            document.getElementById('checkResPresentTable').innerHTML = presentRows || '<tr><td colspan="2">لا يوجد</td></tr>';
+            document.getElementById('checkResAbsentCount').innerText = absentCount;
+            document.getElementById('checkResAbsentTable').innerHTML = absentRows || '<tr><td colspan="2">لا يوجد</td></tr>';
+
+            document.getElementById('checkResultModal').classList.remove('hidden');
+            document.body.classList.add('modal-open');
+            playSound('success');
+        } else {
+            window.showToast('عضو غير موجود', 'error');
+            if(state.html5QrCode) state.html5QrCode.resume();
+            state.isPaused = false;
+        }
+    } catch(err) {
+        window.showToast("حدث خطأ أثناء الاستعلام", "error");
+        if(state.html5QrCode) state.html5QrCode.resume();
+        state.isPaused = false;
+    }
+}
+
 window.setAttMode = function(mode) {
     window.stopScanner().then(() => {
         const btnScan = document.getElementById('btnAttScan');
@@ -897,7 +989,7 @@ window.updateFinance = function() {
 }
 
 // ==========================================
-// 11. Reports
+// 11. Reports & Advanced Search
 // ==========================================
 window.toggleStudentReportSearch = function() {
     const btn = document.getElementById('btnSearchStudentReport');
@@ -1056,7 +1148,7 @@ async function generateAdvancedReport() {
 }
 
 // ==========================================
-// 12. Internal Pages & Reports
+// 12. Internal Pages & Reports Rendering
 // ==========================================
 window.openInternalAttendance = async function(type) {
     state.currentAttType = type;
@@ -1298,6 +1390,11 @@ async function updateStudentDashboardData(member) {
     document.getElementById('dashLevel').innerText = stageMap[member.level] || member.level;
     document.getElementById('dashJoinDate').innerText = member.date;
     
+    const join = new Date(member.date);
+    const now = new Date();
+    const diffDays = Math.ceil(Math.abs(now - join) / (1000 * 60 * 60 * 24));
+    document.getElementById('dashDuration').innerText = `${diffDays} يوم`;
+
     await requireQRScanner();
     document.getElementById('dashQr').innerHTML = '';
     new QRCode(document.getElementById("dashQr"), { text: member.id, width: 80, height: 80 });
@@ -1310,10 +1407,20 @@ async function updateStudentDashboardData(member) {
     const totalPoints = points.reduce((sum, p) => sum + p.amount, 0);
     document.getElementById('dashPaymentsTotal').innerText = `${totalPoints} نقطة`;
     document.getElementById('dashOwnPhone').innerText = member.ownPhone || member.phone || 'غير مسجل';
+
+    const payTable = document.getElementById('dashPaymentsTable');
+    if(payTable) {
+        payTable.innerHTML = points.length > 0 
+            ? points.map(p => `<tr><td>${escapeHTML(p.date)}</td><td>${escapeHTML(p.type)}</td><td class="text-blue-600 font-bold">${p.amount}</td></tr>`).join('')
+            : '<tr><td colspan="3" class="text-center text-gray-400">لا توجد نقاط</td></tr>';
+    }
+
+    const historyHtml = stats.history.map(h => `<div class="flex justify-between border-b p-2 ${h.status === 'absent' ? 'bg-red-50' : 'bg-green-50'}"><span>${escapeHTML(h.date)} (${escapeHTML(h.day)})</span><span class="font-bold ${h.status === 'absent' ? 'text-red-600' : 'text-green-600'}">${h.status === 'absent' ? 'غياب' : 'حضور'}</span></div>`).join('');
+    if(document.getElementById('dashHistory')) document.getElementById('dashHistory').innerHTML = historyHtml || '<p class="text-center text-gray-400 text-xs">لا يوجد سجل</p>';
 }
 
 // ==========================================
-// 13. Printing & PDF System (ربط أزرار الحفظ والطباعة)
+// 13. Printing & PDF System (مطابق تماماً للأصلي)
 // ==========================================
 function getReportTitleHeader(baseTitle) {
     const type = document.getElementById('reportType').value;
@@ -1396,29 +1503,128 @@ window.printContent = function(elementId, title) {
 
 window.pdfContent = function(elementId, title) { window.printContent(elementId, title); }
 
-window.printStudentCard = function() {
+window.printStudentCard = async function() {
     const s = state.members.find(st => st.id === state.currentModalStudentId);
     if(!s) return;
-    const content = `<div class="print-student-card"><div class="print-card-title">بطاقة عضو YLY</div><div class="print-card-name">${escapeHTML(s.name)}</div><div class="print-card-row"><span>كود العضو:</span> <span>${escapeHTML(s.id)}</span></div><div class="print-card-row"><span>كلمة السر:</span> <span>${escapeHTML(s.password || '----')}</span></div><div class="print-card-row"><span>اللجنة:</span> <span>${escapeHTML(stageMap[s.level] || s.level)}</span></div><div class="print-card-row"><span>رقم الهاتف:</span> <span>${escapeHTML(s.ownPhone || s.phone || 'غير مسجل')}</span></div><div class="print-card-row"><span>تاريخ الانضمام:</span> <span>${escapeHTML(s.date)}</span></div></div>`;
+    window.showToast('جاري تجهيز الكارنيه...', 'success');
+    const qrImageHtml = await generateQRBase64(s.id);
+    const stdPhone = s.ownPhone || s.phone || 'غير مسجل';
+    const content = `
+        <div class="print-student-card">
+            <div class="print-card-title">بطاقة عضو YLY</div>
+            <div class="print-card-name">${escapeHTML(s.name)}</div>
+            <div style="display:flex; justify-content:center; margin:10px 0;">${qrImageHtml}</div>
+            <div class="print-card-row"><span>كود العضو:</span> <span>${escapeHTML(s.id)}</span></div>
+            <div class="print-card-row"><span>كلمة السر:</span> <span>${escapeHTML(s.password || '----')}</span></div>
+            <div class="print-card-row"><span>اللجنة:</span> <span>${escapeHTML(stageMap[s.level] || s.level)}</span></div>
+            <div class="print-card-row"><span>رقم الهاتف:</span> <span>${escapeHTML(stdPhone)}</span></div>
+            <div class="print-card-row"><span>تاريخ الانضمام:</span> <span>${escapeHTML(s.date)}</span></div>
+        </div>`;
     window.printHTML('بطاقة عضو', content);
 }
 
 window.shareStudentPdf = function() { window.printStudentCard(); }
 
-window.printInternalStudentDash = function() {
+async function buildFullStudentReportHTML(member, sAtt, sAcc) {
+    const qrImageHtml = await generateQRBase64(member.id);
+    const stats = calculateStudentStats(member, sAtt);
+    const points = sAcc.filter(r => r.category === 'points' && r.stdId === member.id);
+    const totalPoints = points.reduce((sum, p) => sum + p.amount, 0);
+
+    const pointsRows = points.length > 0 
+        ? points.map(p => `<tr><td>${escapeHTML(p.date)}</td><td>${escapeHTML(p.type)}</td><td style="color:#1e3a8a; font-weight:bold;">${p.amount}</td></tr>`).join('')
+        : '<tr><td colspan="3">لا توجد نقاط</td></tr>';
+
+    const historyRows = stats.history.length > 0
+        ? stats.history.map(h => `<tr><td>${escapeHTML(h.date)} (${escapeHTML(h.day)})</td><td style="font-weight:bold; color:${h.status === 'absent' ? 'red' : 'green'};">${h.status === 'absent' ? 'غياب' : 'حضور'}</td></tr>`).join('')
+        : '<tr><td colspan="2">لا يوجد سجل</td></tr>';
+
+    return `
+        <div class="print-student-card">
+            <div class="print-card-title">بطاقة عضو YLY</div>
+            <div class="print-card-name">${escapeHTML(member.name)}</div>
+            <div style="display:flex; justify-content:center; margin:10px 0;">${qrImageHtml}</div>
+            <div class="print-card-row"><span>كود العضو:</span> <span>${escapeHTML(member.id)}</span></div>
+            <div class="print-card-row"><span>اللجنة:</span> <span>${escapeHTML(stageMap[member.level] || member.level)}</span></div>
+            <div class="print-card-row"><span>تاريخ الانضمام:</span> <span>${escapeHTML(member.date)}</span></div>
+        </div>
+        <table style="width:100%; margin-bottom:15px; border-collapse:separate; border-spacing:8px 0;">
+            <tr>
+                <td style="border:1px solid #1e3a8a; padding:8px; text-align:center; border-radius:8px; width:33%;">
+                    <div style="font-size:10pt; font-weight:bold; border-bottom:1px solid #ccc; padding-bottom:4px; margin-bottom:4px;">أيام الحضور</div>
+                    <div style="font-size:14pt; font-weight:900; color:green;">${stats.present}</div>
+                </td>
+                <td style="border:1px solid #1e3a8a; padding:8px; text-align:center; border-radius:8px; width:33%;">
+                    <div style="font-size:10pt; font-weight:bold; border-bottom:1px solid #ccc; padding-bottom:4px; margin-bottom:4px;">أيام الغياب</div>
+                    <div style="font-size:14pt; font-weight:900; color:red;">${stats.absent}</div>
+                </td>
+                <td style="border:1px solid #1e3a8a; padding:8px; text-align:center; border-radius:8px; width:33%;">
+                    <div style="font-size:10pt; font-weight:bold; border-bottom:1px solid #ccc; padding-bottom:4px; margin-bottom:4px;">إجمالي النقاط</div>
+                    <div style="font-size:14pt; font-weight:900; color:#1e3a8a;">${totalPoints}</div>
+                </td>
+            </tr>
+        </table>
+        <h3 style="border-bottom:2px solid #1e3a8a; margin-top:20px; color:#1e3a8a; font-size:12pt; font-weight:bold;">سجل النقاط والمهام</h3>
+        <table class="ultra-compact-table">
+            <thead><tr><th>التاريخ</th><th>المهمة/التقييم</th><th>النقاط</th></tr></thead>
+            <tbody>${pointsRows}</tbody>
+        </table>
+        <h3 style="border-bottom:2px solid #1e3a8a; margin-top:20px; color:#1e3a8a; font-size:12pt; font-weight:bold;">سجل الحضور والغياب</h3>
+        <table class="ultra-compact-table">
+            <thead><tr><th>التاريخ</th><th>الحالة</th></tr></thead>
+            <tbody>${historyRows}</tbody>
+        </table>
+    `;
+}
+
+window.printStudentDashboard = async function() {
+    const code = document.getElementById('dashCode').innerText;
+    const s = state.members.find(st => st.id === code);
+    if(!s) return;
+    const content = await buildFullStudentReportHTML(s, state.attendance, state.accounting);
+    window.printHTML(`تقرير_متابعة_${s.name}`, content);
+}
+
+window.pdfStudentDashboard = function() { window.printStudentDashboard(); }
+
+window.printInternalStudentDash = async function() {
     const code = document.getElementById('intDashCode').innerText;
     const s = state.members.find(st => st.id === code);
     if(!s) return;
-    const content = `<h3>تقرير متابعة عضو: ${escapeHTML(s.name)} (${escapeHTML(s.id)})</h3><p>اللجنة: ${escapeHTML(stageMap[s.level]||s.level)}</p>`;
+    let sAtt = []; let sAcc = [];
+    try {
+        const attQ = query(collection(db, "attendance"), where("studentId", "in", [code, "EVENT_MARKER"]));
+        const accQ = query(collection(db, "accounting"), where("stdId", "==", code));
+        const [attSnap, accSnap] = await Promise.all([getDocs(attQ), getDocs(accQ)]);
+        attSnap.forEach(d => sAtt.push(d.data()));
+        accSnap.forEach(d => sAcc.push(d.data()));
+    } catch(e) {
+        sAtt = state.attendance; sAcc = state.accounting;
+    }
+    const content = await buildFullStudentReportHTML(s, sAtt, sAcc);
     window.printHTML(`تقرير_العضو_${s.name}`, content);
 }
 
-window.excelDetailedStudentReport = function(code) {
+window.excelDetailedStudentReport = async function(code) {
     const s = state.members.find(st => st.id === code);
     if(!s) return;
-    const headers = ["الكود", "الاسم", "اللجنة", "تاريخ الانضمام"];
-    const rows = [[s.id, s.name, stageMap[s.level]||s.level, s.date]];
-    window.exportToExcelStyle(headers, rows, `تقرير_تفصيلي_${s.name}`, `تقرير_${s.name}`);
+    let sAtt = []; let sAcc = [];
+    try {
+        const attQ = query(collection(db, "attendance"), where("studentId", "in", [code, "EVENT_MARKER"]));
+        const accQ = query(collection(db, "accounting"), where("stdId", "==", code));
+        const [attSnap, accSnap] = await Promise.all([getDocs(attQ), getDocs(accQ)]);
+        attSnap.forEach(d => sAtt.push(d.data()));
+        accSnap.forEach(d => sAcc.push(d.data()));
+    } catch(e) {
+        sAtt = state.attendance; sAcc = state.accounting;
+    }
+    const stats = calculateStudentStats(s, sAtt);
+    const points = sAcc.filter(r => r.category === 'points' && r.stdId === s.id);
+    const headers = ["نوع السجل", "التاريخ / اليوم", "التقييم / الحالة", "النقاط المكتسبة"];
+    const rows = [];
+    points.forEach(p => rows.push(["نقاط وتقييمات", p.date, p.type, p.amount]));
+    stats.history.forEach(h => rows.push(["حضور وغياب", `${h.date} (${h.day})`, h.status === 'present' ? 'حضور' : 'غياب', '-']));
+    window.exportToExcelStyle(headers, rows, `تقرير متابعة عضو - ${s.name} (${s.id})`, `تقرير_العضو_${s.name}`);
 }
 
 window.pdfDetailedStudentReport = function(code) { window.printInternalStudentDash(); }
@@ -1431,60 +1637,177 @@ window.printStudentsList = function() {
 
 window.pdfStudentsList = function() { window.printStudentsList(); }
 
-window.printStudentDashboard = function() {
-    const name = document.getElementById('dashName').innerText;
-    const code = document.getElementById('dashCode').innerText;
-    const content = `<h3>بيانات العضو: ${escapeHTML(name)} (${escapeHTML(code)})</h3>`;
-    window.printHTML(`تقرير_العضو_${name}`, content);
+window.printCombinedReport = function() {
+    if(!state.currentReportData.combined || state.currentReportData.combined.length === 0) return window.showToast('لا توجد بيانات للطباعة', 'error');
+    const title = getReportTitleHeader("التقرير الشامل");
+    const isDaily = document.getElementById('reportType').value === 'daily';
+    let rows = isDaily 
+        ? state.currentReportData.combined.map((c, i) => `<tr><td>${i+1}</td><td>${c.id}</td><td style="font-weight:bold;">${escapeHTML(c.name)}</td><td>${escapeHTML(stageMap[c.level]||c.level)}</td><td style="color:blue; font-weight:bold;">${c.totalPoints}</td><td style="font-weight:bold; color:${c.presentCount > 0 ? 'green' : 'red'};">${c.presentCount > 0 ? 'حاضر' : 'غائب'}</td><td>${c.presentCount > 0 ? (c.presentTime || '-') : '-'}</td></tr>`).join('')
+        : state.currentReportData.combined.map((c, i) => `<tr><td>${i+1}</td><td>${c.id}</td><td style="font-weight:bold;">${escapeHTML(c.name)}</td><td>${escapeHTML(c.level)}</td><td style="color:blue; font-weight:bold;">${c.totalPoints}</td><td style="color:green; font-weight:bold;">${c.presentCount}</td><td style="color:red; font-weight:bold;">${c.absentCount}</td><td style="color:green;">${c.presentDates.join('<br>') || '-'}</td><td style="color:red;">${c.absentDates.join('<br>') || '-'}</td></tr>`).join('');
+
+    const content = `<table class="ultra-compact-table"><thead><tr>${isDaily ? '<th style="width:5%;">م</th><th style="width:10%;">الكود</th><th style="width:38%;">الاسم</th><th style="width:11%;">اللجنة</th><th style="width:12%;">النقاط</th><th style="width:11%;">الحالة</th><th style="width:13%;">وقت الحضور</th>' : '<th style="width:4%;">م</th><th style="width:8%;">الكود</th><th style="width:32%;">الاسم</th><th style="width:8%;">اللجنة</th><th style="width:8%;">النقاط</th><th style="width:7%;">حضور</th><th style="width:7%;">غياب</th><th style="width:13%;">تواريخ الحضور</th><th style="width:13%;">تواريخ الغياب</th>'}</tr></thead><tbody>${rows}</tbody></table>`;
+    window.printHTML(title, content, !isDaily);
 }
 
-window.pdfStudentDashboard = function() { window.printStudentDashboard(); }
+window.pdfCombinedReport = function() { window.printCombinedReport(); }
+
+window.printAttendanceReport = function() {
+    if(!state.currentReportData.combined || state.currentReportData.combined.length === 0) return window.showToast('لا توجد بيانات للطباعة', 'error');
+    const title = getReportTitleHeader("تقرير الحضور والغياب");
+    const isDaily = document.getElementById('reportType').value === 'daily';
+    let rows = isDaily 
+        ? state.currentReportData.combined.map((c, i) => `<tr><td>${i+1}</td><td>${c.id}</td><td style="font-weight:bold;">${escapeHTML(c.name)}</td><td>${escapeHTML(stageMap[c.level]||c.level)}</td><td style="font-weight:bold; color:${c.presentCount > 0 ? 'green' : 'red'};">${c.presentCount > 0 ? 'حاضر' : 'غائب'}</td><td>${c.presentCount > 0 ? (c.presentTime || '-') : '-'}</td></tr>`).join('')
+        : state.currentReportData.combined.map((c, i) => `<tr><td>${i+1}</td><td>${c.id}</td><td style="font-weight:bold;">${escapeHTML(c.name)}</td><td>${escapeHTML(stageMap[c.level]||c.level)}</td><td style="color:green; font-weight:bold;">${c.presentCount}</td><td style="color:red; font-weight:bold;">${c.absentCount}</td><td style="color:green;">${c.presentDates.join('<br>') || '-'}</td><td style="color:red;">${c.absentDates.join('<br>') || '-'}</td></tr>`).join('');
+
+    const content = `<table class="ultra-compact-table"><thead><tr>${isDaily ? '<th style="width:5%;">م</th><th style="width:12%;">الكود</th><th style="width:42%;">الاسم</th><th style="width:12%;">اللجنة</th><th style="width:14%;">الحالة</th><th style="width:15%;">وقت الحضور</th>' : '<th style="width:4%;">م</th><th style="width:9%;">الكود</th><th style="width:36%;">الاسم</th><th style="width:9%;">اللجنة</th><th style="width:8%;">حضور</th><th style="width:8%;">غياب</th><th style="width:13%;">تواريخ الحضور</th><th style="width:13%;">تواريخ الغياب</th>'}</tr></thead><tbody>${rows}</tbody></table>`;
+    window.printHTML(title, content, !isDaily);
+}
+
+window.pdfAttendanceReport = function() { window.printAttendanceReport(); }
+
+window.printPointsReport = function() {
+    if(!state.currentReportData.points || state.currentReportData.points.length === 0) return window.showToast('لا توجد بيانات للطباعة', 'error');
+    const title = getReportTitleHeader("تقرير النقاط والمهام");
+    let rows = state.currentReportData.points.map((p, i) => `<tr><td>${i+1}</td><td>${p.stdId}</td><td style="font-weight:bold;">${escapeHTML(p.name)}</td><td>${escapeHTML(p.type)}</td><td style="color:blue; font-weight:bold;">${p.amount}</td><td>${p.date}</td></tr>`).join('');
+    const content = `<table class="ultra-compact-table"><thead><tr><th style="width:5%;">م</th><th style="width:11%;">الكود</th><th style="width:38%;">الاسم</th><th style="width:22%;">المهمة/التقييم</th><th style="width:12%;">النقاط</th><th style="width:12%;">التاريخ</th></tr></thead><tbody>${rows}</tbody></table>`;
+    window.printHTML(title, content);
+}
+
+window.pdfPointsReport = function() { window.printPointsReport(); }
 
 // ==========================================
-// 14. Excel Exports
+// 14. Full Professional Excel Engine
 // ==========================================
 window.exportToExcelStyle = async function(headers, rows, reportTitle, fileName) {
     await requireXLSX();
+    if (typeof XLSX === 'undefined') { window.showToast('مكتبة الإكسيل غير محملة', 'error'); return; }
+
     const wb = XLSX.utils.book_new();
     wb.Workbook = { Views: [{ RTL: true }] };
+
     const wsData = [ [reportTitle], headers, ...rows ];
     const ws = XLSX.utils.aoa_to_sheet(wsData);
-    
+    const colCount = headers.length;
+
+    ws['!merges'] = [ { s: { r: 0, c: 0 }, e: { r: 0, c: colCount - 1 } } ];
+
+    const borderStyle = {
+        top: { style: "thin", color: { rgb: "D1D5DB" } },
+        bottom: { style: "thin", color: { rgb: "D1D5DB" } },
+        left: { style: "thin", color: { rgb: "D1D5DB" } },
+        right: { style: "thin", color: { rgb: "D1D5DB" } }
+    };
+    const headerBorderStyle = {
+        top: { style: "thin", color: { rgb: "000000" } },
+        bottom: { style: "thin", color: { rgb: "000000" } },
+        left: { style: "thin", color: { rgb: "000000" } },
+        right: { style: "thin", color: { rgb: "000000" } }
+    };
+
+    if (ws['A1']) {
+        ws['A1'].s = {
+            font: { name: 'Cairo', sz: 15, bold: true, color: { rgb: "DC2626" } },
+            alignment: { horizontal: "center", vertical: "center" },
+            fill: { fgColor: { rgb: "F9FAFB" } }
+        };
+    }
+
+    for (let col = 0; col < colCount; col++) {
+        const cellRef = XLSX.utils.encode_cell({ r: 1, c: col });
+        if (ws[cellRef]) {
+            ws[cellRef].s = {
+                font: { name: 'Cairo', sz: 12, bold: true, color: { rgb: "FFFFFF" } },
+                fill: { fgColor: { rgb: "1E3A8A" } },
+                alignment: { horizontal: "center", vertical: "center", wrapText: true },
+                border: headerBorderStyle
+            };
+        }
+    }
+
+    const totalRows = wsData.length;
+    for (let r = 2; r < totalRows; r++) {
+        for (let c = 0; c < colCount; c++) {
+            const cellRef = XLSX.utils.encode_cell({ r: r, c: c });
+            if (ws[cellRef]) {
+                ws[cellRef].t = typeof ws[cellRef].v === 'number' ? 'n' : 's';
+                ws[cellRef].s = {
+                    font: { name: 'Cairo', sz: 11 },
+                    alignment: { horizontal: "center", vertical: "center", wrapText: true },
+                    border: borderStyle
+                };
+            }
+        }
+    }
+
+    ws['!cols'] = headers.map((h, colIndex) => {
+        let maxLen = h ? h.toString().length : 10;
+        for (let r = 2; r < totalRows; r++) {
+            const val = wsData[r][colIndex];
+            if (val !== undefined && val !== null) {
+                const len = val.toString().length;
+                if (len > maxLen) maxLen = len;
+            }
+        }
+        return { wch: Math.min(Math.max(maxLen + 4, 12), 35) };
+    });
+
+    ws['!rows'] = [{ hpt: 35 }, { hpt: 26 }];
+
     XLSX.utils.book_append_sheet(wb, ws, "التقرير");
     XLSX.writeFile(wb, `${fileName}.xlsx`);
 }
 
 window.exportStudentsListExcel = function() {
+    const filterStage = document.getElementById('studentListFilter').value;
+    const queryVal = normalizeArabic(document.getElementById('searchStd').value.toLowerCase());
+    let filtered = state.members;
+    if(filterStage !== 'all') filtered = filtered.filter(s => s.level === filterStage);
+    if(queryVal !== '') filtered = filtered.filter(s => normalizeArabic((s.name||'').toLowerCase()).includes(queryVal) || (s.id||'').includes(queryVal));
+
     const headers = ["م", "الكود", "الاسم", "اللجنة", "رقم الهاتف", "تاريخ الانضمام"];
-    const rows = state.members.map((s, index) => [ index + 1, s.id, s.name, stageMap[s.level] || s.level, s.ownPhone || s.phone || 'غير مسجل', s.date || '-' ]);
+    const rows = filtered.map((s, index) => [ index + 1, s.id, s.name, stageMap[s.level] || s.level, s.ownPhone || s.phone || 'غير مسجل', s.date || '-' ]);
     window.exportToExcelStyle(headers, rows, "قائمة الأعضاء المسجلين YLY", "قائمة_الأعضاء_YLY");
 }
 
 window.exportCombinedExcel = function() {
+    if(!state.currentReportData.combined || state.currentReportData.combined.length === 0) return window.showToast('لا توجد بيانات للتصدير', 'error');
     const isDaily = document.getElementById('reportType').value === 'daily';
-    const headers = isDaily ? ["م", "الكود", "الاسم", "اللجنة", "النقاط", "الحالة", "الوقت"] : ["م", "الكود", "الاسم", "اللجنة", "النقاط", "حضور", "غياب"];
-    const rows = state.currentReportData.combined.map((c, i) => [ i + 1, c.id, c.name, c.level, c.totalPoints, c.presentCount > 0 ? 'حاضر' : 'غائب', c.presentTime || '-' ]);
-    window.exportToExcelStyle(headers, rows, "التقرير الشامل", "تقرير_شامل_YLY");
+    const titleHeader = getReportTitleHeader("التقرير الشامل YLY");
+    
+    let headers = []; let rows = [];
+    if (isDaily) {
+        headers = ["م", "الكود", "الاسم", "اللجنة", "رقم الهاتف", "النقاط المكتسبة", "الحالة", "وقت الحضور"];
+        rows = state.currentReportData.combined.map((c, i) => [ i + 1, c.id, c.name, c.level, c.ownPhone || c.phone || 'غير مسجل', c.totalPoints, c.presentCount > 0 ? 'حاضر' : 'غائب', c.presentCount > 0 ? (c.presentTime || '-') : '-' ]);
+    } else {
+        headers = ["م", "الكود", "الاسم", "اللجنة", "رقم الهاتف", "النقاط المكتسبة", "أيام الحضور", "أيام الغياب", "تواريخ الحضور", "تواريخ الغياب"];
+        rows = state.currentReportData.combined.map((c, i) => [ i + 1, c.id, c.name, c.level, c.ownPhone || c.phone || 'غير مسجل', c.totalPoints, c.presentCount, c.absentCount, c.presentDates.join('\n') || 'لا يوجد', c.absentDates.join('\n') || 'لا يوجد' ]);
+    }
+    window.exportToExcelStyle(headers, rows, titleHeader, "تقرير_شامل_YLY");
 }
 
 window.exportAttendanceReportExcel = function() {
-    const headers = ["م", "الكود", "الاسم", "اللجنة", "حضور", "غياب"];
-    const rows = state.currentReportData.combined.map((c, i) => [ i + 1, c.id, c.name, c.level, c.presentCount, c.absentCount ]);
-    window.exportToExcelStyle(headers, rows, "تقرير الحضور والغياب", "تقرير_الحضور_YLY");
+    if(!state.currentReportData.combined || state.currentReportData.combined.length === 0) return window.showToast('لا توجد بيانات للتصدير', 'error');
+    const isDaily = document.getElementById('reportType').value === 'daily';
+    const titleHeader = getReportTitleHeader("تقرير الحضور والغياب التفصيلي YLY");
+    
+    let headers = []; let rows = [];
+    if (isDaily) {
+        headers = ["م", "الكود", "الاسم", "اللجنة", "رقم الهاتف", "الحالة", "وقت الحضور"];
+        rows = state.currentReportData.combined.map((c, i) => [ i + 1, c.id, c.name, c.level, c.ownPhone || c.phone || 'غير مسجل', c.presentCount > 0 ? 'حاضر' : 'غائب', c.presentCount > 0 ? (c.presentTime || '-') : '-' ]);
+    } else {
+        headers = ["م", "الكود", "الاسم", "اللجنة", "رقم الهاتف", "أيام الحضور", "أيام الغياب", "تواريخ الحضور التفصيلية", "تواريخ الغياب التفصيلية"];
+        rows = state.currentReportData.combined.map((c, i) => [ i + 1, c.id, c.name, c.level, c.ownPhone || c.phone || 'غير مسجل', c.presentCount, c.absentCount, c.presentDates.join('\n') || 'لا يوجد', c.absentDates.join('\n') || 'لا يوجد' ]);
+    }
+    window.exportToExcelStyle(headers, rows, titleHeader, "تقرير_الحضور_والغياب_YLY");
 }
 
 window.exportPointsReportExcel = function() {
-    const headers = ["م", "الكود", "الاسم", "المهمة", "النقاط", "التاريخ"];
-    const rows = state.currentReportData.points.map((p, i) => [ i + 1, p.stdId, p.name, p.type, p.amount, p.date ]);
-    window.exportToExcelStyle(headers, rows, "تقرير النقاط والمهام", "تقرير_النقاط_YLY");
+    if(!state.currentReportData.points || state.currentReportData.points.length === 0) return window.showToast('لا توجد بيانات للتصدير', 'error');
+    const titleHeader = getReportTitleHeader("تقرير النقاط والمهام YLY");
+    const headers = ["م", "كود العضو", "اسم العضو", "المهمة / التقييم", "النقاط المكتسبة", "التاريخ", "الوقت"];
+    const rows = state.currentReportData.points.map((p, i) => [ i + 1, p.stdId, p.name, p.type, p.amount, p.date, p.time || '-' ]);
+    window.exportToExcelStyle(headers, rows, titleHeader, "تقرير_النقاط_والمهام_YLY");
 }
-
-window.printCombinedReport = function() { window.openInternalReport(); }
-window.pdfCombinedReport = function() { window.openInternalReport(); }
-window.printAttendanceReport = function() { window.openInternalReport(); }
-window.pdfAttendanceReport = function() { window.openInternalReport(); }
-window.printPointsReport = function() { window.openInternalReport(); }
-window.pdfPointsReport = function() { window.openInternalReport(); }
 
 // ==========================================
 // 15. Backup System
@@ -1534,7 +1857,7 @@ window.closeCustomAlert = function() {
 window.dismissInstallBanner = function() {
     const pwaBanner = document.getElementById('pwaInstallBanner');
     if(!pwaBanner) return;
-    pwaBanner.classList.remove('translate-y-0', 'opacity-0');
+    pwaBanner.classList.remove('translate-y-0', 'opacity-100');
     pwaBanner.classList.add('translate-y-24', 'opacity-0');
     setTimeout(() => pwaBanner.classList.add('hidden'), 500);
 };

@@ -1456,40 +1456,45 @@ function getReportTitleHeader(baseTitle) {
     return `${baseTitle} - ${periodText} - ${stageMap[stage] || 'كل اللجان'}`;
 }
 
-function getPrintTemplate(title, content, isLandscape = false) {
+function getPrintTemplate(title, content) {
     const todayPrintDate = new Date().toLocaleDateString('ar-EG');
     return `
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
-        * { box-sizing: border-box; font-family: 'Cairo', sans-serif !important; direction: rtl !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
-        body { background: #ffffff !important; color: #000000 !important; margin: 0; padding: 10px; }
-        .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; margin-bottom: 15px; }
-        .print-meta-area { text-align: right; font-size: 9pt; color: #4b5563; font-weight: 600; }
-        .print-title-area { text-align: center; flex: 1; padding: 0 10px; }
-        .print-title-area h1 { font-size: 18pt; font-weight: 900; margin: 0; color: #1e3a8a; }
-        .print-title-area h2 { font-size: 12pt; font-weight: 800; margin: 4px 0 0 0; color: #dc2626; border-bottom: 1px solid #ddd; padding-bottom: 3px; display: inline-block; }
-        table { width: 100% !important; border-collapse: collapse; margin-top: 10px; table-layout: auto !important; }
-        tr { page-break-inside: auto; page-break-after: auto; }
-        thead { display: table-header-group; }
-        tfoot { display: table-footer-group; }
-        th { background-color: #1e3a8a !important; color: #ffffff !important; font-weight: 800 !important; border: 1px solid #1e3a8a !important; padding: 8px 4px !important; text-align: center !important; font-size: 12px !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-        td { border: 1px solid #d1d5db !important; padding: 6px 4px !important; font-size: 11px !important; font-weight: 700 !important; text-align: center !important; vertical-align: middle !important; word-wrap: break-word !important; page-break-inside: auto; }
-        .print-student-card { border: 4px double #1e3a8a !important; border-radius: 15px; padding: 15px; width: 330px; margin: 10px auto; text-align: center; page-break-inside: avoid; background: #fff; }
+        * { box-sizing: border-box !important; font-family: 'Cairo', sans-serif !important; direction: rtl !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        html, body { width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 0 !important; background: #ffffff !important; overflow: visible !important; }
+        .print-page { padding: 4px; width: 100% !important; max-width: 100% !important; }
+        .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 4px; margin-bottom: 6px; }
+        .print-meta-area { text-align: right; font-size: 8pt; color: #4b5563; font-weight: 600; }
+        .print-title-area { text-align: center; flex: 1; padding: 0 5px; }
+        .print-title-area h1 { font-size: 13pt; font-weight: 900; margin: 0; color: #1e3a8a; }
+        .print-title-area h2 { font-size: 9pt; font-weight: 800; margin: 2px 0 0 0; color: #dc2626; }
+        .print-logo-area img { width: 35px; height: 35px; object-fit: contain; }
+        
+        /* إجبار الجدول على الانحصار داخل عرض 100% للورقة العمودية */
+        table { width: 100% !important; max-width: 100% !important; border-collapse: collapse !important; margin-top: 5px !important; table-layout: fixed !important; page-break-inside: auto !important; }
+        tr { page-break-inside: avoid !important; page-break-after: auto !important; }
+        thead { display: table-header-group !important; }
+        tfoot { display: table-footer-group !important; }
+        th { background-color: #1e3a8a !important; color: #ffffff !important; font-weight: 800 !important; border: 1px solid #1e3a8a !important; padding: 4px 1px !important; text-align: center !important; font-size: 9px !important; word-wrap: break-word !important; overflow-wrap: break-word !important; }
+        td { border: 1px solid #d1d5db !important; padding: 3px 1px !important; font-size: 9px !important; font-weight: 700 !important; text-align: center !important; vertical-align: middle !important; word-wrap: break-word !important; overflow-wrap: break-word !important; line-height: 1.3 !important; }
+        
+        .print-student-card { border: 4px double #1e3a8a !important; border-radius: 15px; padding: 15px; width: 310px; margin: 10px auto; text-align: center; page-break-inside: avoid; background: #fff; }
         .print-card-title { font-size: 14pt; font-weight: bold; margin-bottom: 8px; color: #dc2626; }
-        .print-card-name { font-size: 18pt; font-weight: 900; margin: 8px 0; border-bottom: 2px solid #1e3a8a; padding-bottom: 8px; color: #000; }
-        .print-card-row { font-size: 11pt; font-weight: bold; margin: 4px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding: 2px 0; }
+        .print-card-name { font-size: 16pt; font-weight: 900; margin: 8px 0; border-bottom: 2px solid #1e3a8a; padding-bottom: 8px; color: #000; }
+        .print-card-row { font-size: 10pt; font-weight: bold; margin: 4px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding: 2px 0; }
     </style>
     <div class="print-page">
         <div class="print-header">
             <div class="print-meta-area"><div>تاريخ الطباعة: ${todayPrintDate}</div><div>YLY System</div></div>
             <div class="print-title-area"><h1>YLY Leaders</h1><h2>${escapeHTML(title)}</h2></div>
-            <div class="print-logo-area"><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" style="width:45px; height:45px; object-fit:contain;"></div>
+            <div class="print-logo-area"><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png"></div>
         </div>
         <div class="print-body">${content}</div>
     </div>`;
 }
 
-window.printHTML = async function(title, content, isLandscape = false) {
+window.printHTML = async function(title, content) {
     if (state.isPrinting) return;
     state.isPrinting = true;
     window.showToast('جاري تحضير الطباعة...', 'success');
@@ -1505,8 +1510,8 @@ window.printHTML = async function(title, content, isLandscape = false) {
         
         const iframeDoc = printIframe.contentWindow.document;
         iframeDoc.open();
-        // أضفنا هيدر إجباري يفرض العرض والارتفاع الأفقي للطباعة
-        iframeDoc.write(`<!DOCTYPE html><html dir="rtl" lang="ar"><head><title>${escapeHTML(title)}</title><style>@page { size: ${isLandscape ? 'A4 landscape' : 'A4 portrait'} !important; margin: 5mm; } @media print { html, body { width: ${isLandscape ? '297mm' : '210mm'}; } }</style></head><body>${getPrintTemplate(title, content, isLandscape)}</body></html>`);
+        // إجبار A4 portrait عمودي دائماً لجميع التقارير
+        iframeDoc.write(`<!DOCTYPE html><html dir="rtl" lang="ar"><head><title>${escapeHTML(title)}</title><style>@page { size: A4 portrait !important; margin: 4mm !important; }</style></head><body>${getPrintTemplate(title, content)}</body></html>`);
         iframeDoc.close();
         
         setTimeout(() => {
@@ -1698,15 +1703,14 @@ window.printCombinedReport = function() {
     
     let rows = isDaily 
         ? state.currentReportData.combined.map((c, i) => `<tr><td>${i+1}</td><td>${c.id}</td><td style="font-weight:bold;">${escapeHTML(c.name)}</td><td>${escapeHTML(stageMap[c.level]||c.level)}</td><td style="color:blue; font-weight:bold;">${c.totalPoints}</td><td style="font-weight:bold; color:${c.presentCount > 0 ? 'green' : 'red'};">${c.presentCount > 0 ? 'حاضر' : 'غائب'}</td><td>${c.presentCount > 0 ? (c.presentTime || '-') : '-'}</td></tr>`).join('')
-        : state.currentReportData.combined.map((c, i) => `<tr><td>${i+1}</td><td>${c.id}</td><td style="font-weight:bold;">${escapeHTML(c.name)}</td><td>${escapeHTML(c.level)}</td><td style="color:blue; font-weight:bold;">${c.totalPoints}</td><td style="color:green; font-weight:bold;">${c.presentCount}</td><td style="color:red; font-weight:bold;">${c.absentCount}</td><td style="color:green; font-size:10px; line-height:1.6;">${c.presentDates.join(' ، ') || '-'}</td><td style="color:red; font-size:10px; line-height:1.6;">${c.absentDates.join(' ، ') || '-'}</td></tr>`).join('');
+        : state.currentReportData.combined.map((c, i) => `<tr><td>${i+1}</td><td>${c.id}</td><td style="font-weight:bold;">${escapeHTML(c.name)}</td><td>${escapeHTML(c.level)}</td><td style="color:blue; font-weight:bold;">${c.totalPoints}</td><td style="color:green; font-weight:bold;">${c.presentCount}</td><td style="color:red; font-weight:bold;">${c.absentCount}</td><td style="color:green; font-size:8px;">${c.presentDates.join(' ، ') || '-'}</td><td style="color:red; font-size:8px;">${c.absentDates.join(' ، ') || '-'}</td></tr>`).join('');
 
+    // توزيع النسب المئوية الموزونة لتستوعب 9 أعمدة داخل الورقة العمودية 100% بالضبط
     const content = `<table class="ultra-compact-table"><thead><tr>${isDaily 
         ? '<th style="width:5%;">م</th><th style="width:10%;">الكود</th><th style="width:38%;">الاسم</th><th style="width:11%;">اللجنة</th><th style="width:12%;">النقاط</th><th style="width:11%;">الحالة</th><th style="width:13%;">وقت الحضور</th>' 
-        : '<th style="width:4%;">م</th><th style="width:8%;">الكود</th><th style="width:25%;">الاسم</th><th style="width:8%;">اللجنة</th><th style="width:7%;">النقاط</th><th style="width:6%;">حضور</th><th style="width:6%;">غياب</th><th style="width:18%;">تواريخ الحضور</th><th style="width:18%;">تواريخ الغياب</th>'}</tr></thead><tbody>${rows}</tbody></table>`;
-    window.printHTML(title, content, !isDaily);
+        : '<th style="width:4%;">م</th><th style="width:8%;">الكود</th><th style="width:22%;">الاسم</th><th style="width:8%;">اللجنة</th><th style="width:7%;">النقاط</th><th style="width:5%;">حضور</th><th style="width:5%;">غياب</th><th style="width:20.5%;">تواريخ الحضور</th><th style="width:20.5%;">تواريخ الغياب</th>'}</tr></thead><tbody>${rows}</tbody></table>`;
+    window.printHTML(title, content);
 }
-
-window.pdfCombinedReport = function() { window.printCombinedReport(); }
 
 window.printAttendanceReport = function() {
     if(!state.currentReportData.combined || state.currentReportData.combined.length === 0) return window.showToast('لا توجد بيانات للطباعة', 'error');
@@ -1715,12 +1719,12 @@ window.printAttendanceReport = function() {
     
     let rows = isDaily 
         ? state.currentReportData.combined.map((c, i) => `<tr><td>${i+1}</td><td>${c.id}</td><td style="font-weight:bold;">${escapeHTML(c.name)}</td><td>${escapeHTML(stageMap[c.level]||c.level)}</td><td style="font-weight:bold; color:${c.presentCount > 0 ? 'green' : 'red'};">${c.presentCount > 0 ? 'حاضر' : 'غائب'}</td><td>${c.presentCount > 0 ? (c.presentTime || '-') : '-'}</td></tr>`).join('')
-        : state.currentReportData.combined.map((c, i) => `<tr><td>${i+1}</td><td>${c.id}</td><td style="font-weight:bold;">${escapeHTML(c.name)}</td><td>${escapeHTML(stageMap[c.level]||c.level)}</td><td style="color:green; font-weight:bold;">${c.presentCount}</td><td style="color:red; font-weight:bold;">${c.absentCount}</td><td style="color:green; font-size:10px; line-height:1.6;">${c.presentDates.join(' ، ') || '-'}</td><td style="color:red; font-size:10px; line-height:1.6;">${c.absentDates.join(' ، ') || '-'}</td></tr>`).join('');
+        : state.currentReportData.combined.map((c, i) => `<tr><td>${i+1}</td><td>${c.id}</td><td style="font-weight:bold;">${escapeHTML(c.name)}</td><td>${escapeHTML(stageMap[c.level]||c.level)}</td><td style="color:green; font-weight:bold;">${c.presentCount}</td><td style="color:red; font-weight:bold;">${c.absentCount}</td><td style="color:green; font-size:8px;">${c.presentDates.join(' ، ') || '-'}</td><td style="color:red; font-size:8px;">${c.absentDates.join(' ، ') || '-'}</td></tr>`).join('');
 
     const content = `<table class="ultra-compact-table"><thead><tr>${isDaily 
         ? '<th style="width:5%;">م</th><th style="width:12%;">الكود</th><th style="width:42%;">الاسم</th><th style="width:12%;">اللجنة</th><th style="width:14%;">الحالة</th><th style="width:15%;">وقت الحضور</th>' 
-        : '<th style="width:4%;">م</th><th style="width:9%;">الكود</th><th style="width:28%;">الاسم</th><th style="width:9%;">اللجنة</th><th style="width:7%;">حضور</th><th style="width:7%;">غياب</th><th style="width:18%;">تواريخ الحضور</th><th style="width:18%;">تواريخ الغياب</th>'}</tr></thead><tbody>${rows}</tbody></table>`;
-    window.printHTML(title, content, !isDaily);
+        : '<th style="width:4%;">م</th><th style="width:9%;">الكود</th><th style="width:25%;">الاسم</th><th style="width:9%;">اللجنة</th><th style="width:6%;">حضور</th><th style="width:6%;">غياب</th><th style="width:20.5%;">تواريخ الحضور</th><th style="width:20.5%;">تواريخ الغياب</th>'}</tr></thead><tbody>${rows}</tbody></table>`;
+    window.printHTML(title, content);
 }
 
 window.pdfAttendanceReport = function() { window.printAttendanceReport(); }

@@ -1,5 +1,5 @@
 /* =========================================
-   Base & Typography (Ultra Compact Original)
+   Base & Typography (Ultra Compact)
 ========================================= */
 body {
     font-family: 'Cairo', sans-serif;
@@ -8,11 +8,11 @@ body {
     font-size: 10px;
     -webkit-tap-highlight-color: transparent;
     user-select: none;
-    overflow-x: hidden;
+    overflow-x: hidden !important;
 }
 
 body.modal-open {
-    overflow: hidden;
+    overflow: hidden !important;
     height: 100vh;
 }
 
@@ -23,7 +23,7 @@ body.internal-open #navBar {
 
 @media (min-width: 768px) {
     body { font-size: 12px; padding-bottom: 20px; }
-    .container { max-width: 95%; }
+    .container { max-width: 95% !important; }
 }
 
 /* =========================================
@@ -42,15 +42,15 @@ input, select, textarea {
     background-color: #ffffff;
     color: #111827;
     font-weight: 700;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    padding-right: 0.5rem;
-    padding-left: 1.5rem;
+    transition: all 0.2s ease-in-out;
+    padding-right: 0.5rem !important;
+    padding-left: 1.5rem !important;
     height: 30px;
-    font-size: 11px;
+    font-size: 11px !important;
     width: 100%;
 }
 
-/* ضبط محاذاة نص رقم الهاتف جهة اليمين */
+/* محاذاة رقم الهاتف جهة اليمين */
 input[type="tel"], #stdOwnPhone {
     text-align: right !important;
     direction: rtl !important;
@@ -71,7 +71,7 @@ input:focus, select:focus, textarea:focus {
 .input-icon {
     position: absolute;
     top: 50%;
-    left: 6px;
+    left: 4px;
     transform: translateY(-50%);
     color: #6b7280;
     pointer-events: none;
@@ -87,32 +87,34 @@ input[type="month"]::-webkit-inner-spin-button,
 input[type="month"]::-webkit-clear-button,
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-    display: none;
+    -webkit-appearance: none !important;
+    margin: 0 !important;
+    display: none !important;
 }
 
-input[type="date"], input[type="month"], input[type="number"] { -moz-appearance: textfield; }
-input[type="date"], input[type="month"] { text-align: right; padding-left: 20px; }
+input[type="date"], input[type="month"], input[type="number"] { -moz-appearance: textfield !important; }
+input[type="date"], input[type="month"] { text-align: right !important; padding-left: 25px !important; background-image: none !important; }
 
 input[type="date"]::-webkit-calendar-picker-indicator,
 input[type="month"]::-webkit-calendar-picker-indicator {
-    background: transparent url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%231e3a8a"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>') no-repeat center;
-    background-size: 14px;
-    color: transparent;
+    background: transparent url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%231e3a8a"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>') no-repeat center !important;
+    background-size: 16px !important;
+    color: transparent !important;
     cursor: pointer;
     opacity: 0.8;
-    width: 16px;
-    height: 16px;
+    width: 18px !important;
+    height: 18px !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 /* Dropdown Arrow */
 input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%234b5563"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>');
-    background-repeat: no-repeat;
-    background-position: left 6px center;
-    background-size: 10px;
-    padding-left: 20px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%234b5563"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>') !important;
+    background-repeat: no-repeat !important;
+    background-position: left 8px center !important;
+    background-size: 10px !important;
+    padding-left: 20px !important;
 }
 
 /* =========================================
@@ -135,7 +137,7 @@ input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
 }
 
 .sub-nav-item {
-    border: 1px solid #1e40af;
+    border: 1px solid #1e40af !important;
     color: #1e40af;
     background: transparent;
     font-weight: bold;
@@ -148,8 +150,8 @@ input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
 }
 
 .sub-nav-item.active {
-    background: #1e40af;
-    color: white;
+    background: #1e40af !important;
+    color: white !important;
     box-shadow: 0 2px 4px rgba(0,0,0,0.15);
 }
 
@@ -157,7 +159,7 @@ input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
 .tab-content.active { display: block; animation: fadeIn 0.2s ease-out; }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(3px); }
+    from { opacity: 0; transform: translateY(5px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
@@ -219,58 +221,65 @@ input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
 .unified-card-footer { margin-top: 15px; font-size: 9pt; color: #6b7280; font-weight: bold; border-top: 1px solid #1e3a8a; padding-top: 5px; }
 
 /* =========================================
-   Tables (Ultra Compact & Responsive)
+   Tables
 ========================================= */
-.custom-table, .ultra-compact-table {
-    width: 100% !important;
+.custom-table {
+    width: 100%;
     border-collapse: collapse;
+    font-size: 10px;
     border: 1px solid #374151;
-    table-layout: fixed !important;
-    font-size: 9px;
+    table-layout: fixed;
+    word-wrap: break-word;
 }
 
-.ultra-compact-table th {
-    font-size: 9px !important;
-    padding: 4px 1px !important;
-    white-space: normal !important;
-    word-break: break-word;
-    letter-spacing: -0.2px;
-}
+@media (min-width: 768px) { .custom-table { font-size: 12px; } }
 
-@media (min-width: 768px) {
-    .custom-table, .ultra-compact-table { font-size: 11px; }
-    .ultra-compact-table th { font-size: 11px !important; padding: 5px !important; }
-}
-
-.custom-table thead, .ultra-compact-table thead {
-    background-color: #1e3a8a;
-    color: white;
-    border-bottom: 2px solid #000;
-}
-
-.custom-table th, .custom-table td,
-.ultra-compact-table th, .ultra-compact-table td {
-    padding: 5px 2px;
+.custom-table thead { background-color: #1e3a8a; color: white; font-weight: 800; border-bottom: 2px solid #000; }
+.custom-table th, .custom-table td {
+    padding: 5px 3px;
     border: 1px solid #e5e7eb;
     text-align: center;
     vertical-align: middle;
-    line-height: 1.2;
-    word-wrap: break-word;
+    line-height: 1.3;
+    white-space: normal !important;
+    word-break: break-word;
     overflow-wrap: break-word;
 }
+.custom-table thead th { color: white !important; }
 
-.custom-table thead th, .ultra-compact-table thead th {
-    color: white !important;
-    font-weight: 800;
+.col-code { width: 45px; font-family: monospace; font-weight: bold; }
+.custom-table tbody td.col-code { color: #000; }
+.col-date { width: 55px; font-size: 9px; }
+.custom-table tbody td.col-date { color: #4b5563; }
+.col-index { width: 25px; color: #6b7280; }
+.col-action { width: 45px; min-width: 45px; }
+
+.ultra-compact-table {
+    width: 100% !important;
+    table-layout: fixed !important;
+    border-collapse: collapse;
+    font-size: 9px;
 }
 
-.col-index { width: 25px; color: #6b7280; }
-.col-code { width: 45px; font-family: monospace; font-weight: bold; color: #000; }
-.col-date { width: 55px; font-size: 9px; color: #4b5563; }
-.col-action { width: 45px; }
+.ultra-compact-table th, .ultra-compact-table td {
+    border: 1px solid #d1d5db;
+    padding: 4px 1px !important;
+    text-align: center;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal !important;
+    vertical-align: middle;
+    line-height: 1.2;
+}
+
+.ultra-compact-table th { background: #1e3a8a; color: white; font-size: 11px; font-weight: bold; }
+
+@media (min-width: 768px) {
+    .ultra-compact-table, .ultra-compact-table th { font-size: 11px; padding: 5px; }
+}
 
 /* =========================================
-   Scanners & Fixed QR Sizes
+   Scanners & QR Codes Fix (حل المربع المزدوج)
 ========================================= */
 .scanner-wrapper {
     border-radius: 0.5rem;
@@ -278,7 +287,7 @@ input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
     background: #000;
     position: relative;
     width: 100%;
-    height: 250px;
+    height: 250px !important;
     border: 2px solid #374151;
 }
 
@@ -289,36 +298,62 @@ input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
     border-radius: 0.5rem;
 }
 
+@media (min-width: 768px) { .scanner-wrapper { height: 400px !important; } }
+
 #html5-qrcode-button-camera-stop, 
 #html5-qrcode-anchor-scan-type-change {
     display: none !important;
 }
 
-/* تثبيت أبعاد الباركود كما في الكود الأصلي تماماً */
-#dashQr img, #dashQr canvas, 
-#intDashQr img, #intDashQr canvas {
+/* إخفاء عنصر الـ Canvas التلقائي لمنع ظهور المربع الفارغ تحت الصورة */
+#dashQr canvas, #intDashQr canvas, #modalQr canvas, #checkResultQr canvas {
+    display: none !important;
+}
+
+#dashQr, #intDashQr {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+}
+
+#dashQr img, #intDashQr img {
     width: 80px !important;
     height: 80px !important;
-    margin: 0 auto !important;
+    object-fit: contain;
+    margin: 0 auto;
     display: block !important;
 }
 
-#modalQr img, #modalQr canvas {
+#modalQr {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto;
+}
+
+#modalQr img {
     width: 100px !important;
     height: 100px !important;
-    margin: 0 auto !important;
+    object-fit: contain;
+    margin: 0 auto;
     display: block !important;
 }
 
-#checkResultQr img, #checkResultQr canvas {
+#checkResultQr {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto;
+}
+
+#checkResultQr img {
     width: 60px !important;
     height: 60px !important;
-    margin: 0 auto !important;
+    object-fit: contain;
+    margin: 0 auto;
     display: block !important;
 }
 
 /* =========================================
-   Loading Overlay (منع قفزة النصوص واللوجو)
+   Loading Overlay Fix (تثبيت اللون واللوجو)
 ========================================= */
 #loadingOverlay {
     position: fixed;
@@ -326,12 +361,12 @@ input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
     background: rgba(15, 23, 42, 0.98);
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
-    z-index: 400;
+    z-index: 999999;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    color: #ffffff;
+    color: white;
     transition: opacity 0.3s ease;
 }
 
@@ -341,8 +376,10 @@ input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
     object-fit: contain !important;
     position: relative;
     z-index: 10;
+    box-sizing: border-box;
 }
 
+/* تثبيت لون النص الأبيض والأحمر فوراً بدون انتظار Tailwind */
 #loadingOverlay div[class*="text-2xl"] {
     font-size: 1.5rem !important;
     font-weight: 900 !important;
@@ -351,6 +388,12 @@ input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
     margin-bottom: 0.5rem !important;
     line-height: 1.25 !important;
     text-align: center !important;
+    box-sizing: border-box;
+}
+
+#loadingOverlay div[class*="text-2xl"] span,
+#loadingOverlay .text-red-500 {
+    color: #ef4444 !important;
 }
 
 #loadingOverlay div[class*="text-[10px]"] {
@@ -359,6 +402,7 @@ input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
     font-family: monospace !important;
     line-height: 1.5 !important;
     text-align: center !important;
+    box-sizing: border-box;
 }
 
 .spinner-box {
@@ -369,6 +413,7 @@ input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
     justify-content: center;
     align-items: center;
     margin-bottom: 15px;
+    box-sizing: border-box;
 }
 
 .modern-spinner {
@@ -379,49 +424,24 @@ input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
     border-left-color: #dc2626;
     border-radius: 50%;
     animation: spin 1s linear infinite;
+    box-sizing: border-box;
 }
 
 @keyframes spin { 100% { transform: rotate(360deg); } }
 
 /* =========================================
-   Z-Index Layers & Modals
+   Modals & Overlays
 ========================================= */
-.internal-page {
-    position: fixed;
-    inset: 0;
-    background: #f3f4f6;
-    z-index: 200;
-    overflow-y: auto;
-    display: none;
-    flex-direction: column;
-}
-
-.internal-page.active { display: flex; }
-
-#customAlertModal, #paymentConfirmModal {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    z-index: 350;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    backdrop-filter: blur(2px);
-}
-
 #loginOverlay {
     position: fixed;
     inset: 0;
     background: linear-gradient(135deg, #1e3a8a 0%, #111827 100%);
-    z-index: 400;
+    z-index: 100000;
     display: none;
     align-items: center;
     justify-content: center;
     padding: 15px;
 }
-
-#toast, #pwaInstallBanner { z-index: 500; }
 
 .login-card {
     background: rgba(255, 255, 255, 0.98);
@@ -472,6 +492,18 @@ input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
     border-radius: 5px 5px 0 0;
 }
 
+#customAlertModal, #paymentConfirmModal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    backdrop-filter: blur(2px);
+}
+
 .alert-card {
     background: white;
     border-radius: 12px;
@@ -506,6 +538,7 @@ input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
     justify-content: center;
     font-weight: bold;
     font-size: 16px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     flex-shrink: 0;
     cursor: pointer;
 }
@@ -522,8 +555,21 @@ input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
     font-size: 14px;
     font-weight: bold;
     cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     flex-shrink: 0;
 }
+
+.internal-page {
+    position: fixed;
+    inset: 0;
+    background: #f3f4f6;
+    z-index: 100000;
+    overflow-y: auto;
+    display: none;
+    flex-direction: column;
+}
+
+.internal-page.active { display: flex; }
 
 .internal-header {
     background: white;
@@ -535,6 +581,7 @@ input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
     position: sticky;
     top: 0;
     z-index: 10;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     gap: 5px;
 }
 
@@ -557,20 +604,21 @@ input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
     margin-bottom: 10px;
 }
 
-.print-header-sim .meta { font-size: 8px; color: #6b7280; text-align: right; }
+.print-header-sim .meta { font-size: 8px; color: #6b7280; text-align: right; line-height: 1.4; }
 .print-header-sim .title { text-align: center; flex: 1; }
 .print-header-sim .title h1 { font-size: 14px; font-weight: 900; color: #1e3a8a; margin: 0; }
 .print-header-sim .title h2 { font-size: 10px; font-weight: bold; color: #dc2626; margin: 2px 0 0 0; }
 .print-header-sim img { width: 35px; height: 35px; object-fit: contain; }
 
+#toast { z-index: 9999999 !important; }
+
 /* =========================================
-   Print Fixes (إجبار ألوان خلفية رأس الجدول)
+   Print Styles
 ========================================= */
 @media print {
     body {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
-        color-adjust: exact !important;
         background: white !important;
     }
     

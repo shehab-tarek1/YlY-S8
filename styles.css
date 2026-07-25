@@ -1,5 +1,5 @@
 /* =========================================
-   Base & Typography (Ultra Compact)
+   Base & Typography (Ultra Compact Original)
 ========================================= */
 body {
     font-family: 'Cairo', sans-serif;
@@ -34,7 +34,7 @@ body.internal-open #navBar {
 ::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 4px; }
 
 /* =========================================
-   Inputs & Forms
+   Inputs & Forms (ضبط محاذاة الهواتف)
 ========================================= */
 input, select, textarea {
     border: 1px solid #9ca3af;
@@ -50,7 +50,6 @@ input, select, textarea {
     width: 100%;
 }
 
-/* محاذاة رقم الهاتف جهة اليمين */
 input[type="tel"], #stdOwnPhone {
     text-align: right !important;
     direction: rtl !important;
@@ -221,7 +220,7 @@ input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
 .unified-card-footer { margin-top: 15px; font-size: 9pt; color: #6b7280; font-weight: bold; border-top: 1px solid #1e3a8a; padding-top: 5px; }
 
 /* =========================================
-   Tables
+   Tables (منع انكسار الكلمات نهائياً)
 ========================================= */
 .custom-table {
     width: 100%;
@@ -267,19 +266,27 @@ input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
     text-align: center;
     word-wrap: break-word;
     overflow-wrap: break-word;
-    white-space: normal !important;
     vertical-align: middle;
     line-height: 1.2;
 }
 
-.ultra-compact-table th { background: #1e3a8a; color: white; font-size: 11px; font-weight: bold; }
+/* منع انكسار كلمات العناوين مثل كلمة حضور */
+.ultra-compact-table th {
+    background: #1e3a8a;
+    color: white;
+    font-size: 10px !important;
+    font-weight: bold;
+    white-space: nowrap !important;
+    word-break: normal !important;
+    padding: 5px 2px !important;
+}
 
 @media (min-width: 768px) {
-    .ultra-compact-table, .ultra-compact-table th { font-size: 11px; padding: 5px; }
+    .ultra-compact-table, .ultra-compact-table th { font-size: 11px !important; padding: 5px !important; }
 }
 
 /* =========================================
-   Scanners & QR Codes Fix (حل المربع المزدوج)
+   Scanners & QR Containers Fix (حل نهائي للباركود)
 ========================================= */
 .scanner-wrapper {
     border-radius: 0.5rem;
@@ -305,51 +312,39 @@ input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
     display: none !important;
 }
 
-/* إخفاء عنصر الـ Canvas التلقائي لمنع ظهور المربع الفارغ تحت الصورة */
-#dashQr canvas, #intDashQr canvas, #modalQr canvas, #checkResultQr canvas {
-    display: none !important;
+/* ضبط إظهار الباركود والتمركز بدون مربعات فارغة */
+#dashQr, #intDashQr, #modalQr, #checkResultQr {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    margin: 0 auto !important;
 }
 
-#dashQr, #intDashQr {
-    width: 80px;
-    height: 80px;
-    margin: 0 auto;
-}
-
-#dashQr img, #intDashQr img {
+#dashQr img, #intDashQr img, #dashQr canvas, #intDashQr canvas {
     width: 80px !important;
     height: 80px !important;
-    object-fit: contain;
-    margin: 0 auto;
-    display: block !important;
+    max-width: 80px !important;
+    max-height: 80px !important;
+    object-fit: contain !important;
+    margin: 0 auto !important;
 }
 
-#modalQr {
-    width: 100px;
-    height: 100px;
-    margin: 0 auto;
-}
-
-#modalQr img {
+#modalQr img, #modalQr canvas {
     width: 100px !important;
     height: 100px !important;
-    object-fit: contain;
-    margin: 0 auto;
-    display: block !important;
+    max-width: 100px !important;
+    max-height: 100px !important;
+    object-fit: contain !important;
+    margin: 0 auto !important;
 }
 
-#checkResultQr {
-    width: 60px;
-    height: 60px;
-    margin: 0 auto;
-}
-
-#checkResultQr img {
+#checkResultQr img, #checkResultQr canvas {
     width: 60px !important;
     height: 60px !important;
-    object-fit: contain;
-    margin: 0 auto;
-    display: block !important;
+    max-width: 60px !important;
+    max-height: 60px !important;
+    object-fit: contain !important;
+    margin: 0 auto !important;
 }
 
 /* =========================================
@@ -379,7 +374,6 @@ input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
     box-sizing: border-box;
 }
 
-/* تثبيت لون النص الأبيض والأحمر فوراً بدون انتظار Tailwind */
 #loadingOverlay div[class*="text-2xl"] {
     font-size: 1.5rem !important;
     font-weight: 900 !important;
@@ -613,7 +607,7 @@ input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
 #toast { z-index: 9999999 !important; }
 
 /* =========================================
-   Print Styles
+   Print Styles (تكبير الخط في الطباعة والـ PDF)
 ========================================= */
 @media print {
     body {
@@ -625,8 +619,16 @@ input[readonly][onclick*="toggleCustomDropdown"]:not(#stdLevelDisplay) {
     th, .ultra-compact-table th, .custom-table th {
         background-color: #1e3a8a !important;
         color: white !important;
+        font-size: 11px !important;
+        padding: 6px 4px !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
+    }
+
+    td, .ultra-compact-table td, .custom-table td {
+        font-size: 11px !important;
+        padding: 6px 4px !important;
+        line-height: 1.4 !important;
     }
     
     .no-print { display: none !important; }

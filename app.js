@@ -127,6 +127,19 @@ async function requireXLSX() {
     });
 }
 
+let isHtml2PdfLoaded = false;
+async function requireHtml2Pdf() {
+    if (isHtml2PdfLoaded) return;
+    return new Promise((resolve, reject) => {
+        window.showToast('جاري تحضير محرك PDF...', 'success');
+        const script = document.createElement('script');
+        script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
+        script.onload = () => { isHtml2PdfLoaded = true; resolve(); };
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+}
+
 let isQrLoaded = false;
 async function requireQRScanner() {
     if (isQrLoaded) return;
@@ -1608,9 +1621,38 @@ window.printHTML = async function(title, content) {
     }
 };
 
-window.savePDF = function(title, content, isLandscape = false) {
-    window.showToast('اختر "حفظ كملف PDF" من نافذة الطباعة', 'success');
-    window.printHTML(title, content, isLandscape);
+window.savePDF = async function(title, content, isLandscape = false) {
+    window.showToast('جاري تجهيز ملف PDF، يرجى الانتظار...', 'success');
+    await requireHtml2Pdf();
+    
+    // إنشاء حاوية مخفية تماماً خارج الشاشة لعدم التأثير على واجهة المستخدم
+    const tempDiv = document.createElement('div');
+    tempDiv.style.position = 'absolute';
+    tempDiv.style.left = '-99999px';
+    tempDiv.style.top = '-99999px';
+    // تحديد عرض ثابت يحاكي ورقة A4 لضمان عدم ضغط العناصر
+    tempDiv.style.width = isLandscape ? '1122px' : '800px'; 
+    tempDiv.style.backgroundColor = '#ffffff';
+    tempDiv.innerHTML = getPrintTemplate(title, content);
+    document.body.appendChild(tempDiv);
+
+    const opt = {
+        margin:       [5, 5, 5, 5],
+        filename:     `${title.replace(/\s+/g, '_')}.pdf`,
+        image:        { type: 'jpeg', quality: 1 },
+        html2canvas:  { scale: 2, useCORS: true, logging: false },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: isLandscape ? 'landscape' : 'portrait' },
+        pagebreak:    { mode: ['css', 'legacy'] } // يحترم كود page-break-inside: avoid الموجود في الـ CSS الخاص بك
+    };
+
+    try {
+        await html2pdf().set(opt).from(tempDiv).save();
+        window.showToast('تم تحميل ملف PDF بنجاح', 'success');
+    } catch (err) {
+        window.showToast('حدث خطأ أثناء استخراج PDF', 'error');
+    } finally {
+        document.body.removeChild(tempDiv);
+    }
 };
 
 window.printContent = function(elementId, title) {
@@ -1618,7 +1660,10 @@ window.printContent = function(elementId, title) {
     window.printHTML(title, content);
 }
 
-window.pdfContent = function(elementId, title) { window.printContent(elementId, title); }
+window.pdfContent = function(elementId, title) {
+    const content = `<table class="ultra-compact-table"><thead>${document.getElementById('intAttHead').innerHTML}</thead><tbody>${document.getElementById('intAttBody').innerHTML}</tbody></table>`;
+    window.savePDF(title, content);
+}
 
 window.printStudentCard = async function() {
     const s = state.members.find(st => st.id === state.currentModalStudentId);
@@ -1640,7 +1685,24 @@ window.printStudentCard = async function() {
     window.printHTML('بطاقة عضو', content);
 }
 
-window.shareStudentPdf = function() { window.printStudentCard(); }
+window.shareStudentPdf = async function() { 
+    const s = state.members.find(st => st.id === state.currentModalStudentId);
+    if(!s) return;
+    const qrImageHtml = await generateQRBase64(s.id);
+    const stdPhone = s.ownPhone || s.phone || 'غير مسجل';
+    const content = `
+        <div class="print-student-card">
+            <div class="print-card-title">بطاقة عضو YLY</div>
+            <div class="print-card-name">${escapeHTML(s.name)}</div>
+            <div style="display:flex; justify-content:center; margin:10px 0;">${qrImageHtml}</div>
+            <div class="print-card-row"><span>كود العضو:</span> <span>${escapeHTML(s.id)}</span></div>
+            <div class="print-card-row"><span>كلمة السر:</span> <span>${escapeHTML(s.password || '----')}</span></div>
+            <div class="print-card-row"><span>اللجنة:</span> <span>${escapeHTML(stageMap[s.level] || s.level)}</span></div>
+            <div class="print-card-row"><span>رقم الهاتف:</span> <span>${escapeHTML(stdPhone)}</span></div>
+            <div class="print-card-row"><span>تاريخ الانضمام:</span> <span>${escapeHTML(s.date)}</span></div>
+        </div>`;
+    window.savePDF(`بطاقة_عضو_${s.name}`, content);
+}
 
 async function buildFullStudentReportHTML(member, sAtt, sAcc) {
     const qrImageHtml = await generateQRBase64(member.id);
@@ -1703,7 +1765,13 @@ window.printStudentDashboard = async function() {
     window.printHTML(`تقرير_متابعة_${s.name}`, content);
 }
 
-window.pdfStudentDashboard = function() { window.printStudentDashboard(); }
+window.pdfStudentDashboard = async function() { 
+    const code = document.getElementById('dashCode').innerText;
+    const s = state.members.find(st => st.id === code);
+    if(!s) return;
+    const content = await buildFullStudentReportHTML(s, state.attendance, state.accounting);
+    window.savePDF(`تقرير_متابعة_${s.name}`, content);
+}
 
 window.printInternalStudentDash = async function() {
     const code = document.getElementById('intDashCode').innerText;
@@ -1770,7 +1838,22 @@ window.excelDetailedStudentReport = async function(code) {
     window.exportToExcelStyle(headers, rows, reportTitle, `تقرير_العضو_${s.name}`);
 }
 
-window.pdfDetailedStudentReport = function(code) { window.printInternalStudentDash(); }
+window.pdfDetailedStudentReport = async function(code) { 
+    const s = state.members.find(st => st.id === code);
+    if(!s) return;
+    let sAtt = []; let sAcc = [];
+    try {
+        const attQ = query(collection(db, "attendance"), where("studentId", "in", [code, "EVENT_MARKER"]));
+        const accQ = query(collection(db, "accounting"), where("stdId", "==", code));
+        const [attSnap, accSnap] = await Promise.all([getDocs(attQ), getDocs(accQ)]);
+        attSnap.forEach(d => sAtt.push(d.data()));
+        accSnap.forEach(d => sAcc.push(d.data()));
+    } catch(e) {
+        sAtt = state.attendance; sAcc = state.accounting;
+    }
+    const content = await buildFullStudentReportHTML(s, sAtt, sAcc);
+    window.savePDF(`تقرير_العضو_${s.name}`, content);
+}
 
 window.printStudentsList = function() {
     let rows = state.members.map((s, i) => `<tr><td style="width:30px;">${i+1}</td><td style="width:60px;">${s.id}</td><td style="font-weight:bold; width:220px;">${escapeHTML(s.name)}</td><td style="width:90px;">${escapeHTML(stageMap[s.level] || s.level)}</td><td style="width:80px;">${s.date}</td></tr>`).join('');
@@ -1778,7 +1861,26 @@ window.printStudentsList = function() {
     window.printHTML('قائمة الأعضاء المسجلين', content);
 }
 
-window.pdfStudentsList = function() { window.printStudentsList(); }
+window.pdfStudentsList = function() { 
+    let rows = state.members.map((s, i) => `<tr><td style="width:30px;">${i+1}</td><td style="width:60px;">${s.id}</td><td style="font-weight:bold; width:220px;">${escapeHTML(s.name)}</td><td style="width:90px;">${escapeHTML(stageMap[s.level] || s.level)}</td><td style="width:80px;">${s.date}</td></tr>`).join('');
+    const content = `<table class="ultra-compact-table"><thead><tr><th style="width: 30px;">م</th><th style="width: 60px;">الكود</th><th style="width: 220px;">الاسم</th><th style="width: 90px;">اللجنة</th><th style="width: 80px;">تاريخ الانضمام</th></tr></thead><tbody>${rows}</tbody></table>`;
+    window.savePDF('قائمة الأعضاء المسجلين', content);
+}
+
+window.pdfCombinedReport = function() {
+    if(!state.currentReportData.combined || state.currentReportData.combined.length === 0) return window.showToast('لا توجد بيانات للطباعة', 'error');
+    const title = getReportTitleHeader("التقرير الشامل");
+    const isDaily = document.getElementById('reportType').value === 'daily';
+    
+    let rows = isDaily 
+        ? state.currentReportData.combined.map((c, i) => `<tr><td>${i+1}</td><td>${c.id}</td><td style="font-weight:bold;">${escapeHTML(c.name)}</td><td>${escapeHTML(stageMap[c.level]||c.level)}</td><td style="color:blue; font-weight:bold;">${c.totalPoints}</td><td style="font-weight:bold; color:${c.presentCount > 0 ? 'green' : 'red'};">${c.presentCount > 0 ? 'حاضر' : 'غائب'}</td><td>${c.presentCount > 0 ? (c.presentTime || '-') : '-'}</td></tr>`).join('')
+        : state.currentReportData.combined.map((c, i) => `<tr><td>${i+1}</td><td>${c.id}</td><td style="font-weight:bold;">${escapeHTML(c.name)}</td><td>${escapeHTML(c.level)}</td><td style="color:blue; font-weight:bold;">${c.totalPoints}</td><td style="color:green; font-weight:bold;">${c.presentCount}</td><td style="color:red; font-weight:bold;">${c.absentCount}</td><td style="color:green; font-size:9.5px; line-height:1.4;">${c.presentDates.join(' ، ') || '-'}</td><td style="color:red; font-size:9.5px; line-height:1.4;">${c.absentDates.join(' ، ') || '-'}</td></tr>`).join('');
+
+    const content = `<table class="ultra-compact-table"><thead><tr>${isDaily 
+        ? '<th style="width:5%;">م</th><th style="width:10%;">الكود</th><th style="width:38%;">الاسم</th><th style="width:11%;">اللجنة</th><th style="width:12%;">النقاط</th><th style="width:11%;">الحالة</th><th style="width:13%;">وقت الحضور</th>' 
+        : '<th style="width:4%;">م</th><th style="width:8%;">الكود</th><th style="width:22%;">الاسم</th><th style="width:8%;">اللجنة</th><th style="width:7%;">النقاط</th><th style="width:5%;">حضور</th><th style="width:5%;">غياب</th><th style="width:20.5%;">تواريخ الحضور</th><th style="width:20.5%;">تواريخ الغياب</th>'}</tr></thead><tbody>${rows}</tbody></table>`;
+    window.savePDF(title, content);
+}
 
 window.printCombinedReport = function() {
     if(!state.currentReportData.combined || state.currentReportData.combined.length === 0) return window.showToast('لا توجد بيانات للطباعة', 'error');
@@ -1811,7 +1913,20 @@ window.printAttendanceReport = function() {
     window.printHTML(title, content);
 }
 
-window.pdfAttendanceReport = function() { window.printAttendanceReport(); }
+window.pdfAttendanceReport = function() { 
+    if(!state.currentReportData.combined || state.currentReportData.combined.length === 0) return window.showToast('لا توجد بيانات للطباعة', 'error');
+    const title = getReportTitleHeader("تقرير الحضور والغياب");
+    const isDaily = document.getElementById('reportType').value === 'daily';
+    
+    let rows = isDaily 
+        ? state.currentReportData.combined.map((c, i) => `<tr><td>${i+1}</td><td>${c.id}</td><td style="font-weight:bold;">${escapeHTML(c.name)}</td><td>${escapeHTML(stageMap[c.level]||c.level)}</td><td style="font-weight:bold; color:${c.presentCount > 0 ? 'green' : 'red'};">${c.presentCount > 0 ? 'حاضر' : 'غائب'}</td><td>${c.presentCount > 0 ? (c.presentTime || '-') : '-'}</td></tr>`).join('')
+        : state.currentReportData.combined.map((c, i) => `<tr><td>${i+1}</td><td>${c.id}</td><td style="font-weight:bold;">${escapeHTML(c.name)}</td><td>${escapeHTML(stageMap[c.level]||c.level)}</td><td style="color:green; font-weight:bold;">${c.presentCount}</td><td style="color:red; font-weight:bold;">${c.absentCount}</td><td style="color:green; font-size:9.5px; line-height:1.4;">${c.presentDates.join(' ، ') || '-'}</td><td style="color:red; font-size:9.5px; line-height:1.4;">${c.absentDates.join(' ، ') || '-'}</td></tr>`).join('');
+
+    const content = `<table class="ultra-compact-table"><thead><tr>${isDaily 
+        ? '<th style="width:5%;">م</th><th style="width:12%;">الكود</th><th style="width:42%;">الاسم</th><th style="width:12%;">اللجنة</th><th style="width:14%;">الحالة</th><th style="width:15%;">وقت الحضور</th>' 
+        : '<th style="width:4%;">م</th><th style="width:9%;">الكود</th><th style="width:25%;">الاسم</th><th style="width:9%;">اللجنة</th><th style="width:6%;">حضور</th><th style="width:6%;">غياب</th><th style="width:20.5%;">تواريخ الحضور</th><th style="width:20.5%;">تواريخ الغياب</th>'}</tr></thead><tbody>${rows}</tbody></table>`;
+    window.savePDF(title, content);
+}
 
 window.printPointsReport = function() {
     if(!state.currentReportData.points || state.currentReportData.points.length === 0) return window.showToast('لا توجد بيانات للطباعة', 'error');
@@ -1821,7 +1936,13 @@ window.printPointsReport = function() {
     window.printHTML(title, content);
 }
 
-window.pdfPointsReport = function() { window.printPointsReport(); }
+window.pdfPointsReport = function() { 
+    if(!state.currentReportData.points || state.currentReportData.points.length === 0) return window.showToast('لا توجد بيانات للطباعة', 'error');
+    const title = getReportTitleHeader("تقرير النقاط والمهام");
+    let rows = state.currentReportData.points.map((p, i) => `<tr><td>${i+1}</td><td>${p.stdId}</td><td style="font-weight:bold;">${escapeHTML(p.name)}</td><td>${escapeHTML(p.type)}</td><td style="color:blue; font-weight:bold;">${p.amount}</td><td>${p.date}</td></tr>`).join('');
+    const content = `<table class="ultra-compact-table"><thead><tr><th style="width:5%;">م</th><th style="width:11%;">الكود</th><th style="width:38%;">الاسم</th><th style="width:22%;">المهمة/التقييم</th><th style="width:12%;">النقاط</th><th style="width:12%;">التاريخ</th></tr></thead><tbody>${rows}</tbody></table>`;
+    window.savePDF(title, content);
+}
 
 // ==========================================
 // 14. Full Professional Excel Engine

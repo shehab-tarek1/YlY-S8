@@ -1738,7 +1738,13 @@ function getPrintTemplate(title, content) {
         <div class="print-header">
             <div class="print-meta-area"><div>تاريخ الطباعة: ${todayPrintDate}</div><div>YLY System</div></div>
             <div class="print-title-area"><h1>YLY Leaders</h1><h2>${escapeHTML(title)}</h2></div>
-            <div class="print-logo-area"><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_aut
+            <div class="print-logo-area"><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" crossorigin="anonymous"></div>
+        </div>
+        <div class="print-body">${content}</div>
+    </div>`;
+}
+
+
 window.printHTML = async function(title, content) {
     if (state.isPrinting) return;
     state.isPrinting = true;

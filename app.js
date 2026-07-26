@@ -1609,7 +1609,7 @@ window.printHTML = async function(title, content) {
 window.savePDF = async function(title, content) {
     window.showToast('جاري تحضير واستخراج ملف الـ PDF...', 'success');
     
-    // تحميل مكتبة html2pdf إذا لم تكن موجودة
+    // 1. تحميل مكتبة html2pdf إذا لم تكن موجودة
     if (typeof html2pdf === 'undefined') {
         await new Promise((resolve, reject) => {
             const script = document.createElement('script');
@@ -1620,7 +1620,7 @@ window.savePDF = async function(title, content) {
         });
     }
 
-    // إنشاء حاوية مخفية خارج الشاشة بأبعاد الورقة الفعلية (A4 = 210mm)
+    // 2. تهيئة الحاوية المخفية
     let container = document.getElementById('pdf-generator-container');
     if (!container) {
         container = document.createElement('div');
@@ -1628,26 +1628,35 @@ window.savePDF = async function(title, content) {
         document.body.appendChild(container);
     }
     
-    // الغلاف الخارجي LTR لضبط هيكلة المتصفح، والغلاف الداخلي RTL لدعم اللغة العربية
-    container.style.cssText = 'position: fixed; top: -9999px; left: -9999px; width: 210mm; background: #ffffff; z-index: -9999; visibility: visible; direction: ltr;';
-    container.innerHTML = `<div dir="rtl" style="direction: rtl;">${getPrintTemplate(title, content)}</div>`;
+    // ضبط الستايل ليكون خارج الشاشة تماماً ولكن قابل للقراءة بواسطة المكتبة
+    container.style.cssText = 'position: fixed; left: -9999px; top: 0; width: 210mm; min-height: 297mm; background: white; z-index: -9999; visibility: visible; direction: ltr;';
+    
+    // 3. حقن المحتوى داخل الحاوية
+    container.innerHTML = `<div style="direction: rtl; width: 100%; margin: 0 auto;">${getPrintTemplate(title, content)}</div>`;
 
-    const opt = {
-        margin:       4,
-        filename:     `${title.replace(/\s+/g, '_')}.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true, logging: false },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
+    // 4. السر هنا: إعطاء المتصفح نصف ثانية (500 ملي ثانية) لرسم الجداول والـ CSS قبل الالتقاط
+    setTimeout(async () => {
+        // استهداف العنصر الداخلي مباشرة كما في الكود الناجح
+        const element = container.firstElementChild;
 
-    try {
-        await html2pdf().set(opt).from(container).save();
-        window.showToast('تم تحميل ملف الـ PDF بنجاح', 'success');
-    } catch(e) {
-        window.showToast('حدث خطأ أثناء التصدير', 'error');
-    } finally {
-        container.innerHTML = '';
-    }
+        const opt = {
+            margin:       4,
+            filename:     `${title.replace(/\s+/g, '_')}.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true, logging: false },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        try {
+            await html2pdf().set(opt).from(element).save();
+            window.showToast('تم تحميل ملف الـ PDF بنجاح', 'success');
+        } catch(e) {
+            window.showToast('حدث خطأ أثناء التصدير', 'error');
+        } finally {
+            // تفريغ المحتوى بعد الانتهاء تماماً
+            container.innerHTML = '';
+        }
+    }, 500); // المهلة الزمنية
 };
 
 window.printContent = function(elementId, title) {

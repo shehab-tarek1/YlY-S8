@@ -1625,45 +1625,38 @@ window.savePDF = async function(title, content, isLandscape = false) {
     window.showToast('جاري تجهيز ملف PDF، يرجى الانتظار...', 'success');
     await requireHtml2Pdf();
     
-    // إنشاء حاوية مخفية تماماً خارج الشاشة لعدم التأثير على واجهة المستخدم
-    const tempDiv = document.createElement('div');
-    tempDiv.style.position = 'absolute';
-    tempDiv.style.left = '-99999px';
-    tempDiv.style.top = '-99999px';
-    // تحديد عرض ثابت يحاكي ورقة A4 لضمان عدم ضغط العناصر
-    tempDiv.style.width = isLandscape ? '1122px' : '800px'; 
-    tempDiv.style.backgroundColor = '#ffffff';
-    tempDiv.innerHTML = getPrintTemplate(title, content);
-    document.body.appendChild(tempDiv);
+    // تجهيز القالب بالكامل كنص HTML
+    const fullHtml = getPrintTemplate(title, content);
 
+    // إعدادات الـ PDF الاحترافية
     const opt = {
-        margin:       [5, 5, 5, 5],
+        margin:       [10, 10, 10, 10], // إضافة حواف (Margins) 10 ملم من جميع الاتجاهات
         filename:     `${title.replace(/\s+/g, '_')}.pdf`,
         image:        { type: 'jpeg', quality: 1 },
-        html2canvas:  { scale: 2, useCORS: true, logging: false },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: isLandscape ? 'landscape' : 'portrait' },
-        pagebreak:    { mode: ['css', 'legacy'] } // يحترم كود page-break-inside: avoid الموجود في الـ CSS الخاص بك
+        html2canvas:  { 
+            scale: 2, // دقة عالية
+            useCORS: true, // للسماح بتحميل لوجو YLY من الرابط الخارجي
+            logging: false,
+            windowWidth: isLandscape ? 1122 : 800 // إجبار محرك الرسم على عرض محدد يحاكي ورقة A4
+        },
+        jsPDF:        { 
+            unit: 'mm', 
+            format: 'a4', 
+            orientation: isLandscape ? 'landscape' : 'portrait' 
+        },
+        pagebreak:    { 
+            mode: ['css', 'legacy'] // تفعيل خاصية تعدد الصفحات وعدم قطع الجداول من المنتصف
+        }
     };
 
     try {
-        await html2pdf().set(opt).from(tempDiv).save();
+        // تمرير الـ HTML مباشرة للمكتبة (هي ستتكفل برسمه في بيئة معزولة دون التأثير على الشاشة)
+        await html2pdf().set(opt).from(fullHtml).save();
         window.showToast('تم تحميل ملف PDF بنجاح', 'success');
     } catch (err) {
         window.showToast('حدث خطأ أثناء استخراج PDF', 'error');
-    } finally {
-        document.body.removeChild(tempDiv);
     }
 };
-
-window.printContent = function(elementId, title) {
-    const content = `<table class="ultra-compact-table"><thead>${document.getElementById('intAttHead').innerHTML}</thead><tbody>${document.getElementById('intAttBody').innerHTML}</tbody></table>`;
-    window.printHTML(title, content);
-}
-
-window.pdfContent = function(elementId, title) {
-    const content = `<table class="ultra-compact-table"><thead>${document.getElementById('intAttHead').innerHTML}</thead><tbody>${document.getElementById('intAttBody').innerHTML}</tbody></table>`;
-    window.savePDF(title, content);
-}
 
 window.printStudentCard = async function() {
     const s = state.members.find(st => st.id === state.currentModalStudentId);

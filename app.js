@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, onSnapshot, query, where, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, onSnapshot, query, where, updateDoc, enableMultiTabIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 // ==========================================
@@ -17,6 +17,14 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+// تفعيل حفظ البيانات وعمل السيرفر في وضع الأوفلاين (Offline Persistence)
+enableMultiTabIndexedDbPersistence(db).catch((err) => {
+    if (err.code == 'failed-precondition') {
+        console.warn('تنبيه: التخزين الأوفلاين يعمل في تبويب واحد فقط.');
+    } else if (err.code == 'unimplemented') {
+        console.warn('تنبيه: المتصفح الحالي لا يدعم التخزين المحلي لـ Firestore.');
+    }
+});
 const auth = getAuth(app);
 
 // ==========================================
@@ -2185,3 +2193,4 @@ document.getElementById('internalReportPage').addEventListener('scroll', functio
         }
     }
 });
+

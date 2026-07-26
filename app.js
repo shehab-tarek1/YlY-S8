@@ -1555,32 +1555,32 @@ function getReportTitleHeader(baseTitle) {
 function getPrintTemplate(title, content) {
     const todayPrintDate = new Date().toLocaleDateString('ar-EG');
     return `
-    <div dir="rtl" style="font-family: 'Cairo', sans-serif; direction: rtl; text-align: right; background-color: #ffffff; width: 100%; padding: 20px; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+    <div class="print-page" dir="rtl" style="font-family: 'Cairo', sans-serif; direction: rtl; text-align: right; background-color: #ffffff; width: 100%; padding: 20px; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
             
-            /* إجبار الخط وعدم فصل الحروف */
-            * { font-family: 'Cairo', sans-serif !important; letter-spacing: normal !important; }
+            /* عزل التصميم (Scoping): كل سطر هنا يبدأ بـ .print-page لمنع تشويه الموقع */
+            .print-page, .print-page * { font-family: 'Cairo', sans-serif !important; }
             
-            .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 5px; margin-bottom: 15px; width: 100%; }
-            .print-meta-area { text-align: right; font-size: 11px; color: #4b5563; font-weight: 700; direction: rtl; }
-            .print-title-area { text-align: center; flex: 1; padding: 0 10px; }
-            .print-title-area h1 { font-size: 20px; font-weight: 900; margin: 0; color: #1e3a8a; }
-            .print-title-area h2 { font-size: 14px; font-weight: 800; margin: 4px 0 0 0; color: #dc2626; }
-            .print-logo-area img { width: 50px; height: 50px; object-fit: contain; }
+            .print-page .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 5px; margin-bottom: 15px; width: 100%; }
+            .print-page .print-meta-area { text-align: right; font-size: 11px; color: #4b5563; font-weight: 700; direction: rtl; }
+            .print-page .print-title-area { text-align: center; flex: 1; padding: 0 10px; }
+            .print-page .print-title-area h1 { font-size: 20px; font-weight: 900; margin: 0; color: #1e3a8a; }
+            .print-page .print-title-area h2 { font-size: 14px; font-weight: 800; margin: 4px 0 0 0; color: #dc2626; }
+            .print-page .print-logo-area img { width: 50px; height: 50px; object-fit: contain; }
             
-            /* إصلاح الجداول واللون الأزرق */
-            table { width: 100% !important; border-collapse: collapse !important; margin-top: 10px !important; direction: rtl !important; background-color: #ffffff !important; }
-            tr { page-break-inside: avoid !important; }
-            thead, thead tr, th { background-color: #1e3a8a !important; color: #ffffff !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            th { font-weight: 900 !important; border: 1px solid #1e3a8a !important; padding: 8px 4px !important; text-align: center !important; font-size: 12px !important; }
-            td { border: 1px solid #d1d5db !important; padding: 6px 4px !important; font-size: 12px !important; font-weight: 700 !important; text-align: center !important; color: #000000 !important; }
+            /* تصميم الجداول المعزول */
+            .print-page table { width: 100% !important; border-collapse: collapse !important; margin-top: 10px !important; direction: rtl !important; background-color: #ffffff !important; table-layout: fixed !important; }
+            .print-page tr { page-break-inside: avoid !important; }
+            .print-page thead, .print-page thead tr, .print-page th { background-color: #1e3a8a !important; color: #ffffff !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .print-page th { font-weight: 900 !important; border: 1px solid #1e3a8a !important; padding: 8px 4px !important; text-align: center !important; font-size: 11px !important; word-wrap: break-word; }
+            .print-page td { border: 1px solid #d1d5db !important; padding: 6px 4px !important; font-size: 11px !important; font-weight: 700 !important; text-align: center !important; color: #000000 !important; word-wrap: break-word; }
             
-            .print-body { display: flex; flex-direction: column; align-items: center; width: 100%; }
-            .print-student-card { border: 3px double #1e3a8a !important; border-radius: 12px; padding: 15px; width: 320px; max-width: 100%; margin: 15px auto; text-align: center; page-break-inside: avoid; background-color: #ffffff; direction: rtl; }
-            .print-card-title { font-size: 16px; font-weight: bold; margin-bottom: 8px; color: #dc2626; }
-            .print-card-name { font-size: 20px; font-weight: 900; margin: 8px 0; border-bottom: 2px solid #1e3a8a; padding-bottom: 8px; color: #000000; }
-            .print-card-row { font-size: 12px; font-weight: bold; margin: 6px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #cccccc; padding: 4px 0; direction: rtl; color: #000000; }
+            .print-page .print-body { display: flex; flex-direction: column; align-items: center; width: 100%; }
+            .print-page .print-student-card { border: 3px double #1e3a8a !important; border-radius: 12px; padding: 15px; width: 320px; max-width: 100%; margin: 15px auto; text-align: center; page-break-inside: avoid; background-color: #ffffff; direction: rtl; }
+            .print-page .print-card-title { font-size: 16px; font-weight: bold; margin-bottom: 8px; color: #dc2626; }
+            .print-page .print-card-name { font-size: 20px; font-weight: 900; margin: 8px 0; border-bottom: 2px solid #1e3a8a; padding-bottom: 8px; color: #000000; }
+            .print-page .print-card-row { font-size: 12px; font-weight: bold; margin: 6px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #cccccc; padding: 4px 0; direction: rtl; color: #000000; }
         </style>
         
         <div class="print-header">
@@ -1626,28 +1626,22 @@ window.savePDF = async function(title, content, isLandscape = false) {
     window.showToast('جاري تجهيز ملف PDF، يرجى الانتظار...', 'success');
     await requireHtml2Pdf();
     
-    // 1. الصندوق الوهمي (الخدعة): حجمه صفر ويخفي ما بداخله لمنع تشوه الشاشة
+    // إنشاء الحاوية خارج الشاشة تماماً (بمسافة شاشتين لليمين) لمنع أي تشوه في الموقع
     const wrapper = document.createElement('div');
-    wrapper.style.position = 'absolute';
+    wrapper.style.position = 'fixed';
+    wrapper.style.right = '200vw'; 
     wrapper.style.top = '0';
-    wrapper.style.left = '0';
-    wrapper.style.width = '0px';
-    wrapper.style.height = '0px';
-    wrapper.style.overflow = 'hidden'; // يخفي التقرير عن عين المستخدم
-    wrapper.style.zIndex = '-1';
-
-    // 2. الحاوية الحقيقية التي سيتم تصويرها (ستأخذ حجمها الطبيعي داخل الصندوق)
-    const container = document.createElement('div');
+    wrapper.style.zIndex = '-9999';
+    wrapper.dir = 'rtl'; // إجبار الحاوية الأم على اللغة العربية لإصلاح مشكلة الكلمات المعكوسة
+    
+    // تحديد عرض حقيقي مطابق للورقة لإصلاح مشكلة انزياح الجدول لليمين
     const pdfWidth = isLandscape ? 1122 : 794; 
-    container.style.width = pdfWidth + 'px'; // عرض A4 حقيقي لمنع التمركز الخاطئ
-    container.style.backgroundColor = '#ffffff';
-    container.innerHTML = getPrintTemplate(title, content);
-
-    // تركيب العناصر في الصفحة
-    wrapper.appendChild(container);
+    wrapper.style.width = pdfWidth + 'px'; 
+    wrapper.style.backgroundColor = '#ffffff';
+    
+    wrapper.innerHTML = getPrintTemplate(title, content);
     document.body.appendChild(wrapper);
 
-    // 3. إعدادات الـ PDF
     const opt = {
         margin:       [10, 10, 10, 10],
         filename:     `${title.replace(/\s+/g, '_')}.pdf`,
@@ -1656,8 +1650,8 @@ window.savePDF = async function(title, content, isLandscape = false) {
             scale: 2, 
             useCORS: true, 
             logging: false,
-            letterRendering: true, // يمنع تقطيع الحروف العربية
-            windowWidth: pdfWidth
+            windowWidth: pdfWidth, // إجبار الكاميرا على نفس العرض
+            width: pdfWidth // منع الكاميرا من قص الجداول
         },
         jsPDF:        { 
             unit: 'mm', 
@@ -1667,20 +1661,22 @@ window.savePDF = async function(title, content, isLandscape = false) {
         pagebreak:    { mode: ['css', 'legacy'] }
     };
 
-    // 4. ننتظر 800 ملي ثانية ليقوم المتصفح برسم الجداول والخطوط، ثم نستخرج الملف
-    setTimeout(async () => {
-        try {
-            await html2pdf().set(opt).from(container).save();
-            window.showToast('تم تحميل ملف PDF بنجاح', 'success');
-        } catch (err) {
-            window.showToast('حدث خطأ أثناء استخراج PDF', 'error');
-        } finally {
-            // تنظيف الصفحة تماماً بعد الانتهاء
-            if (document.body.contains(wrapper)) {
-                document.body.removeChild(wrapper);
+    // استخدام document.fonts.ready لضمان تحميل خط Cairo بالكامل قبل التصوير
+    document.fonts.ready.then(() => {
+        setTimeout(async () => {
+            try {
+                await html2pdf().set(opt).from(wrapper).save();
+                window.showToast('تم تحميل ملف PDF بنجاح', 'success');
+            } catch (err) {
+                window.showToast('حدث خطأ أثناء استخراج PDF', 'error');
+            } finally {
+                // تنظيف الصفحة فور الانتهاء
+                if (document.body.contains(wrapper)) {
+                    document.body.removeChild(wrapper);
+                }
             }
-        }
-    }, 800); 
+        }, 500);
+    });
 };
 
 window.printContent = function(elementId, title) {

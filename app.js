@@ -1555,38 +1555,35 @@ function getReportTitleHeader(baseTitle) {
 function getPrintTemplate(title, content) {
     const todayPrintDate = new Date().toLocaleDateString('ar-EG');
     return `
-    <div dir="rtl" class="print-page" style="font-family: 'Cairo', sans-serif; direction: rtl; text-align: right; background: #fff; padding: 10px; width: 100%; max-width: 100%; margin: 0 auto; font-variant-ligatures: normal;">
+    <div style="font-family: 'Cairo', sans-serif; direction: rtl; text-align: right; background-color: #ffffff; width: 100%; padding: 10px; box-sizing: border-box; font-variant-ligatures: normal;">
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
             
-            /* تم إزالة النجمة * لحل مشكلة تقطيع الحروف العربية */
-            .print-page, .print-page div, .print-page span, .print-page td, .print-page th {
-                font-family: 'Cairo', sans-serif !important;
-                letter-spacing: normal !important; /* هام جدا لعدم فصل الحروف */
-            }
+            /* منع فصل الحروف العربية */
+            div, span, td, th, h1, h2, p { font-family: 'Cairo', sans-serif !important; letter-spacing: normal !important; }
             
-            .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 4px; margin-bottom: 15px; width: 100%; }
-            .print-meta-area { text-align: right; font-size: 9pt; color: #4b5563; font-weight: 700; direction: rtl; }
-            .print-title-area { text-align: center; flex: 1; padding: 0 5px; }
-            .print-title-area h1 { font-size: 15pt; font-weight: 900; margin: 0; color: #1e3a8a; }
-            .print-title-area h2 { font-size: 11pt; font-weight: 800; margin: 2px 0 0 0; color: #dc2626; }
+            .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 5px; margin-bottom: 15px; width: 100%; }
+            .print-meta-area { text-align: right; font-size: 10px; color: #4b5563; font-weight: 700; direction: rtl; }
+            .print-title-area { text-align: center; flex: 1; padding: 0 10px; }
+            .print-title-area h1 { font-size: 18px; font-weight: 900; margin: 0; color: #1e3a8a; }
+            .print-title-area h2 { font-size: 14px; font-weight: 800; margin: 4px 0 0 0; color: #dc2626; }
             .print-logo-area img { width: 45px; height: 45px; object-fit: contain; }
             
-            /* ضبط الجداول لملء العرض ومنع خروجها عن الإطار */
-            table { width: 100% !important; max-width: 100% !important; border-collapse: collapse !important; margin-top: 5px !important; table-layout: fixed !important; page-break-inside: auto !important; direction: rtl !important; }
-            tr { page-break-inside: avoid !important; page-break-after: auto !important; }
+            /* تصميم الجداول بشكل احترافي */
+            table { width: 100% !important; border-collapse: collapse !important; margin-top: 10px !important; table-layout: fixed !important; direction: rtl !important; }
+            tr { page-break-inside: avoid !important; }
             thead { display: table-header-group !important; }
-            th { background-color: #1e3a8a !important; color: #ffffff !important; font-weight: 900 !important; border: 1px solid #1e3a8a !important; padding: 8px 2px !important; text-align: center !important; font-size: 12.5px !important; word-wrap: break-word !important; }
-            td { border: 1px solid #d1d5db !important; padding: 6px 2px !important; font-size: 11.5px !important; font-weight: 700 !important; text-align: center !important; vertical-align: middle !important; word-wrap: break-word !important; color: #000 !important; }
+            th { background-color: #1e3a8a !important; color: #ffffff !important; font-weight: 900 !important; border: 1px solid #1e3a8a !important; padding: 8px 4px !important; text-align: center !important; font-size: 12px !important; word-wrap: break-word !important; }
+            td { border: 1px solid #d1d5db !important; padding: 6px 4px !important; font-size: 11px !important; font-weight: 700 !important; text-align: center !important; vertical-align: middle !important; word-wrap: break-word !important; color: #000000 !important; }
             
-            /* توسيط الكارنيه داخل الورقة */
+            /* تصميم الكارنيه في المنتصف */
             .print-body { display: flex; flex-direction: column; align-items: center; width: 100%; }
-            .print-student-card { border: 4px double #1e3a8a !important; border-radius: 15px; padding: 15px; width: 350px; margin: 15px auto; text-align: center; page-break-inside: avoid; background: #fff; direction: rtl; }
-            .print-card-title { font-size: 14pt; font-weight: bold; margin-bottom: 8px; color: #dc2626; }
-            .print-card-name { font-size: 17pt; font-weight: 900; margin: 8px 0; border-bottom: 2px solid #1e3a8a; padding-bottom: 8px; color: #000; }
-            .print-card-row { font-size: 11pt; font-weight: bold; margin: 6px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding: 4px 0; direction: rtl; }
-            .ultra-compact-table { width: 100%; }
+            .print-student-card { border: 3px double #1e3a8a !important; border-radius: 12px; padding: 15px; width: 320px; max-width: 100%; margin: 15px auto; text-align: center; page-break-inside: avoid; background-color: #ffffff; direction: rtl; }
+            .print-card-title { font-size: 16px; font-weight: bold; margin-bottom: 8px; color: #dc2626; }
+            .print-card-name { font-size: 20px; font-weight: 900; margin: 8px 0; border-bottom: 2px solid #1e3a8a; padding-bottom: 8px; color: #000000; }
+            .print-card-row { font-size: 12px; font-weight: bold; margin: 6px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #cccccc; padding: 4px 0; direction: rtl; color: #000000; }
         </style>
+        
         <div class="print-header">
             <div class="print-meta-area"><div>تاريخ الطباعة: ${todayPrintDate}</div><div>YLY System</div></div>
             <div class="print-title-area"><h1>YLY Leaders</h1><h2>${escapeHTML(title)}</h2></div>
@@ -1627,63 +1624,40 @@ window.printHTML = async function(title, content) {
 };
 
 window.savePDF = async function(title, content, isLandscape = false) {
-    window.showToast('جاري تحضير ملف PDF، يرجى الانتظار...', 'success');
+    window.showToast('جاري تجهيز ملف PDF، يرجى الانتظار...', 'success');
     await requireHtml2Pdf();
     
-    // 1. إنشاء حاوية حقيقية في الـ DOM لضمان رسم الخطوط العربية وتصحيح التمركز
-    const container = document.createElement('div');
-    // تحديد عرض يحاكي ورقة A4 (بالبكسل) لضبط الجداول
-    const pdfWidth = isLandscape ? 1122 : 794; 
-    
-    container.style.width = `${pdfWidth}px`;
-    container.style.position = 'absolute';
-    container.style.top = '0';
-    container.style.left = '0';
-    container.style.zIndex = '-9999'; // إخفاء خلف واجهة الموقع
-    container.style.backgroundColor = '#ffffff';
-    container.style.color = '#000000';
-    container.dir = 'rtl';
-    
-    container.innerHTML = getPrintTemplate(title, content);
-    document.body.appendChild(container);
+    // إنشاء قالب الـ HTML كنص مباشر (بدون إضافته للشاشة)
+    const fullHtml = getPrintTemplate(title, content);
 
-    // 2. إعدادات الـ PDF
+    // إعدادات الـ PDF
     const opt = {
-        margin:       [10, 10, 10, 10], // إضافة حواف 10 ملم لعدم التصاق الجداول
+        margin:       [10, 10, 10, 10], // إضافة حواف بيضاء 10 ملم من كل الجهات
         filename:     `${title.replace(/\s+/g, '_')}.pdf`,
         image:        { type: 'jpeg', quality: 1 },
         html2canvas:  { 
-            scale: 2, 
-            useCORS: true, 
+            scale: 2, // دقة عالية
+            useCORS: true, // للسماح برسم صورة اللوجو والـ QR
             logging: false,
-            windowWidth: pdfWidth, // إجبار الكاميرا على هذا العرض
-            scrollX: 0, 
-            scrollY: 0
+            // تحديد عرض الكاميرا الوهمية يحاكي عرض ورقة A4 لإصلاح مشكلة التمركز في اليمين
+            windowWidth: isLandscape ? 1122 : 794 
         },
         jsPDF:        { 
             unit: 'mm', 
             format: 'a4', 
             orientation: isLandscape ? 'landscape' : 'portrait' 
         },
-        pagebreak:    { mode: ['css', 'legacy'] }
+        pagebreak:    { mode: ['css', 'legacy'] } // لمنع قطع الجداول بين الصفحات
     };
 
-    // 3. ننتظر 500 ملي ثانية لضمان تحميل خط Cairo وربط الحروف العربية بشكل صحيح
-    setTimeout(async () => {
-        try {
-            await html2pdf().set(opt).from(container).save();
-            window.showToast('تم تحميل ملف PDF بنجاح', 'success');
-        } catch (err) {
-            window.showToast('حدث خطأ أثناء استخراج PDF', 'error');
-        } finally {
-            // تنظيف الـ DOM بعد الانتهاء
-            if (document.body.contains(container)) {
-                document.body.removeChild(container);
-            }
-        }
-    }, 500);
+    try {
+        // تمرير النص مباشرة للمكتبة (ستقوم بمعالجته في الخلفية بدون القفز بالشاشة)
+        await html2pdf().set(opt).from(fullHtml).save();
+        window.showToast('تم تحميل ملف PDF بنجاح', 'success');
+    } catch (err) {
+        window.showToast('حدث خطأ أثناء استخراج PDF', 'error');
+    }
 };
-
 window.printStudentCard = async function() {
     const s = state.members.find(st => st.id === state.currentModalStudentId);
     if(!s) return;

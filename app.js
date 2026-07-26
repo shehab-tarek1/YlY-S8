@@ -1262,19 +1262,23 @@ window.openInternalReport = function() {
     document.getElementById('intRepFilterDisplay').value = outsideStageDisplay || 'كل اللجان';
     document.getElementById('intRepSearch').value = '';
     
-    document.getElementById('intRepTitle').innerText = getReportTitleHeader(category === 'combined' ? 'تقرير شامل' : (category === 'attendance' ? 'تقرير حضور وغياب' : 'تقرير نقاط وتقييمات'));
+    const titleEl = document.getElementById('intRepTitle');
+    if (titleEl) {
+        titleEl.innerText = getReportTitleHeader(category === 'combined' ? 'تقرير شامل' : (category === 'attendance' ? 'تقرير حضور وغياب' : 'تقرير نقاط وتقييمات'));
+        titleEl.style.fontSize = "11px"; // تصغير عنوان الصفحة
+    }
     document.getElementById('intRepDate').innerText = document.getElementById('reportType').value === 'daily' ? document.getElementById('reportDate').value : document.getElementById('reportMonth').value;
     
     const thead = document.getElementById('intRepHead');
     const isDaily = document.getElementById('reportType').value === 'daily';
 
     if (category === 'combined') {
-        thead.innerHTML = `<tr><th style="width: 5%;">م</th><th style="width: 26%;">الاسم</th><th style="width: 11%;">اللجنة</th><th style="width: 12%;">النقاط</th>${isDaily ? `<th style="width: 22%;">الحالة</th><th style="width: 24%;">وقت</th>` : `<th style="width: 8%;">حضور</th><th style="width: 8%;">غياب</th><th style="width: 15%;">تواريخ الحضور</th><th style="width: 15%;">تواريخ الغياب</th>`}</tr>`;
+        thead.innerHTML = `<tr><th style="width: 5%;">م</th><th style="width: 26%;">الاسم</th><th style="width: 11%;">اللجنة</th><th style="width: 12%;">النقاط</th>${isDaily ? `<th style="width: 22%;">الحالة</th><th style="width: 24%;">وقت</th>` : `<th style="width: 8%;">حضور</th><th style="width: 8%;">غياب</th><th style="width: 15%;">تواريخ<br>الحضور</th><th style="width: 15%;">تواريخ<br>الغياب</th>`}</tr>`;
         document.getElementById('intRepBtnExcel').onclick = window.exportCombinedExcel;
         document.getElementById('intRepBtnPdf').onclick = window.pdfCombinedReport;
         document.getElementById('intRepBtnPrint').onclick = window.printCombinedReport;
     } else if (category === 'attendance') {
-        thead.innerHTML = `<tr><th style="width: 5%;">م</th><th style="width: 29%;">الاسم</th><th style="width: 12%;">اللجنة</th>${isDaily ? `<th style="width: 26%;">الحالة</th><th style="width: 28%;">وقت</th>` : `<th style="width: 9%;">حضور</th><th style="width: 8%;">غياب</th><th style="width: 18.5%;">تواريخ الحضور</th><th style="width: 18.5%;">تواريخ الغياب</th>`}</tr>`;
+        thead.innerHTML = `<tr><th style="width: 5%;">م</th><th style="width: 29%;">الاسم</th><th style="width: 12%;">اللجنة</th>${isDaily ? `<th style="width: 26%;">الحالة</th><th style="width: 28%;">وقت</th>` : `<th style="width: 9%;">حضور</th><th style="width: 8%;">غياب</th><th style="width: 18.5%;">تواريخ<br>الحضور</th><th style="width: 18.5%;">تواريخ<br>الغياب</th>`}</tr>`;
         document.getElementById('intRepBtnExcel').onclick = window.exportAttendanceReportExcel;
         document.getElementById('intRepBtnPdf').onclick = window.pdfAttendanceReport;
         document.getElementById('intRepBtnPrint').onclick = window.printAttendanceReport;
@@ -1489,24 +1493,24 @@ function getPrintTemplate(title, content) {
         html, body { width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 0 !important; background: #ffffff !important; overflow: visible !important; }
         .print-page { padding: 2px; width: 100% !important; max-width: 100% !important; }
         .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 4px; margin-bottom: 6px; }
-        .print-meta-area { text-align: right; font-size: 8.5pt; color: #4b5563; font-weight: 700; }
+        .print-meta-area { text-align: right; font-size: 9pt; color: #4b5563; font-weight: 700; }
         .print-title-area { text-align: center; flex: 1; padding: 0 5px; }
-        .print-title-area h1 { font-size: 14pt; font-weight: 900; margin: 0; color: #1e3a8a; }
-        .print-title-area h2 { font-size: 10pt; font-weight: 800; margin: 2px 0 0 0; color: #dc2626; }
+        .print-title-area h1 { font-size: 15pt; font-weight: 900; margin: 0; color: #1e3a8a; }
+        .print-title-area h2 { font-size: 11pt; font-weight: 800; margin: 2px 0 0 0; color: #dc2626; }
         .print-logo-area img { width: 38px; height: 38px; object-fit: contain; }
         
-        /* تكبير حجم الخطوط والأرقام في كل الجداول والطباعات بوضوح عالي */
+        /* تكبير الخطوط في كامل الطباعات ليكون الخط واكتمال القراءة بوضوح بارز */
         table { width: 100% !important; max-width: 100% !important; border-collapse: collapse !important; margin-top: 5px !important; table-layout: fixed !important; page-break-inside: auto !important; }
         tr { page-break-inside: avoid !important; page-break-after: auto !important; }
         thead { display: table-header-group !important; }
         tfoot { display: table-footer-group !important; }
-        th { background-color: #1e3a8a !important; color: #ffffff !important; font-weight: 800 !important; border: 1px solid #1e3a8a !important; padding: 5px 2px !important; text-align: center !important; font-size: 11px !important; word-wrap: break-word !important; overflow-wrap: break-word !important; }
-        td { border: 1px solid #d1d5db !important; padding: 4px 2px !important; font-size: 10px !important; font-weight: 700 !important; text-align: center !important; vertical-align: middle !important; word-wrap: break-word !important; overflow-wrap: break-word !important; line-height: 1.35 !important; }
+        th { background-color: #1e3a8a !important; color: #ffffff !important; font-weight: 900 !important; border: 1px solid #1e3a8a !important; padding: 6px 2px !important; text-align: center !important; font-size: 12.5px !important; word-wrap: break-word !important; overflow-wrap: break-word !important; }
+        td { border: 1px solid #d1d5db !important; padding: 5px 2px !important; font-size: 11.5px !important; font-weight: 700 !important; text-align: center !important; vertical-align: middle !important; word-wrap: break-word !important; overflow-wrap: break-word !important; line-height: 1.4 !important; }
         
         .print-student-card { border: 4px double #1e3a8a !important; border-radius: 15px; padding: 15px; width: 320px; margin: 10px auto; text-align: center; page-break-inside: avoid; background: #fff; }
         .print-card-title { font-size: 14pt; font-weight: bold; margin-bottom: 8px; color: #dc2626; }
         .print-card-name { font-size: 17pt; font-weight: 900; margin: 8px 0; border-bottom: 2px solid #1e3a8a; padding-bottom: 8px; color: #000; }
-        .print-card-row { font-size: 10.5pt; font-weight: bold; margin: 4px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding: 2px 0; }
+        .print-card-row { font-size: 11pt; font-weight: bold; margin: 4px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding: 2px 0; }
     </style>
     <div class="print-page">
         <div class="print-header">
@@ -1593,9 +1597,10 @@ async function buildFullStudentReportHTML(member, sAtt, sAcc) {
         ? points.map(p => `<tr><td>${escapeHTML(p.date)}</td><td>${escapeHTML(p.type)}</td><td style="color:#1e3a8a; font-weight:bold;">${p.amount}</td></tr>`).join('')
         : '<tr><td colspan="3">لا توجد نقاط</td></tr>';
 
+    // فصل التاريخ واليوم بجدول الحضور
     const historyRows = stats.history.length > 0
-        ? stats.history.map(h => `<tr><td>${escapeHTML(h.date)} (${escapeHTML(h.day)})</td><td style="font-weight:bold; color:${h.status === 'absent' ? 'red' : 'green'};">${h.status === 'absent' ? 'غياب' : 'حضور'}</td></tr>`).join('')
-        : '<tr><td colspan="2">لا يوجد سجل</td></tr>';
+        ? stats.history.map(h => `<tr><td>${escapeHTML(h.date)}</td><td>${escapeHTML(h.day)}</td><td style="font-weight:bold; color:${h.status === 'absent' ? 'red' : 'green'};">${h.status === 'absent' ? 'غياب' : 'حضور'}</td></tr>`).join('')
+        : '<tr><td colspan="3">لا يوجد سجل</td></tr>';
 
     return `
         <div class="print-student-card">
@@ -1624,12 +1629,12 @@ async function buildFullStudentReportHTML(member, sAtt, sAcc) {
         </table>
         <h3 style="border-bottom:2px solid #1e3a8a; margin-top:20px; color:#1e3a8a; font-size:12pt; font-weight:bold;">سجل النقاط والمهام</h3>
         <table class="ultra-compact-table">
-            <thead><tr><th>التاريخ</th><th>المهمة/التقييم</th><th>النقاط</th></tr></thead>
+            <thead><tr><th style="width:30%;">التاريخ</th><th style="width:50%;">المهمة/التقييم</th><th style="width:20%;">النقاط</th></tr></thead>
             <tbody>${pointsRows}</tbody>
         </table>
         <h3 style="border-bottom:2px solid #1e3a8a; margin-top:20px; color:#1e3a8a; font-size:12pt; font-weight:bold;">سجل الحضور والغياب</h3>
         <table class="ultra-compact-table">
-            <thead><tr><th>التاريخ</th><th>الحالة</th></tr></thead>
+            <thead><tr><th style="width:40%;">التاريخ</th><th style="width:35%;">اليوم</th><th style="width:25%;">الحالة</th></tr></thead>
             <tbody>${historyRows}</tbody>
         </table>
     `;

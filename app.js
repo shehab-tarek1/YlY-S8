@@ -483,7 +483,7 @@ window.handleSearch = debounce(() => {
 }, 300);
 
 window.renderStudents = function() {
-    const queryStr = normalizeArabic(document.getElementById('searchStd').value.toLowerCase());
+    const queryStr = normalizeArabic(document.getElementById('searchStd').value.toLowerCase().trim());
     const filterStage = document.getElementById('studentListFilter').value;
     const tbody = document.getElementById('studentsTable');
     if(!tbody) return;
@@ -492,10 +492,25 @@ window.renderStudents = function() {
     if(filterStage !== 'all') filtered = filtered.filter(s => s.level === filterStage);
     if(queryStr !== '') filtered = filtered.filter(s => normalizeArabic((s.name || '').toLowerCase()).includes(queryStr) || (s.id || '').includes(queryStr));
     
+    // خوارزمية الترتيب الأبجدي + أولوية الاسم الأول في البحث
     filtered.sort((a, b) => {
-        const dateA = a.createdAt ? new Date(a.createdAt) : new Date(a.date);
-        const dateB = b.createdAt ? new Date(b.createdAt) : new Date(b.date);
-        return dateB - dateA;
+        const nameA = a.name || '';
+        const nameB = b.name || '';
+        
+        if (queryStr !== '') {
+            const normA = normalizeArabic(nameA.toLowerCase().trim());
+            const normB = normalizeArabic(nameB.toLowerCase().trim());
+            
+            const startsA = normA.startsWith(queryStr);
+            const startsB = normB.startsWith(queryStr);
+            
+            // أولوية لمن يقع مصطلح البحث في بداية اسمه
+            if (startsA && !startsB) return -1;
+            if (!startsA && startsB) return 1;
+        }
+        
+        // الترتيب الأبجدي العربي الحقيقي (أ - ب - ت...)
+        return nameA.localeCompare(nameB, 'ar', { sensitivity: 'base' });
     });
     
     document.getElementById('stdCount').innerText = filtered.length;
@@ -696,21 +711,38 @@ window.manualAttendance = async function() {
 }
 
 async function handleAttendanceScan(id) {
-    if (!id) return;
+    if (!id || state.isPaused) return;
     state.isPaused = true;
     const date = selectedAttendanceDate;
     
+    const releaseScanner = () => {
+        const feedback = document.getElementById('scanFeedback');
+        if(feedback) feedback.classList.add('hidden');
+        state.isPaused = false;
+    };
+
     try {
         if (date > today) {
             window.showCustomAlert("تاريخ غير صحيح", "لا يمكن تسجيل الحضور لموعد في المستقبل.");
+            releaseScanner();
             return;
         }
         
         const member = state.members.find(s => s.id === id);
-        if(!member) { window.showToast('كود غير صحيح', 'error'); playSound('error'); return; }
+        if(!member) { 
+            window.showToast('كود غير صحيح', 'error'); 
+            playSound('error'); 
+            releaseScanner(); 
+            return; 
+        }
         
         const statusObj = getStudentStatusForDate(member, date);
-        if (statusObj.status === 'present') { window.showToast('مسجل مسبقاً', 'warning'); playSound('error'); return; }
+        if (statusObj.status === 'present') { 
+            window.showToast('مسجل مسبقاً', 'warning'); 
+            playSound('error'); 
+            releaseScanner(); 
+            return; 
+        }
         
         const sourceAtt = (date === today) ? state.attendance : (state.dayAttForInternal || []);
         const eventRec = sourceAtt.find(r => r.studentId === "EVENT_MARKER" && r.date === date);
@@ -718,30 +750,37 @@ async function handleAttendanceScan(id) {
         
         if (!isExpectedToAttend) {
             window.showCustomAlert("غير مفعل", `لم يتم تفعيل هذا اليوم للجنة (${stageMap[member.level]})!`);
+            releaseScanner();
             return;
         }
         
+        // إظهار نغمة النجاح والطبقة الخضراء فوراً
         playSound('success');
         const feedback = document.getElementById('scanFeedback');
         if(feedback) feedback.classList.remove('hidden');
         
-        const newRecord = { date: date, studentId: id, time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) };
-        await addDoc(collection(db, "attendance"), newRecord);
+        const timeStr = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+        const newRecord = { date: date, studentId: id, time: timeStr };
         
-        if (date !== today) {
-            state.dayAttForInternal.push(newRecord);
-            window.updateCounters();
-        }
-        
+        // إخفاء الطبقة الخضراء وفك تجميد الكاميرا بسرعة فائقة (خلال 0.6 ثانية فقط)
+        setTimeout(() => {
+            releaseScanner();
+        }, 600);
+
+        // إرسال الحفظ للسيرفر في الخلفية بدون تعطيل القارئ أو الكاميرا
+        addDoc(collection(db, "attendance"), newRecord).then(() => {
+            if (date !== today) {
+                state.dayAttForInternal.push(newRecord);
+                window.updateCounters();
+            }
+        }).catch((err) => {
+            window.showToast("خطأ في الاتصال بالسيرفر", "error");
+        });
+
     } catch (error) {
         window.showToast("حدث خطأ أثناء التسجيل", "error");
         playSound('error');
-    } finally {
-        setTimeout(() => {
-            state.isPaused = false;
-            const feedback = document.getElementById('scanFeedback');
-            if(feedback) feedback.classList.add('hidden');
-        }, 2000);
+        releaseScanner();
     }
 }
 
@@ -1193,11 +1232,11 @@ window.openInternalAttendance = async function(type) {
 
 window.applyInternalAttFilter = function() {
     const selectedLevel = document.getElementById('intAttFilter').value;
-    const searchQuery = document.getElementById('intAttSearch').value.toLowerCase().trim();
+    const searchQuery = normalizeArabic(document.getElementById('intAttSearch').value.toLowerCase().trim());
     
     let targetMembers = state.members.filter(s => s.date <= selectedAttendanceDate);
     if(selectedLevel !== 'all') targetMembers = targetMembers.filter(s => s.level === selectedLevel);
-    if(searchQuery !== '') targetMembers = targetMembers.filter(s => (s.name||'').toLowerCase().includes(searchQuery) || (s.id||'').includes(searchQuery));
+    if(searchQuery !== '') targetMembers = targetMembers.filter(s => normalizeArabic((s.name||'').toLowerCase()).includes(searchQuery) || (s.id||'').includes(searchQuery));
     
     state.attCachedList = [];
     targetMembers.forEach(member => {
@@ -1211,6 +1250,22 @@ window.applyInternalAttFilter = function() {
             state.attCachedList.push({ ...member, time: 'غياب' });
         }
     });
+
+    // تطبيق الترتيب الأبجدي + أولوية البحث في الحضور والغياب
+    state.attCachedList.sort((a, b) => {
+        const nameA = a.name || '';
+        const nameB = b.name || '';
+        if (searchQuery !== '') {
+            const normA = normalizeArabic(nameA.toLowerCase().trim());
+            const normB = normalizeArabic(nameB.toLowerCase().trim());
+            const startsA = normA.startsWith(searchQuery);
+            const startsB = normB.startsWith(searchQuery);
+            if (startsA && !startsB) return -1;
+            if (!startsA && startsB) return 1;
+        }
+        return nameA.localeCompare(nameB, 'ar', { sensitivity: 'base' });
+    });
+
     state.attCurrentPage = 1;
     renderInternalAttendanceList();
 }

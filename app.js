@@ -1557,15 +1557,15 @@ function getPrintTemplate(title, content) {
                     .print-page tr { page-break-inside: avoid !important; page-break-after: auto !important; }
                     .print-page thead { display: table-header-group !important; }
                     .print-page tfoot { display: table-footer-group !important; }
-                    .print-page th { background-color: #1e3a8a !important; color: #ffffff !important; font-weight: 900 !important; border: 1px solid #1e3a8a !important; padding: 6px 2px !important; text-align: center !important; font-size: 12.5px !important; word-wrap: break-word !important; overflow-wrap: break-word !important; }
-                    .print-page td { border: 1px solid #d1d5db !important; padding: 5px 2px !important; font-size: 11.5px !important; font-weight: 700 !important; text-align: center !important; vertical-align: middle !important; word-wrap: break-word !important; overflow-wrap: break-word !important; line-height: 1.4 !important; }
+                    .print-page th { background-color: #1e3a8a !important; color: #ffffff !important; font-weight: 900 !important; border: 1px solid #1e3a8a !important; padding: 6px 2px !important; text-align: center !important; font-size: 12.5px !important; word-break: normal !important; word-wrap: normal !important; overflow-wrap: normal !important; white-space: normal !important; }
+                    .print-page td { border: 1px solid #d1d5db !important; padding: 5px 2px !important; font-size: 11.5px !important; font-weight: 700 !important; text-align: center !important; vertical-align: middle !important; line-height: 1.4 !important; word-break: normal !important; word-wrap: normal !important; overflow-wrap: normal !important; white-space: normal !important; } 
                     
                     .print-page .print-student-card { border: 4px double #1e3a8a !important; border-radius: 15px; padding: 15px; width: 320px; margin: 10px auto; text-align: center; page-break-inside: avoid; background: #fff; color: #000; }
                     .print-page .print-card-title { font-size: 14pt; font-weight: bold; margin-bottom: 8px; color: #dc2626; }
                     .print-page .print-card-name { font-size: 17pt; font-weight: 900; margin: 8px 0; border-bottom: 2px solid #1e3a8a; padding-bottom: 8px; color: #000; }
                     .print-page .print-card-row { font-size: 11pt; font-weight: bold; margin: 4px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding: 2px 0; }
                 </style>
-    <div class="print-page">
+    <div class="print-page" dir="rtl">
         <div class="print-header">
             <div class="print-meta-area"><div>تاريخ الطباعة: ${todayPrintDate}</div><div>YLY System</div></div>
             <div class="print-title-area"><h1>YLY Leaders</h1><h2>${escapeHTML(title)}</h2></div>

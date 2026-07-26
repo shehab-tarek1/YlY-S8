@@ -127,19 +127,6 @@ async function requireXLSX() {
     });
 }
 
-let isHtml2PdfLoaded = false;
-async function requireHtml2Pdf() {
-    if (isHtml2PdfLoaded) return;
-    return new Promise((resolve, reject) => {
-        window.showToast('جاري تحضير محرك PDF...', 'success');
-        const script = document.createElement('script');
-        script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
-        script.onload = () => { isHtml2PdfLoaded = true; resolve(); };
-        script.onerror = reject;
-        document.head.appendChild(script);
-    });
-}
-
 let isQrLoaded = false;
 async function requireQRScanner() {
     if (isQrLoaded) return;
@@ -1555,111 +1542,83 @@ function getReportTitleHeader(baseTitle) {
 function getPrintTemplate(title, content) {
     const todayPrintDate = new Date().toLocaleDateString('ar-EG');
     return `
-    <div class="print-page" dir="rtl" style="font-family: 'Cairo', sans-serif; direction: rtl; text-align: right; background-color: #ffffff; width: 100%; padding: 20px; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-        <style>
-            @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
-            
-            /* عزل التصميم (Scoping): كل سطر هنا يبدأ بـ .print-page لمنع تشويه الموقع */
-            .print-page, .print-page * { font-family: 'Cairo', sans-serif !important; }
-            
-            .print-page .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 5px; margin-bottom: 15px; width: 100%; }
-            .print-page .print-meta-area { text-align: right; font-size: 11px; color: #4b5563; font-weight: 700; direction: rtl; }
-            .print-page .print-title-area { text-align: center; flex: 1; padding: 0 10px; }
-            .print-page .print-title-area h1 { font-size: 20px; font-weight: 900; margin: 0; color: #1e3a8a; }
-            .print-page .print-title-area h2 { font-size: 14px; font-weight: 800; margin: 4px 0 0 0; color: #dc2626; }
-            .print-page .print-logo-area img { width: 50px; height: 50px; object-fit: contain; }
-            
-            /* تصميم الجداول المعزول */
-            .print-page table { width: 100% !important; border-collapse: collapse !important; margin-top: 10px !important; direction: rtl !important; background-color: #ffffff !important; table-layout: fixed !important; }
-            .print-page tr { page-break-inside: avoid !important; }
-            .print-page thead, .print-page thead tr, .print-page th { background-color: #1e3a8a !important; color: #ffffff !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            .print-page th { font-weight: 900 !important; border: 1px solid #1e3a8a !important; padding: 8px 4px !important; text-align: center !important; font-size: 11px !important; word-wrap: break-word; }
-            .print-page td { border: 1px solid #d1d5db !important; padding: 6px 4px !important; font-size: 11px !important; font-weight: 700 !important; text-align: center !important; color: #000000 !important; word-wrap: break-word; }
-            
-            .print-page .print-body { display: flex; flex-direction: column; align-items: center; width: 100%; }
-            .print-page .print-student-card { border: 3px double #1e3a8a !important; border-radius: 12px; padding: 15px; width: 320px; max-width: 100%; margin: 15px auto; text-align: center; page-break-inside: avoid; background-color: #ffffff; direction: rtl; }
-            .print-page .print-card-title { font-size: 16px; font-weight: bold; margin-bottom: 8px; color: #dc2626; }
-            .print-page .print-card-name { font-size: 20px; font-weight: 900; margin: 8px 0; border-bottom: 2px solid #1e3a8a; padding-bottom: 8px; color: #000000; }
-            .print-page .print-card-row { font-size: 12px; font-weight: bold; margin: 6px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #cccccc; padding: 4px 0; direction: rtl; color: #000000; }
-        </style>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
+        * { box-sizing: border-box !important; font-family: 'Cairo', sans-serif !important; direction: rtl !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        html, body { width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 0 !important; background: #ffffff !important; overflow: visible !important; }
+        .print-page { padding: 2px; width: 100% !important; max-width: 100% !important; }
+        .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 4px; margin-bottom: 6px; }
+        .print-meta-area { text-align: right; font-size: 9pt; color: #4b5563; font-weight: 700; }
+        .print-title-area { text-align: center; flex: 1; padding: 0 5px; }
+        .print-title-area h1 { font-size: 15pt; font-weight: 900; margin: 0; color: #1e3a8a; }
+        .print-title-area h2 { font-size: 11pt; font-weight: 800; margin: 2px 0 0 0; color: #dc2626; }
+        .print-logo-area img { width: 38px; height: 38px; object-fit: contain; }
         
+        /* تكبير الخطوط في كامل الطباعات ليكون الخط واكتمال القراءة بوضوح بارز */
+        table { width: 100% !important; max-width: 100% !important; border-collapse: collapse !important; margin-top: 5px !important; table-layout: fixed !important; page-break-inside: auto !important; }
+        tr { page-break-inside: avoid !important; page-break-after: auto !important; }
+        thead { display: table-header-group !important; }
+        tfoot { display: table-footer-group !important; }
+        th { background-color: #1e3a8a !important; color: #ffffff !important; font-weight: 900 !important; border: 1px solid #1e3a8a !important; padding: 6px 2px !important; text-align: center !important; font-size: 12.5px !important; word-wrap: break-word !important; overflow-wrap: break-word !important; }
+        td { border: 1px solid #d1d5db !important; padding: 5px 2px !important; font-size: 11.5px !important; font-weight: 700 !important; text-align: center !important; vertical-align: middle !important; word-wrap: break-word !important; overflow-wrap: break-word !important; line-height: 1.4 !important; }
+        
+        .print-student-card { border: 4px double #1e3a8a !important; border-radius: 15px; padding: 15px; width: 320px; margin: 10px auto; text-align: center; page-break-inside: avoid; background: #fff; }
+        .print-card-title { font-size: 14pt; font-weight: bold; margin-bottom: 8px; color: #dc2626; }
+        .print-card-name { font-size: 17pt; font-weight: 900; margin: 8px 0; border-bottom: 2px solid #1e3a8a; padding-bottom: 8px; color: #000; }
+        .print-card-row { font-size: 11pt; font-weight: bold; margin: 4px 0; display: flex; justify-content: space-between; border-bottom: 1px dashed #ccc; padding: 2px 0; }
+    </style>
+    <div class="print-page">
         <div class="print-header">
             <div class="print-meta-area"><div>تاريخ الطباعة: ${todayPrintDate}</div><div>YLY System</div></div>
             <div class="print-title-area"><h1>YLY Leaders</h1><h2>${escapeHTML(title)}</h2></div>
-            <div class="print-logo-area"><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" crossorigin="anonymous"></div>
+            <div class="print-logo-area"><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png"></div>
         </div>
         <div class="print-body">${content}</div>
     </div>`;
 }
 
-window.savePDF = async function(title, content, isLandscape = false) {
-    window.showToast('جاري تجهيز ملف PDF، يرجى الانتظار...', 'success');
-    await requireHtml2Pdf();
+window.printHTML = async function(title, content) {
+    if (state.isPrinting) return;
+    state.isPrinting = true;
+    window.showToast('جاري تحضير الطباعة...', 'success');
     
-    // إنشاء الحاوية خارج الشاشة تماماً (بمسافة شاشتين لليمين) لمنع أي تشوه في الموقع
-    const wrapper = document.createElement('div');
-    wrapper.style.position = 'fixed';
-    wrapper.style.right = '200vw'; 
-    wrapper.style.top = '0';
-    wrapper.style.zIndex = '-9999';
-    wrapper.dir = 'rtl'; // إجبار الحاوية الأم على اللغة العربية لإصلاح مشكلة الكلمات المعكوسة
-    
-    // تحديد عرض حقيقي مطابق للورقة لإصلاح مشكلة انزياح الجدول لليمين
-    const pdfWidth = isLandscape ? 1122 : 794; 
-    wrapper.style.width = pdfWidth + 'px'; 
-    wrapper.style.backgroundColor = '#ffffff';
-    
-    wrapper.innerHTML = getPrintTemplate(title, content);
-    document.body.appendChild(wrapper);
-
-    const opt = {
-        margin:       [10, 10, 10, 10],
-        filename:     `${title.replace(/\s+/g, '_')}.pdf`,
-        image:        { type: 'jpeg', quality: 1 },
-        html2canvas:  { 
-            scale: 2, 
-            useCORS: true, 
-            logging: false,
-            windowWidth: pdfWidth, // إجبار الكاميرا على نفس العرض
-            width: pdfWidth // منع الكاميرا من قص الجداول
-        },
-        jsPDF:        { 
-            unit: 'mm', 
-            format: 'a4', 
-            orientation: isLandscape ? 'landscape' : 'portrait' 
-        },
-        pagebreak:    { mode: ['css', 'legacy'] }
-    };
-
-    // استخدام document.fonts.ready لضمان تحميل خط Cairo بالكامل قبل التصوير
-    document.fonts.ready.then(() => {
-        setTimeout(async () => {
-            try {
-                await html2pdf().set(opt).from(wrapper).save();
-                window.showToast('تم تحميل ملف PDF بنجاح', 'success');
-            } catch (err) {
-                window.showToast('حدث خطأ أثناء استخراج PDF', 'error');
-            } finally {
-                // تنظيف الصفحة فور الانتهاء
-                if (document.body.contains(wrapper)) {
-                    document.body.removeChild(wrapper);
-                }
-            }
+    try {
+        let printIframe = document.getElementById('silent-print-iframe');
+        if (!printIframe) {
+            printIframe = document.createElement('iframe');
+            printIframe.id = 'silent-print-iframe';
+            printIframe.style.cssText = 'position: fixed; right: -9999px; bottom: -9999px; width: 0; height: 0; border: none;';
+            document.body.appendChild(printIframe);
+        }
+        
+        const iframeDoc = printIframe.contentWindow.document;
+        iframeDoc.open();
+        // إجبار A4 portrait عمودي دائماً لجميع التقارير
+        iframeDoc.write(`<!DOCTYPE html><html dir="rtl" lang="ar"><head><title>${escapeHTML(title)}</title><style>@page { size: A4 portrait !important; margin: 4mm !important; }</style></head><body>${getPrintTemplate(title, content)}</body></html>`);
+        iframeDoc.close();
+        
+        setTimeout(() => {
+            printIframe.contentWindow.focus();
+            printIframe.contentWindow.print();
+            state.isPrinting = false;
         }, 500);
-    });
+    } catch (e) {
+        window.showToast('حدث خطأ أثناء الطباعة', 'error');
+        state.isPrinting = false;
+    }
+};
+
+window.savePDF = function(title, content, isLandscape = false) {
+    window.showToast('اختر "حفظ كملف PDF" من نافذة الطباعة', 'success');
+    window.printHTML(title, content, isLandscape);
 };
 
 window.printContent = function(elementId, title) {
-    const docTitle = title || document.getElementById('intAttTitle')?.innerText || 'تقرير الحضور والغياب';
     const content = `<table class="ultra-compact-table"><thead>${document.getElementById('intAttHead').innerHTML}</thead><tbody>${document.getElementById('intAttBody').innerHTML}</tbody></table>`;
-    window.printHTML(docTitle, content);
+    window.printHTML(title, content);
 }
 
-window.pdfContent = function(elementId, title) {
-    const docTitle = title || document.getElementById('intAttTitle')?.innerText || 'تقرير الحضور والغياب';
-    const content = `<table class="ultra-compact-table"><thead>${document.getElementById('intAttHead').innerHTML}</thead><tbody>${document.getElementById('intAttBody').innerHTML}</tbody></table>`;
-    window.savePDF(docTitle, content);
-}
+window.pdfContent = function(elementId, title) { window.printContent(elementId, title); }
 
 window.printStudentCard = async function() {
     const s = state.members.find(st => st.id === state.currentModalStudentId);
@@ -1681,24 +1640,7 @@ window.printStudentCard = async function() {
     window.printHTML('بطاقة عضو', content);
 }
 
-window.shareStudentPdf = async function() { 
-    const s = state.members.find(st => st.id === state.currentModalStudentId);
-    if(!s) return;
-    const qrImageHtml = await generateQRBase64(s.id);
-    const stdPhone = s.ownPhone || s.phone || 'غير مسجل';
-    const content = `
-        <div class="print-student-card">
-            <div class="print-card-title">بطاقة عضو YLY</div>
-            <div class="print-card-name">${escapeHTML(s.name)}</div>
-            <div style="display:flex; justify-content:center; margin:10px 0;">${qrImageHtml}</div>
-            <div class="print-card-row"><span>كود العضو:</span> <span>${escapeHTML(s.id)}</span></div>
-            <div class="print-card-row"><span>كلمة السر:</span> <span>${escapeHTML(s.password || '----')}</span></div>
-            <div class="print-card-row"><span>اللجنة:</span> <span>${escapeHTML(stageMap[s.level] || s.level)}</span></div>
-            <div class="print-card-row"><span>رقم الهاتف:</span> <span>${escapeHTML(stdPhone)}</span></div>
-            <div class="print-card-row"><span>تاريخ الانضمام:</span> <span>${escapeHTML(s.date)}</span></div>
-        </div>`;
-    window.savePDF(`بطاقة_عضو_${s.name}`, content);
-}
+window.shareStudentPdf = function() { window.printStudentCard(); }
 
 async function buildFullStudentReportHTML(member, sAtt, sAcc) {
     const qrImageHtml = await generateQRBase64(member.id);
@@ -1761,13 +1703,7 @@ window.printStudentDashboard = async function() {
     window.printHTML(`تقرير_متابعة_${s.name}`, content);
 }
 
-window.pdfStudentDashboard = async function() { 
-    const code = document.getElementById('dashCode').innerText;
-    const s = state.members.find(st => st.id === code);
-    if(!s) return;
-    const content = await buildFullStudentReportHTML(s, state.attendance, state.accounting);
-    window.savePDF(`تقرير_متابعة_${s.name}`, content);
-}
+window.pdfStudentDashboard = function() { window.printStudentDashboard(); }
 
 window.printInternalStudentDash = async function() {
     const code = document.getElementById('intDashCode').innerText;
@@ -1834,22 +1770,7 @@ window.excelDetailedStudentReport = async function(code) {
     window.exportToExcelStyle(headers, rows, reportTitle, `تقرير_العضو_${s.name}`);
 }
 
-window.pdfDetailedStudentReport = async function(code) { 
-    const s = state.members.find(st => st.id === code);
-    if(!s) return;
-    let sAtt = []; let sAcc = [];
-    try {
-        const attQ = query(collection(db, "attendance"), where("studentId", "in", [code, "EVENT_MARKER"]));
-        const accQ = query(collection(db, "accounting"), where("stdId", "==", code));
-        const [attSnap, accSnap] = await Promise.all([getDocs(attQ), getDocs(accQ)]);
-        attSnap.forEach(d => sAtt.push(d.data()));
-        accSnap.forEach(d => sAcc.push(d.data()));
-    } catch(e) {
-        sAtt = state.attendance; sAcc = state.accounting;
-    }
-    const content = await buildFullStudentReportHTML(s, sAtt, sAcc);
-    window.savePDF(`تقرير_العضو_${s.name}`, content);
-}
+window.pdfDetailedStudentReport = function(code) { window.printInternalStudentDash(); }
 
 window.printStudentsList = function() {
     let rows = state.members.map((s, i) => `<tr><td style="width:30px;">${i+1}</td><td style="width:60px;">${s.id}</td><td style="font-weight:bold; width:220px;">${escapeHTML(s.name)}</td><td style="width:90px;">${escapeHTML(stageMap[s.level] || s.level)}</td><td style="width:80px;">${s.date}</td></tr>`).join('');
@@ -1857,26 +1778,7 @@ window.printStudentsList = function() {
     window.printHTML('قائمة الأعضاء المسجلين', content);
 }
 
-window.pdfStudentsList = function() { 
-    let rows = state.members.map((s, i) => `<tr><td style="width:30px;">${i+1}</td><td style="width:60px;">${s.id}</td><td style="font-weight:bold; width:220px;">${escapeHTML(s.name)}</td><td style="width:90px;">${escapeHTML(stageMap[s.level] || s.level)}</td><td style="width:80px;">${s.date}</td></tr>`).join('');
-    const content = `<table class="ultra-compact-table"><thead><tr><th style="width: 30px;">م</th><th style="width: 60px;">الكود</th><th style="width: 220px;">الاسم</th><th style="width: 90px;">اللجنة</th><th style="width: 80px;">تاريخ الانضمام</th></tr></thead><tbody>${rows}</tbody></table>`;
-    window.savePDF('قائمة الأعضاء المسجلين', content);
-}
-
-window.pdfCombinedReport = function() {
-    if(!state.currentReportData.combined || state.currentReportData.combined.length === 0) return window.showToast('لا توجد بيانات للطباعة', 'error');
-    const title = getReportTitleHeader("التقرير الشامل");
-    const isDaily = document.getElementById('reportType').value === 'daily';
-    
-    let rows = isDaily 
-        ? state.currentReportData.combined.map((c, i) => `<tr><td>${i+1}</td><td>${c.id}</td><td style="font-weight:bold;">${escapeHTML(c.name)}</td><td>${escapeHTML(stageMap[c.level]||c.level)}</td><td style="color:blue; font-weight:bold;">${c.totalPoints}</td><td style="font-weight:bold; color:${c.presentCount > 0 ? 'green' : 'red'};">${c.presentCount > 0 ? 'حاضر' : 'غائب'}</td><td>${c.presentCount > 0 ? (c.presentTime || '-') : '-'}</td></tr>`).join('')
-        : state.currentReportData.combined.map((c, i) => `<tr><td>${i+1}</td><td>${c.id}</td><td style="font-weight:bold;">${escapeHTML(c.name)}</td><td>${escapeHTML(c.level)}</td><td style="color:blue; font-weight:bold;">${c.totalPoints}</td><td style="color:green; font-weight:bold;">${c.presentCount}</td><td style="color:red; font-weight:bold;">${c.absentCount}</td><td style="color:green; font-size:9.5px; line-height:1.4;">${c.presentDates.join(' ، ') || '-'}</td><td style="color:red; font-size:9.5px; line-height:1.4;">${c.absentDates.join(' ، ') || '-'}</td></tr>`).join('');
-
-    const content = `<table class="ultra-compact-table"><thead><tr>${isDaily 
-        ? '<th style="width:5%;">م</th><th style="width:10%;">الكود</th><th style="width:38%;">الاسم</th><th style="width:11%;">اللجنة</th><th style="width:12%;">النقاط</th><th style="width:11%;">الحالة</th><th style="width:13%;">وقت الحضور</th>' 
-        : '<th style="width:4%;">م</th><th style="width:8%;">الكود</th><th style="width:22%;">الاسم</th><th style="width:8%;">اللجنة</th><th style="width:7%;">النقاط</th><th style="width:5%;">حضور</th><th style="width:5%;">غياب</th><th style="width:20.5%;">تواريخ الحضور</th><th style="width:20.5%;">تواريخ الغياب</th>'}</tr></thead><tbody>${rows}</tbody></table>`;
-    window.savePDF(title, content);
-}
+window.pdfStudentsList = function() { window.printStudentsList(); }
 
 window.printCombinedReport = function() {
     if(!state.currentReportData.combined || state.currentReportData.combined.length === 0) return window.showToast('لا توجد بيانات للطباعة', 'error');
@@ -1909,20 +1811,7 @@ window.printAttendanceReport = function() {
     window.printHTML(title, content);
 }
 
-window.pdfAttendanceReport = function() { 
-    if(!state.currentReportData.combined || state.currentReportData.combined.length === 0) return window.showToast('لا توجد بيانات للطباعة', 'error');
-    const title = getReportTitleHeader("تقرير الحضور والغياب");
-    const isDaily = document.getElementById('reportType').value === 'daily';
-    
-    let rows = isDaily 
-        ? state.currentReportData.combined.map((c, i) => `<tr><td>${i+1}</td><td>${c.id}</td><td style="font-weight:bold;">${escapeHTML(c.name)}</td><td>${escapeHTML(stageMap[c.level]||c.level)}</td><td style="font-weight:bold; color:${c.presentCount > 0 ? 'green' : 'red'};">${c.presentCount > 0 ? 'حاضر' : 'غائب'}</td><td>${c.presentCount > 0 ? (c.presentTime || '-') : '-'}</td></tr>`).join('')
-        : state.currentReportData.combined.map((c, i) => `<tr><td>${i+1}</td><td>${c.id}</td><td style="font-weight:bold;">${escapeHTML(c.name)}</td><td>${escapeHTML(stageMap[c.level]||c.level)}</td><td style="color:green; font-weight:bold;">${c.presentCount}</td><td style="color:red; font-weight:bold;">${c.absentCount}</td><td style="color:green; font-size:9.5px; line-height:1.4;">${c.presentDates.join(' ، ') || '-'}</td><td style="color:red; font-size:9.5px; line-height:1.4;">${c.absentDates.join(' ، ') || '-'}</td></tr>`).join('');
-
-    const content = `<table class="ultra-compact-table"><thead><tr>${isDaily 
-        ? '<th style="width:5%;">م</th><th style="width:12%;">الكود</th><th style="width:42%;">الاسم</th><th style="width:12%;">اللجنة</th><th style="width:14%;">الحالة</th><th style="width:15%;">وقت الحضور</th>' 
-        : '<th style="width:4%;">م</th><th style="width:9%;">الكود</th><th style="width:25%;">الاسم</th><th style="width:9%;">اللجنة</th><th style="width:6%;">حضور</th><th style="width:6%;">غياب</th><th style="width:20.5%;">تواريخ الحضور</th><th style="width:20.5%;">تواريخ الغياب</th>'}</tr></thead><tbody>${rows}</tbody></table>`;
-    window.savePDF(title, content);
-}
+window.pdfAttendanceReport = function() { window.printAttendanceReport(); }
 
 window.printPointsReport = function() {
     if(!state.currentReportData.points || state.currentReportData.points.length === 0) return window.showToast('لا توجد بيانات للطباعة', 'error');
@@ -1932,13 +1821,7 @@ window.printPointsReport = function() {
     window.printHTML(title, content);
 }
 
-window.pdfPointsReport = function() { 
-    if(!state.currentReportData.points || state.currentReportData.points.length === 0) return window.showToast('لا توجد بيانات للطباعة', 'error');
-    const title = getReportTitleHeader("تقرير النقاط والمهام");
-    let rows = state.currentReportData.points.map((p, i) => `<tr><td>${i+1}</td><td>${p.stdId}</td><td style="font-weight:bold;">${escapeHTML(p.name)}</td><td>${escapeHTML(p.type)}</td><td style="color:blue; font-weight:bold;">${p.amount}</td><td>${p.date}</td></tr>`).join('');
-    const content = `<table class="ultra-compact-table"><thead><tr><th style="width:5%;">م</th><th style="width:11%;">الكود</th><th style="width:38%;">الاسم</th><th style="width:22%;">المهمة/التقييم</th><th style="width:12%;">النقاط</th><th style="width:12%;">التاريخ</th></tr></thead><tbody>${rows}</tbody></table>`;
-    window.savePDF(title, content);
-}
+window.pdfPointsReport = function() { window.printPointsReport(); }
 
 // ==========================================
 // 14. Full Professional Excel Engine

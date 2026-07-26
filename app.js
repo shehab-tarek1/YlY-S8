@@ -1236,6 +1236,18 @@ function renderInternalAttendanceList(isScroll = false) {
     } else {
         tbody.insertAdjacentHTML('beforeend', html);
     }
+
+    // خاصية الملء التلقائي للتابلت والشاشات الكبيرة
+    setTimeout(() => {
+        const container = document.getElementById('internalAttendancePage');
+        if (container && container.scrollHeight <= container.clientHeight + 50) {
+            const totalPages = Math.ceil(state.attCachedList.length / 30) || 1;
+            if (state.attCurrentPage < totalPages) {
+                state.attCurrentPage++;
+                renderInternalAttendanceList(true); // تحضير الـ 30 التاليين فوراً
+            }
+        }
+    }, 150);
 }
 
 window.openInternalReport = function() {
@@ -1303,9 +1315,9 @@ window.renderInternalReportList = function(isScroll = false) {
 
     let html = '';
     if (state.currentReportCategory === 'combined') {
-        html = pageItems.map((c, i) => `<tr><td>${start + i + 1}</td><td class="font-bold text-gray-900 text-right pr-1 whitespace-normal leading-tight">${escapeHTML(c.name)}</td><td class="font-bold text-blue-900">${escapeHTML(c.level)}</td><td class="text-blue-700 font-bold">${c.totalPoints}</td>${isDaily ? `<td class="font-bold ${c.presentCount > 0 ? 'text-green-600' : 'text-red-600'}">${c.presentCount > 0 ? 'حاضر' : 'غائب'}</td><td class="text-gray-600 font-mono">${c.presentCount > 0 ? (c.presentTime || '-') : '-'}</td>` : `<td class="text-green-600 font-bold">${c.presentCount}</td><td class="text-red-600 font-bold">${c.absentCount}</td><td class="text-green-700 leading-tight">${c.presentDates.join('<br>') || '-'}</td><td class="text-red-700 leading-tight">${c.absentDates.join('<br>') || '-'}</td>`}</tr>`).join('');
+        html = pageItems.map((c, i) => `<tr><td>${start + i + 1}</td><td class="font-bold text-gray-900 text-right pr-1 whitespace-normal leading-tight">${escapeHTML(c.name)}</td><td class="font-bold text-blue-900">${escapeHTML(c.level)}</td><td class="text-blue-700 font-bold">${c.totalPoints}</td>${isDaily ? `<td class="font-bold ${c.presentCount > 0 ? 'text-green-600' : 'text-red-600'}">${c.presentCount > 0 ? 'حاضر' : 'غائب'}</td><td class="text-gray-600 font-mono">${c.presentCount > 0 ? (c.presentTime || '-') : '-'}</td>` : `<td class="text-green-600 font-bold">${c.presentCount}</td><td class="text-red-600 font-bold">${c.absentCount}</td><td class="text-green-700 leading-tight">${c.presentDates.join(' ، ') || '-'}</td><td class="text-red-700 leading-tight">${c.absentDates.join(' ، ') || '-'}</td>`}</tr>`).join('');
     } else if (state.currentReportCategory === 'attendance') {
-        html = pageItems.map((c, i) => `<tr><td>${start + i + 1}</td><td class="font-bold text-gray-900 text-right pr-1 whitespace-normal leading-tight">${escapeHTML(c.name)}</td><td class="font-bold text-blue-900">${escapeHTML(c.level)}</td>${isDaily ? `<td class="font-bold ${c.presentCount > 0 ? 'text-green-600' : 'text-red-600'}">${c.presentCount > 0 ? 'حاضر' : 'غائب'}</td><td class="text-gray-600 font-mono">${c.presentCount > 0 ? (c.presentTime || '-') : '-'}</td>` : `<td class="text-green-600 font-bold">${c.presentCount}</td><td class="text-red-600 font-bold">${c.absentCount}</td><td class="text-green-700 leading-tight">${c.presentDates.join('<br>') || '-'}</td><td class="text-red-700 leading-tight">${c.absentDates.join('<br>') || '-'}</td>`}</tr>`).join('');
+        html = pageItems.map((c, i) => `<tr><td>${start + i + 1}</td><td class="font-bold text-gray-900 text-right pr-1 whitespace-normal leading-tight">${escapeHTML(c.name)}</td><td class="font-bold text-blue-900">${escapeHTML(c.level)}</td>${isDaily ? `<td class="font-bold ${c.presentCount > 0 ? 'text-green-600' : 'text-red-600'}">${c.presentCount > 0 ? 'حاضر' : 'غائب'}</td><td class="text-gray-600 font-mono">${c.presentCount > 0 ? (c.presentTime || '-') : '-'}</td>` : `<td class="text-green-600 font-bold">${c.presentCount}</td><td class="text-red-600 font-bold">${c.absentCount}</td><td class="text-green-700 leading-tight">${c.presentDates.join(' ، ') || '-'}</td><td class="text-red-700 leading-tight">${c.absentDates.join(' ، ') || '-'}</td>`}</tr>`).join('');
     } else {
         html = pageItems.map((p, i) => `<tr><td>${start + i + 1}</td><td class="font-mono text-gray-600">${escapeHTML(p.stdId)}</td><td class="font-bold text-gray-900 text-right pr-1 whitespace-normal leading-tight">${escapeHTML(p.name)}</td><td>${escapeHTML(p.type)}</td><td class="font-bold text-blue-700">${p.amount}</td><td class="font-mono text-gray-500">${escapeHTML(p.date)}</td></tr>`).join('');
     }
@@ -1315,6 +1327,18 @@ window.renderInternalReportList = function(isScroll = false) {
     } else {
         tbody.insertAdjacentHTML('beforeend', html);
     }
+
+    // خاصية الملء التلقائي للتابلت والشاشات الكبيرة
+    setTimeout(() => {
+        const container = document.getElementById('internalReportPage');
+        if (container && container.scrollHeight <= container.clientHeight + 50) {
+            const totalPages = Math.ceil(list.length / 30) || 1;
+            if (state.reportCurrentPage < totalPages) {
+                state.reportCurrentPage++;
+                window.renderInternalReportList(true); // تحضير الـ 30 التاليين فوراً
+            }
+        }
+    }, 150);
 }
 
 window.openAdminStudentDash = async function(studentId) {

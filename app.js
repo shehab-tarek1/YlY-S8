@@ -1665,7 +1665,6 @@ function getPrintTemplate(title, content) {
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
             
-            /* 1. ضبط الخطوط والاتجاه العام */
             .print-page, .print-page * { 
                 font-family: 'Cairo', sans-serif !important; 
                 box-sizing: border-box !important;
@@ -1678,37 +1677,55 @@ function getPrintTemplate(title, content) {
             .print-page .print-title-area h2 { font-size: 14px; font-weight: 800; margin: 4px 0 0 0; color: #dc2626; }
             .print-page .print-logo-area img { width: 50px; height: 50px; object-fit: contain; }
             
-            /* 2. تصميم الجداول */
+            /* =========================================================
+               الحل الهندسي الحاسِم لعكس الحروف العربية داخل الجداول:
+               تحويل الجداول من Table-Cell إلى Flex Box
+               هذا يجبر المحرك على استخدام خوارزمية رسم النصوص الحديثة
+               ========================================================= */
             .print-page table { 
+                display: block !important; 
                 width: 100% !important; 
                 border-collapse: collapse !important; 
                 margin-top: 10px !important; 
                 direction: rtl !important; 
                 background-color: #ffffff !important; 
-                table-layout: fixed !important; 
             }
-            .print-page tr { page-break-inside: avoid !important; }
-            .print-page thead, .print-page thead tr, .print-page th { background-color: #1e3a8a !important; color: #ffffff !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            
-            /* 3. الحل الجذري لمنع تفكيك وعكس الحروف داخل خلايا الجداول */
+            .print-page thead, .print-page tbody { 
+                display: block !important; 
+                width: 100% !important; 
+            }
+            .print-page tr { 
+                display: flex !important; 
+                width: 100% !important; 
+                direction: rtl !important;
+                page-break-inside: avoid !important; 
+            }
             .print-page th, .print-page td { 
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                flex: 1 1 0% !important; /* توزيع أعمدة الجدول بالتساوي */
                 border: 1px solid #d1d5db !important; 
                 padding: 6px 4px !important; 
                 font-size: 11px !important; 
                 font-weight: 700 !important; 
                 text-align: center !important; 
                 direction: rtl !important;
-                unicode-bidi: isolate !important; /* يجبر المحرك على معاملة الكلمة ككتلة واحدة وعدم تقطيعها */
-                font-variant-ligatures: normal !important;
+                color: #000000 !important;
+                min-width: 0 !important;
             }
-            .print-page th { font-weight: 900 !important; border: 1px solid #1e3a8a !important; }
-            .print-page td { color: #000000 !important; }
+            .print-page th { 
+                background-color: #1e3a8a !important; 
+                color: #ffffff !important; 
+                font-weight: 900 !important; 
+                border: 1px solid #1e3a8a !important; 
+                -webkit-print-color-adjust: exact !important; 
+                print-color-adjust: exact !important; 
+            }
             
-            /* إجبار العناصر الداخلية داخل خلايا الجدول على الاتصال */
-            .print-page td div, .print-page th div, .print-page td span, .print-page th span {
+            /* دعم التقسيمات الداخلية لكروت النقاط والغياب */
+            .print-page td div, .print-page th div {
                 direction: rtl !important;
-                unicode-bidi: isolate !important;
-                display: inline-block !important;
             }
             
             .print-page .print-body { display: flex; flex-direction: column; align-items: center; width: 100%; }
@@ -1721,11 +1738,7 @@ function getPrintTemplate(title, content) {
         <div class="print-header">
             <div class="print-meta-area"><div>تاريخ الطباعة: ${todayPrintDate}</div><div>YLY System</div></div>
             <div class="print-title-area"><h1>YLY Leaders</h1><h2>${escapeHTML(title)}</h2></div>
-            <div class="print-logo-area"><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" crossorigin="anonymous"></div>
-        </div>
-        <div class="print-body">${content}</div>
-    </div>`;
-}
+            <div class="print-logo-area"><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_aut
 window.printHTML = async function(title, content) {
     if (state.isPrinting) return;
     state.isPrinting = true;

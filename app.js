@@ -1623,10 +1623,12 @@ window.printHTML = async function(title, content) {
 };
 
 window.savePDF = async function(title, content, isLandscape = false) {
-    window.showToast('جاري تصوير الشاشة وتجهيز الـ PDF...', 'success');
+    window.showToast('جاري تجهيز ملف PDF...', 'success');
     await requireHtml2Pdf();
     
-    // 1. إنشاء طبقة حجب مؤقتة لمنع القفز
+    const pdfWidth = isLandscape ? 1122 : 794; 
+    
+    // 1. غلاف كامل الشاشة مُثبت في نقطة الصفر (LTR) لمنع انزياح الجدول لليمين
     const overlay = document.createElement('div');
     overlay.style.cssText = `
         position: fixed !important;
@@ -1634,42 +1636,43 @@ window.savePDF = async function(title, content, isLandscape = false) {
         left: 0 !important;
         width: 100vw !important;
         height: 100vh !important;
-        background: rgba(255, 255, 255, 0.95) !important;
+        background: #ffffff !important;
         z-index: 999999 !important;
-        display: flex !important;
-        justify-content: center !important;
-        align-items: flex-start !important;
         overflow-y: auto !important;
-        padding: 20px 0 !important;
+        direction: ltr !important; /* تثبيت بداية نقطة التصوير في أقصى اليسار العلوي (0,0) */
     `;
 
-    // 2. نسخ التصميم والتنسيق المضبوط من الشاشة مباشرة وتثبيته على مقاس A4
-    const pdfWidth = isLandscape ? 1122 : 794; 
-    const captureBox = document.createElement('div');
-    captureBox.style.cssText = `
+    // 2. الحاوية الداخلية بمقاس A4 والنص عربي جهة اليمين
+    const target = document.createElement('div');
+    target.style.cssText = `
         width: ${pdfWidth}px !important;
+        margin: 0 !important;
+        padding: 15px !important;
         background: #ffffff !important;
-        padding: 20px !important;
+        direction: rtl !important; /* اتجاه الكتابة عربي من اليمين للشمال */
         box-sizing: border-box !important;
-        direction: rtl !important;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
     `;
     
-    // وضع الهيدر الرسمي + المحتوى الجاهز المنسق
-    captureBox.innerHTML = getPrintTemplate(title, content);
-    overlay.appendChild(captureBox);
+    target.innerHTML = getPrintTemplate(title, content);
+    overlay.appendChild(target);
     document.body.appendChild(overlay);
 
-    // 3. إعدادات التصوير المباشر من العنصر الحي
+    // 3. إعدادات التصوير السليمة (بدون letterRendering)
     const opt = {
-        margin:       [8, 8, 8, 8],
+        margin:       [5, 5, 5, 5],
         filename:     `${title.replace(/\s+/g, '_')}.pdf`,
         image:        { type: 'jpeg', quality: 1 },
         html2canvas:  { 
             scale: 2, 
             useCORS: true, 
             logging: false,
-            windowWidth: pdfWidth
+            // تم حذف letterRendering: true لأنه هو المتسبب في عكس الحروف العربية!
+            width: pdfWidth,        
+            windowWidth: pdfWidth,  
+            x: 0,
+            y: 0,
+            scrollX: 0,
+            scrollY: 0
         },
         jsPDF:        { 
             unit: 'mm', 
@@ -1679,11 +1682,11 @@ window.savePDF = async function(title, content, isLandscape = false) {
         pagebreak:    { mode: ['css', 'legacy'] }
     };
 
-    // التصوير السريع للعنصر الحقيقي المعروض
+    // 4. الانتظار والتصوير ثم التنظيف
     setTimeout(async () => {
         try {
-            await html2pdf().set(opt).from(captureBox).save();
-            window.showToast('تم استخراج ملف PDF بنجاح', 'success');
+            await html2pdf().set(opt).from(target).save();
+            window.showToast('تم تحميل ملف PDF بنجاح', 'success');
         } catch (err) {
             window.showToast('حدث خطأ أثناء استخراج PDF', 'error');
         } finally {
@@ -1691,7 +1694,7 @@ window.savePDF = async function(title, content, isLandscape = false) {
                 document.body.removeChild(overlay);
             }
         }
-    }, 400); // 400 ملي ثانية فقط لأن العنصر جاهز ومصمم بالفعل!
+    }, 500);
 };
 
 window.printContent = function(elementId, title) {

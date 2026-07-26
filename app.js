@@ -1,6 +1,7 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+﻿import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, onSnapshot, query, where, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
 
 // ==========================================
 // 1. Firebase Configuration & Initialization
@@ -15,9 +16,11 @@ const firebaseConfig = {
     measurementId: "G-GTGY0MP3NH"
 };
 
+
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
+
 
 // ==========================================
 // 2. Global State
@@ -46,13 +49,16 @@ const state = {
     attCachedList: []
 };
 
+
 const stageMap = { "HR": "الموارد البشرية (HR)", "PR": "العلاقات العامة (PR)", "OR": "التنظيم (OR)", "SM": "السوشيال ميديا (SM)" };
+
 
 function getEgyptDate() {
     return new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' });
 }
 let today = getEgyptDate();
 let selectedAttendanceDate = today;
+
 
 // ==========================================
 // 3. Security & Utilities
@@ -67,10 +73,12 @@ function escapeHTML(str) {
         .replace(/'/g, "&#039;");
 }
 
+
 function normalizeArabic(text) {
     if(!text) return '';
     return text.replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي');
 }
+
 
 function debounce(func, wait) {
     let timeout;
@@ -80,6 +88,7 @@ function debounce(func, wait) {
         timeout = setTimeout(later, wait);
     };
 }
+
 
 window.showToast = function(msg, type) {
     const t = document.getElementById('toast');
@@ -91,6 +100,7 @@ window.showToast = function(msg, type) {
     t.classList.remove('hidden');
     setTimeout(() => t.classList.add('hidden'), 3000);
 }
+
 
 let audioCtx = null;
 function playSound(type) {
@@ -111,6 +121,7 @@ function playSound(type) {
     } catch(e) {}
 }
 
+
 // ==========================================
 // 4. Lazy Loaders
 // ==========================================
@@ -127,6 +138,7 @@ async function requireXLSX() {
     });
 }
 
+
 let isHtml2PdfLoaded = false;
 async function requireHtml2Pdf() {
     if (isHtml2PdfLoaded) return;
@@ -139,6 +151,7 @@ async function requireHtml2Pdf() {
         document.head.appendChild(script);
     });
 }
+
 
 let isQrLoaded = false;
 async function requireQRScanner() {
@@ -155,6 +168,7 @@ async function requireQRScanner() {
         document.head.appendChild(script1);
     });
 }
+
 
 async function generateQRBase64(text) {
     await requireQRScanner();
@@ -175,6 +189,7 @@ async function generateQRBase64(text) {
     });
 }
 
+
 // ==========================================
 // 5. Auth & Observers
 // ==========================================
@@ -186,12 +201,14 @@ const failSafeTimer = setTimeout(() => {
     }
 }, 5000);
 
+
 let unsubMembers = null; let unsubAttendance = null; let unsubAccounting = null;
 function clearAllListeners() {
     if (unsubMembers) { unsubMembers(); unsubMembers = null; }
     if (unsubAttendance) { unsubAttendance(); unsubAttendance = null; }
     if (unsubAccounting) { unsubAccounting(); unsubAccounting = null; }
 }
+
 
 onAuthStateChanged(auth, (user) => {
     clearTimeout(failSafeTimer);
@@ -236,12 +253,14 @@ onAuthStateChanged(auth, (user) => {
                 if(loading) { loading.style.opacity = '0'; setTimeout(() => loading.style.display = 'none', 300); }
             });
 
+
             unsubAttendance = onSnapshot(query(collection(db, "attendance"), where("studentId", "in", [memberCode, "EVENT_MARKER"])), (snapshot) => {
                 if (localStorage.getItem('loginMode') !== 'student') return;
                 state.attendance = [];
                 snapshot.forEach(doc => state.attendance.push({ ...doc.data(), docId: doc.id }));
                 if(state.members.length > 0) updateStudentDashboardData(state.members[0]);
             });
+
 
             unsubAccounting = onSnapshot(query(collection(db, "accounting"), where("stdId", "==", memberCode)), (snapshot) => {
                 if (localStorage.getItem('loginMode') !== 'student') return;
@@ -257,6 +276,7 @@ onAuthStateChanged(auth, (user) => {
         }
     }
 });
+
 
 window.onload = () => {
     today = getEgyptDate();
@@ -284,6 +304,7 @@ window.onload = () => {
     }
 };
 
+
 window.setLoginMode = function(mode) {
     state.loginMode = mode;
     document.getElementById('tabAdmin').className = mode === 'admin' ? 'login-tab active' : 'login-tab';
@@ -293,6 +314,7 @@ window.setLoginMode = function(mode) {
     document.getElementById('loginPass').value = '';
     document.getElementById('loginError').classList.add('hidden');
 }
+
 
 window.handleLogin = async function() {
     const code = document.getElementById('loginCode').value.trim();
@@ -354,6 +376,7 @@ window.handleLogin = async function() {
     }
 }
 
+
 function proceedLogin(mode) {
     localStorage.setItem('isLoggedIn', 'true');
     localStorage.setItem('loginMode', mode);
@@ -366,6 +389,7 @@ function proceedLogin(mode) {
         document.getElementById('navBar').classList.add('hidden');
     }
 }
+
 
 window.logout = async function() {
     try {
@@ -381,6 +405,7 @@ window.logout = async function() {
     }
 }
 
+
 // ==========================================
 // 6. UI Controllers & Navigation
 // ==========================================
@@ -393,6 +418,7 @@ window.showTab = async function(id, btn) {
     localStorage.setItem('activeTab', id);
     window.scrollTo(0, 0);
 }
+
 
 window.toggleCustomDropdown = function(event, menuId) {
     event.stopPropagation();
@@ -408,12 +434,14 @@ window.toggleCustomDropdown = function(event, menuId) {
     }
 }
 
+
 window.closeAllDropdowns = function() {
     document.querySelectorAll('.dropdown-menu').forEach(menu => {
         menu.classList.remove('show');
         menu.classList.add('hide');
     });
 }
+
 
 window.selectCustomOption = function(hiddenInputId, displayInputId, menuId, value, text, callback) {
     const hiddenInput = document.getElementById(hiddenInputId);
@@ -424,11 +452,13 @@ window.selectCustomOption = function(hiddenInputId, displayInputId, menuId, valu
     if(typeof callback === 'function') callback(value);
 }
 
+
 window.selectLevel = function(value, text) {
     document.getElementById('stdLevel').value = value;
     document.getElementById('stdLevelDisplay').value = text;
     window.closeAllDropdowns();
 }
+
 
 window.closeModal = function(id) {
     document.getElementById(id).classList.add('hidden');
@@ -439,16 +469,19 @@ window.closeModal = function(id) {
     }
 }
 
+
 window.openInternalPage = function(id) {
     document.getElementById(id).classList.add('active');
     document.body.classList.add('internal-open');
     window.scrollTo(0, 0);
 }
 
+
 window.closeInternalPage = function(id) {
     document.getElementById(id).classList.remove('active');
     document.body.classList.remove('internal-open');
 }
+
 
 // ==========================================
 // 7. Student Management
@@ -459,6 +492,7 @@ window.validatePhone = function(input) {
     if (val.length > 10) val = val.substring(0, 10);
     input.value = val;
 }
+
 
 window.registerStudent = async function() {
     const name = document.getElementById('stdName').value.trim();
@@ -490,10 +524,12 @@ window.registerStudent = async function() {
     }
 }
 
+
 window.handleSearch = debounce(() => {
     state.currentPage = 1;
     window.renderStudents();
 }, 300);
+
 
 window.renderStudents = function() {
     const queryStr = normalizeArabic(document.getElementById('searchStd').value.toLowerCase().trim());
@@ -551,8 +587,10 @@ window.renderStudents = function() {
     document.getElementById('pageIndicator').innerText = `صفحة ${state.currentPage} من ${totalPages}`;
 }
 
+
 window.nextPage = function() { state.currentPage++; window.renderStudents(); }
 window.prevPage = function() { state.currentPage--; window.renderStudents(); }
+
 
 window.openStudentModal = async function(id) {
     const s = state.members.find(st => st.id === id);
@@ -582,6 +620,7 @@ window.openStudentModal = async function(id) {
     document.body.classList.add('modal-open');
 }
 
+
 window.delStudent = async function(docId, studentId) {
     if(!confirm('سيتم حذف العضو وجميع سجلات حضوره ونقاطه! هل أنت متأكد؟')) return;
     try {
@@ -600,6 +639,7 @@ window.delStudent = async function(docId, studentId) {
     }
 }
 
+
 // ==========================================
 // 8. Attendance Logic
 // ==========================================
@@ -613,6 +653,7 @@ function getStudentStatusForDate(member, dateStr) {
     if (isExpectedToAttend) return { status: 'absent' };
     return { status: 'none' };
 }
+
 
 window.changeAttendanceDate = async function() {
     selectedAttendanceDate = document.getElementById('attendanceDate').value;
@@ -629,6 +670,7 @@ window.changeAttendanceDate = async function() {
     }
     window.updateCounters();
 }
+
 
 window.updateCounters = function() {
     const selectedLevel = document.getElementById('attendanceStage').value;
@@ -660,6 +702,7 @@ window.updateCounters = function() {
     if(document.getElementById('presentCount')) document.getElementById('presentCount').innerText = presentCount;
     if(document.getElementById('absentCount')) document.getElementById('absentCount').innerText = absentCount;
 }
+
 
 window.confirmEventDay = async function() {
     const date = document.getElementById('attendanceDate').value;
@@ -694,6 +737,7 @@ window.confirmEventDay = async function() {
     if(date !== today) await window.changeAttendanceDate();
 }
 
+
 window.cancelEventDay = async function() {
     const date = document.getElementById('attendanceDate').value;
     document.getElementById('exceptionalStatusIndicator').classList.add('hidden');
@@ -715,6 +759,7 @@ window.cancelEventDay = async function() {
     }
 }
 
+
 window.manualAttendance = async function() {
     const input = document.getElementById('manualAttID');
     const id = input.value ? input.value.trim() : '';
@@ -722,6 +767,7 @@ window.manualAttendance = async function() {
     input.value = '';
     await handleAttendanceScan(id);
 }
+
 
 async function handleAttendanceScan(id) {
     if (!id || state.isPaused) return;
@@ -733,6 +779,7 @@ async function handleAttendanceScan(id) {
         if(feedback) feedback.classList.add('hidden');
         state.isPaused = false;
     };
+
 
     try {
         if (date > today) {
@@ -780,6 +827,7 @@ async function handleAttendanceScan(id) {
             releaseScanner();
         }, 600);
 
+
         // إرسال الحفظ للسيرفر في الخلفية بدون تعطيل القارئ أو الكاميرا
         addDoc(collection(db, "attendance"), newRecord).then(() => {
             if (date !== today) {
@@ -790,12 +838,14 @@ async function handleAttendanceScan(id) {
             window.showToast("خطأ في الاتصال بالسيرفر", "error");
         });
 
+
     } catch (error) {
         window.showToast("حدث خطأ أثناء التسجيل", "error");
         playSound('error');
         releaseScanner();
     }
 }
+
 
 // ==========================================
 // 9. Scanner Logic (بدون تشغيل تلقائي + حماية التشغيل السريع)
@@ -830,6 +880,7 @@ window.startScanner = async function(elemId, mode) {
     }
 }
 
+
 window.stopScanner = async function() {
     if(state.isScannerTransitioning) return;
     if(state.html5QrCode) {
@@ -845,12 +896,14 @@ window.stopScanner = async function() {
     }
 }
 
+
 window.startCheckScanner = function() {
     document.getElementById('checkReader').classList.remove('hidden');
     document.getElementById('btnStartCheck').classList.add('hidden');
     document.getElementById('btnStopCheck').classList.remove('hidden');
     window.startScanner('checkReader', 'check');
 }
+
 
 window.stopCheckScanner = function() {
     window.stopScanner();
@@ -859,11 +912,13 @@ window.stopCheckScanner = function() {
     document.getElementById('btnStopCheck').classList.add('hidden');
 }
 
+
 async function handleCheckScan(id) {
     state.isPaused = true;
     try {
         if(state.html5QrCode) state.html5QrCode.pause();
         const member = state.members.find(s => s.id === id);
+
 
         if(member) {
             document.getElementById('checkResName').innerText = member.name;
@@ -878,16 +933,20 @@ async function handleCheckScan(id) {
                 new QRCode(qrDiv, { text: member.id, width: 60, height: 60 });
             }
 
+
             let memberPoints = state.accounting.filter(a => a.stdId === id);
             let memberAtt = state.attendance;
+
 
             const points = memberPoints.filter(a => a.category === 'points').sort((a,b) => new Date(b.date) - new Date(a.date));
             const totalPoints = points.reduce((sum, p) => sum + p.amount, 0);
             document.getElementById('checkResTotalPay').innerText = totalPoints + ' نقطة';
             document.getElementById('checkResPayTable').innerHTML = points.length ? points.map(p => `<tr><td>${escapeHTML(p.date)}</td><td>${escapeHTML(p.type)}</td><td class="text-blue-600 font-bold">${p.amount}</td></tr>`).join('') : '<tr><td colspan="3">لا يوجد</td></tr>';
 
+
             let presentCount = 0; let absentCount = 0; let presentRows = ''; let absentRows = '';
             const eventDates = new Set(memberAtt.map(a => a.date));
+
 
             Array.from(eventDates).forEach(d => {
                 const attRec = memberAtt.find(a => a.date === d && a.studentId === id);
@@ -903,10 +962,12 @@ async function handleCheckScan(id) {
                 }
             });
 
+
             document.getElementById('checkResPresentCount').innerText = presentCount;
             document.getElementById('checkResPresentTable').innerHTML = presentRows || '<tr><td colspan="2">لا يوجد</td></tr>';
             document.getElementById('checkResAbsentCount').innerText = absentCount;
             document.getElementById('checkResAbsentTable').innerHTML = absentRows || '<tr><td colspan="2">لا يوجد</td></tr>';
+
 
             document.getElementById('checkResultModal').classList.remove('hidden');
             document.body.classList.add('modal-open');
@@ -923,6 +984,7 @@ async function handleCheckScan(id) {
     }
 }
 
+
 window.setAttMode = function(mode) {
     window.stopScanner().then(() => {
         const btnScan = document.getElementById('btnAttScan');
@@ -938,6 +1000,7 @@ window.setAttMode = function(mode) {
         }
     });
 }
+
 
 // ==========================================
 // 10. Accounting & Payments
@@ -957,6 +1020,7 @@ window.togglePayMethod = function(method) {
     }
 }
 
+
 function handlePaymentScan(id) {
     if(!document.getElementById('paymentForm').classList.contains('hidden')) return;
     const member = state.members.find(s => s.id === id);
@@ -967,6 +1031,7 @@ function handlePaymentScan(id) {
         window.showToast('عضو غير موجود', 'error');
     }
 }
+
 
 function showPaymentForm() {
     document.getElementById('paymentForm').classList.remove('hidden');
@@ -979,9 +1044,11 @@ function showPaymentForm() {
     state.isPaused = true;
 }
 
+
 window.searchStudentForPay = function() {
     handlePaymentScan(document.getElementById('paySearchID').value.trim());
 }
+
 
 window.confirmPayment = async function() {
     const amountVal = document.getElementById('payAmount').value;
@@ -1009,6 +1076,7 @@ window.confirmPayment = async function() {
             timestamp: Date.now()
         });
 
+
         document.getElementById('paymentForm').classList.add('hidden');
         document.getElementById('paySearchID').value = '';
         window.showToast('تم إضافة النقاط بنجاح', 'success');
@@ -1019,6 +1087,7 @@ window.confirmPayment = async function() {
     }
 }
 
+
 window.cancelPayment = function() {
     document.getElementById('paymentForm').classList.add('hidden');
     document.getElementById('paySearchID').value = '';
@@ -1026,16 +1095,19 @@ window.cancelPayment = function() {
     state.isPaused = false;
 }
 
+
 window.proceedWithPayment = function() {
     document.getElementById('paymentConfirmModal').style.display = 'none';
     state.isPaused = false;
     showPaymentForm();
 }
 
+
 window.closePaymentConfirm = function() {
     document.getElementById('paymentConfirmModal').style.display = 'none';
     state.isPaused = false;
 }
+
 
 window.updateFinance = function() {
     const points = state.accounting.filter(a => a.category === 'points');
@@ -1055,6 +1127,7 @@ window.updateFinance = function() {
         }
     }
 }
+
 
 // ==========================================
 // 11. Reports & Advanced Search
@@ -1077,6 +1150,7 @@ window.toggleStudentReportSearch = function() {
         btn.className = 'bg-gray-800 text-white px-3 rounded font-bold text-[10px] md:text-sm transition-all shrink-0';
     }
 }
+
 
 function generateStudentReport() {
     const queryStr = normalizeArabic(document.getElementById('reportStudentSearch').value.toLowerCase().trim());
@@ -1105,6 +1179,7 @@ function generateStudentReport() {
     resDiv.classList.remove('hidden');
 }
 
+
 window.toggleReportInputs = function() {
     const type = document.getElementById('reportType').value;
     if(type === 'daily') {
@@ -1115,6 +1190,7 @@ window.toggleReportInputs = function() {
         document.getElementById('divMonthInput').classList.remove('hidden');
     }
 }
+
 
 window.handleReportBtnClick = function() {
     const btn = document.getElementById('btnGenerateReport');
@@ -1127,6 +1203,7 @@ window.handleReportBtnClick = function() {
         btn.className = 'w-full bg-blue-900 text-white py-1.5 rounded font-bold shadow hover:bg-blue-950 text-[10px] md:text-sm md:py-2 transition-all';
     }
 }
+
 
 async function generateAdvancedReport() {
     const type = document.getElementById('reportType').value;
@@ -1152,8 +1229,10 @@ async function generateAdvancedReport() {
         }
     }
 
+
     document.getElementById('reportResult').innerHTML = '<div class="text-center py-4 font-bold text-blue-900">جاري معالجة البيانات...</div>';
     document.getElementById('reportResult').classList.remove('hidden');
+
 
     let periodAttendance = []; let periodAccounting = [];
     try {
@@ -1176,6 +1255,7 @@ async function generateAdvancedReport() {
         return;
     }
 
+
     const attMap = {};
     periodAttendance.forEach(r => { attMap[`${r.date}_${r.studentId}`] = r; });
     
@@ -1184,6 +1264,7 @@ async function generateAdvancedReport() {
         const m = state.members.find(sm => sm.id === p.stdId);
         return { ...p, stdLevel: m ? m.level : 'غير معروف' };
     });
+
 
     targetMembers.forEach(member => {
         let presentCount = 0; let absentCount = 0; let presentDates = []; let absentDates = []; let presentTime = '-';
@@ -1212,8 +1293,10 @@ async function generateAdvancedReport() {
     btn.innerText = 'إلغاء التقرير';
     btn.className = 'w-full bg-red-600 text-white py-1.5 rounded font-bold shadow hover:bg-red-700 text-[10px] md:text-sm md:py-2 transition-all';
 
+
     document.getElementById('reportResult').innerHTML = `<div class="bg-green-50 border border-green-200 p-4 rounded text-center shadow-sm"><div class="text-green-600 text-3xl mb-2">✅</div><h4 class="font-bold text-gray-800 mb-3 text-sm">تم استخراج التقرير بنجاح</h4><button onclick="openInternalReport()" class="bg-blue-900 text-white px-6 py-2 rounded font-bold shadow-lg text-xs md:text-sm">افتح التقرير</button></div>`;
 }
+
 
 // ==========================================
 // 12. Internal Pages & Reports Rendering
@@ -1243,6 +1326,7 @@ window.openInternalAttendance = async function(type) {
     window.applyInternalAttFilter();
 }
 
+
 window.applyInternalAttFilter = function() {
     const selectedLevel = document.getElementById('intAttFilter').value;
     const searchQuery = normalizeArabic(document.getElementById('intAttSearch').value.toLowerCase().trim());
@@ -1264,6 +1348,7 @@ window.applyInternalAttFilter = function() {
         }
     });
 
+
     // تطبيق الترتيب الأبجدي + أولوية البحث في الحضور والغياب
     state.attCachedList.sort((a, b) => {
         const nameA = a.name || '';
@@ -1279,12 +1364,15 @@ window.applyInternalAttFilter = function() {
         return nameA.localeCompare(nameB, 'ar', { sensitivity: 'base' });
     });
 
+
     state.attCurrentPage = 1;
     renderInternalAttendanceList();
 }
 
+
 function renderInternalAttendanceList(isScroll = false) {
     if (!isScroll) state.attCurrentPage = 1;
+
 
     const tbody = document.getElementById('intAttBody');
     const itemsPerScroll = 30; 
@@ -1305,6 +1393,7 @@ function renderInternalAttendanceList(isScroll = false) {
         tbody.insertAdjacentHTML('beforeend', html);
     }
 
+
     // خاصية الملء التلقائي للتابلت والشاشات الكبيرة
     setTimeout(() => {
         const container = document.getElementById('internalAttendancePage');
@@ -1317,6 +1406,7 @@ function renderInternalAttendanceList(isScroll = false) {
         }
     }, 150);
 }
+
 
 window.openInternalReport = function() {
     const category = document.getElementById('reportCategory').value;
@@ -1340,6 +1430,7 @@ window.openInternalReport = function() {
     const thead = document.getElementById('intRepHead');
     const isDaily = document.getElementById('reportType').value === 'daily';
 
+
     if (category === 'combined') {
         thead.innerHTML = `<tr><th style="width: 5%;">م</th><th style="width: 26%;">الاسم</th><th style="width: 11%;">اللجنة</th><th style="width: 12%;">النقاط</th>${isDaily ? `<th style="width: 22%;">الحالة</th><th style="width: 24%;">وقت</th>` : `<th style="width: 8%;">حضور</th><th style="width: 8%;">غياب</th><th style="width: 15%;">تواريخ<br>الحضور</th><th style="width: 15%;">تواريخ<br>الغياب</th>`}</tr>`;
         document.getElementById('intRepBtnExcel').onclick = window.exportCombinedExcel;
@@ -1360,8 +1451,10 @@ window.openInternalReport = function() {
     window.renderInternalReportList();
 }
 
+
 window.renderInternalReportList = function(isScroll = false) {
     if (!isScroll) state.reportCurrentPage = 1;
+
 
     const tbody = document.getElementById('intRepBody');
     const isDaily = document.getElementById('reportType').value === 'daily';
@@ -1372,6 +1465,7 @@ window.renderInternalReportList = function(isScroll = false) {
     
     if(searchQuery) list = list.filter(item => (item.name||'').toLowerCase().includes(searchQuery) || (item.id && item.id.includes(searchQuery)) || (item.stdId && item.stdId.includes(searchQuery)));
     if(filterStage !== 'all') list = list.filter(item => item.level === filterStage || item.stdLevel === filterStage);
+
 
     const itemsPerScroll = 30; 
     const start = (state.reportCurrentPage - 1) * itemsPerScroll;
@@ -1384,6 +1478,7 @@ window.renderInternalReportList = function(isScroll = false) {
         }
         return;
     }
+
 
     let html = '';
     if (state.currentReportCategory === 'combined') {
@@ -1400,6 +1495,7 @@ window.renderInternalReportList = function(isScroll = false) {
         tbody.insertAdjacentHTML('beforeend', html);
     }
 
+
     // خاصية الملء التلقائي للتابلت والشاشات الكبيرة
     setTimeout(() => {
         const container = document.getElementById('internalReportPage');
@@ -1412,6 +1508,7 @@ window.renderInternalReportList = function(isScroll = false) {
         }
     }, 150);
 }
+
 
 window.openAdminStudentDash = async function(studentId) {
     const member = state.members.find(s => s.id === studentId);
@@ -1436,6 +1533,7 @@ window.openAdminStudentDash = async function(studentId) {
     
     document.getElementById('intDashOwnPhone').innerText = member.ownPhone || member.phone || 'غير مسجل';
     document.getElementById('intDashPassword').innerText = member.password || '---';
+
 
     let sAtt = []; let sAcc = [];
     try {
@@ -1469,6 +1567,7 @@ window.openAdminStudentDash = async function(studentId) {
     window.openInternalPage('internalStudentDashPage');
 }
 
+
 function calculateStudentStats(member, customAttArray = state.attendance) {
     let present = 0; let absent = 0; let history = [];
     const joinDateStr = member.date || '2020-01-01';
@@ -1494,12 +1593,14 @@ function calculateStudentStats(member, customAttArray = state.attendance) {
     return { present, absent, history };
 }
 
+
 function loadStudentDashboard(member) {
     if(!member || localStorage.getItem('loginMode') === 'admin') return;
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.getElementById('studentDashboard').classList.add('active');
     updateStudentDashboardData(member);
 }
+
 
 async function updateStudentDashboardData(member) {
     if(!member) return;
@@ -1512,6 +1613,7 @@ async function updateStudentDashboardData(member) {
     const now = new Date();
     const diffDays = Math.ceil(Math.abs(now - join) / (1000 * 60 * 60 * 24));
     document.getElementById('dashDuration').innerText = `${diffDays} يوم`;
+
 
     await requireQRScanner();
     const qrDiv = document.getElementById("dashQr");
@@ -1529,6 +1631,7 @@ async function updateStudentDashboardData(member) {
     document.getElementById('dashPaymentsTotal').innerText = `${totalPoints} نقطة`;
     document.getElementById('dashOwnPhone').innerText = member.ownPhone || member.phone || 'غير مسجل';
 
+
     const payTable = document.getElementById('dashPaymentsTable');
     if(payTable) {
         payTable.innerHTML = points.length > 0 
@@ -1536,9 +1639,11 @@ async function updateStudentDashboardData(member) {
             : '<tr><td colspan="3" class="text-center text-gray-400">لا توجد نقاط</td></tr>';
     }
 
+
     const historyHtml = stats.history.map(h => `<div class="flex justify-between border-b p-2 ${h.status === 'absent' ? 'bg-red-50' : 'bg-green-50'}"><span>${escapeHTML(h.date)} (${escapeHTML(h.day)})</span><span class="font-bold ${h.status === 'absent' ? 'text-red-600' : 'text-green-600'}">${h.status === 'absent' ? 'غياب' : 'حضور'}</span></div>`).join('');
     if(document.getElementById('dashHistory')) document.getElementById('dashHistory').innerHTML = historyHtml || '<p class="text-center text-gray-400 text-xs">لا يوجد سجل</p>';
 }
+
 
 // ==========================================
 // 13. Printing & PDF System
@@ -1552,15 +1657,19 @@ function getReportTitleHeader(baseTitle) {
     return `${baseTitle} - ${periodText} - ${stageMap[stage] || 'كل اللجان'}`;
 }
 
+
 function getPrintTemplate(title, content) {
     const todayPrintDate = new Date().toLocaleDateString('ar-EG');
     return `
-    <div class="print-page" dir="rtl" style="font-family: 'Cairo', sans-serif; direction: rtl; text-align: right; background-color: #ffffff; width: 100%; padding: 20px; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
+    <div class="print-page" dir="rtl" style="font-family: 'Cairo', sans-serif; direction: rtl; text-align: right; background-color: #ffffff; width: 100%; padding: 15px; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
             
-            /* عزل التصميم (Scoping): كل سطر هنا يبدأ بـ .print-page لمنع تشويه الموقع */
-            .print-page, .print-page * { font-family: 'Cairo', sans-serif !important; }
+            /* 1. ضبط الخطوط والاتجاه العام */
+            .print-page, .print-page * { 
+                font-family: 'Cairo', sans-serif !important; 
+                box-sizing: border-box !important;
+            }
             
             .print-page .print-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 5px; margin-bottom: 15px; width: 100%; }
             .print-page .print-meta-area { text-align: right; font-size: 11px; color: #4b5563; font-weight: 700; direction: rtl; }
@@ -1569,12 +1678,38 @@ function getPrintTemplate(title, content) {
             .print-page .print-title-area h2 { font-size: 14px; font-weight: 800; margin: 4px 0 0 0; color: #dc2626; }
             .print-page .print-logo-area img { width: 50px; height: 50px; object-fit: contain; }
             
-            /* تصميم الجداول المعزول */
-            .print-page table { width: 100% !important; border-collapse: collapse !important; margin-top: 10px !important; direction: rtl !important; background-color: #ffffff !important; table-layout: fixed !important; }
+            /* 2. تصميم الجداول */
+            .print-page table { 
+                width: 100% !important; 
+                border-collapse: collapse !important; 
+                margin-top: 10px !important; 
+                direction: rtl !important; 
+                background-color: #ffffff !important; 
+                table-layout: fixed !important; 
+            }
             .print-page tr { page-break-inside: avoid !important; }
             .print-page thead, .print-page thead tr, .print-page th { background-color: #1e3a8a !important; color: #ffffff !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            .print-page th { font-weight: 900 !important; border: 1px solid #1e3a8a !important; padding: 8px 4px !important; text-align: center !important; font-size: 11px !important; word-wrap: break-word; }
-            .print-page td { border: 1px solid #d1d5db !important; padding: 6px 4px !important; font-size: 11px !important; font-weight: 700 !important; text-align: center !important; color: #000000 !important; word-wrap: break-word; }
+            
+            /* 3. الحل الجذري لمنع تفكيك وعكس الحروف داخل خلايا الجداول */
+            .print-page th, .print-page td { 
+                border: 1px solid #d1d5db !important; 
+                padding: 6px 4px !important; 
+                font-size: 11px !important; 
+                font-weight: 700 !important; 
+                text-align: center !important; 
+                direction: rtl !important;
+                unicode-bidi: isolate !important; /* يجبر المحرك على معاملة الكلمة ككتلة واحدة وعدم تقطيعها */
+                font-variant-ligatures: normal !important;
+            }
+            .print-page th { font-weight: 900 !important; border: 1px solid #1e3a8a !important; }
+            .print-page td { color: #000000 !important; }
+            
+            /* إجبار العناصر الداخلية داخل خلايا الجدول على الاتصال */
+            .print-page td div, .print-page th div, .print-page td span, .print-page th span {
+                direction: rtl !important;
+                unicode-bidi: isolate !important;
+                display: inline-block !important;
+            }
             
             .print-page .print-body { display: flex; flex-direction: column; align-items: center; width: 100%; }
             .print-page .print-student-card { border: 3px double #1e3a8a !important; border-radius: 12px; padding: 15px; width: 320px; max-width: 100%; margin: 15px auto; text-align: center; page-break-inside: avoid; background-color: #ffffff; direction: rtl; }
@@ -1622,6 +1757,7 @@ window.printHTML = async function(title, content) {
     }
 };
 
+
 window.savePDF = async function(title, content, isLandscape = false) {
     window.showToast('جاري تجهيز ملف PDF...', 'success');
     await requireHtml2Pdf();
@@ -1642,6 +1778,7 @@ window.savePDF = async function(title, content, isLandscape = false) {
         direction: ltr !important; /* تثبيت بداية نقطة التصوير في أقصى اليسار العلوي (0,0) */
     `;
 
+
     // 2. الحاوية الداخلية بمقاس A4 والنص عربي جهة اليمين
     const target = document.createElement('div');
     target.style.cssText = `
@@ -1656,6 +1793,7 @@ window.savePDF = async function(title, content, isLandscape = false) {
     target.innerHTML = getPrintTemplate(title, content);
     overlay.appendChild(target);
     document.body.appendChild(overlay);
+
 
     // 3. إعدادات التصوير السليمة (بدون letterRendering)
     const opt = {
@@ -1682,6 +1820,7 @@ window.savePDF = async function(title, content, isLandscape = false) {
         pagebreak:    { mode: ['css', 'legacy'] }
     };
 
+
     // 4. الانتظار والتصوير ثم التنظيف
     setTimeout(async () => {
         try {
@@ -1697,17 +1836,20 @@ window.savePDF = async function(title, content, isLandscape = false) {
     }, 500);
 };
 
+
 window.printContent = function(elementId, title) {
     const docTitle = title || document.getElementById('intAttTitle')?.innerText || 'تقرير الحضور والغياب';
     const content = `<table class="ultra-compact-table"><thead>${document.getElementById('intAttHead').innerHTML}</thead><tbody>${document.getElementById('intAttBody').innerHTML}</tbody></table>`;
     window.printHTML(docTitle, content);
 }
 
+
 window.pdfContent = function(elementId, title) {
     const docTitle = title || document.getElementById('intAttTitle')?.innerText || 'تقرير الحضور والغياب';
     const content = `<table class="ultra-compact-table"><thead>${document.getElementById('intAttHead').innerHTML}</thead><tbody>${document.getElementById('intAttBody').innerHTML}</tbody></table>`;
     window.savePDF(docTitle, content);
 }
+
 
 window.printStudentCard = async function() {
     const s = state.members.find(st => st.id === state.currentModalStudentId);
@@ -1729,6 +1871,7 @@ window.printStudentCard = async function() {
     window.printHTML('بطاقة عضو', content);
 }
 
+
 window.shareStudentPdf = async function() { 
     const s = state.members.find(st => st.id === state.currentModalStudentId);
     if(!s) return;
@@ -1748,20 +1891,24 @@ window.shareStudentPdf = async function() {
     window.savePDF(`بطاقة_عضو_${s.name}`, content);
 }
 
+
 async function buildFullStudentReportHTML(member, sAtt, sAcc) {
     const qrImageHtml = await generateQRBase64(member.id);
     const stats = calculateStudentStats(member, sAtt);
     const points = sAcc.filter(r => r.category === 'points' && r.stdId === member.id);
     const totalPoints = points.reduce((sum, p) => sum + p.amount, 0);
 
+
     const pointsRows = points.length > 0 
         ? points.map(p => `<tr><td>${escapeHTML(p.date)}</td><td>${escapeHTML(p.type)}</td><td style="color:#1e3a8a; font-weight:bold;">${p.amount}</td></tr>`).join('')
         : '<tr><td colspan="3">لا توجد نقاط</td></tr>';
+
 
     // فصل التاريخ واليوم بجدول الحضور
     const historyRows = stats.history.length > 0
         ? stats.history.map(h => `<tr><td>${escapeHTML(h.date)}</td><td>${escapeHTML(h.day)}</td><td style="font-weight:bold; color:${h.status === 'absent' ? 'red' : 'green'};">${h.status === 'absent' ? 'غياب' : 'حضور'}</td></tr>`).join('')
         : '<tr><td colspan="3">لا يوجد سجل</td></tr>';
+
 
     return `
         <div class="print-student-card">
@@ -1801,6 +1948,7 @@ async function buildFullStudentReportHTML(member, sAtt, sAcc) {
     `;
 }
 
+
 window.printStudentDashboard = async function() {
     const code = document.getElementById('dashCode').innerText;
     const s = state.members.find(st => st.id === code);
@@ -1809,6 +1957,7 @@ window.printStudentDashboard = async function() {
     window.printHTML(`تقرير_متابعة_${s.name}`, content);
 }
 
+
 window.pdfStudentDashboard = async function() { 
     const code = document.getElementById('dashCode').innerText;
     const s = state.members.find(st => st.id === code);
@@ -1816,6 +1965,7 @@ window.pdfStudentDashboard = async function() {
     const content = await buildFullStudentReportHTML(s, state.attendance, state.accounting);
     window.savePDF(`تقرير_متابعة_${s.name}`, content);
 }
+
 
 window.printInternalStudentDash = async function() {
     const code = document.getElementById('intDashCode').innerText;
@@ -1835,6 +1985,7 @@ window.printInternalStudentDash = async function() {
     window.printHTML(`تقرير_العضو_${s.name}`, content);
 }
 
+
 // إعادة تصميم وتنسيق إكسيل التقرير المفصل للعضو بالكامل بدون أي دمج
 window.excelDetailedStudentReport = async function(code) {
     const s = state.members.find(st => st.id === code);
@@ -1853,9 +2004,11 @@ window.excelDetailedStudentReport = async function(code) {
     const points = sAcc.filter(r => r.category === 'points' && r.stdId === s.id);
     const totalPoints = points.reduce((sum, p) => sum + p.amount, 0);
 
+
     const reportTitle = `تقرير متابعة العضو التفصيلي - ${s.name}`;
     const headers = ["القسم", "البيان / التاريخ", "التفاصيل / المهمة / الحالة", "النقاط المكتسبة"];
     const rows = [];
+
 
     // 1. البيانات الشخصية
     rows.push(["البيانات الشخصية", "اسم العضو", s.name, "-"]);
@@ -1864,23 +2017,28 @@ window.excelDetailedStudentReport = async function(code) {
     rows.push(["البيانات الشخصية", "رقم الهاتف", s.ownPhone || s.phone || 'غير مسجل', "-"]);
     rows.push(["البيانات الشخصية", "تاريخ الانضمام", s.date || '-', "-"]);
 
+
     // 2. الملخص
     rows.push(["ملخص النشاط", "أيام الحضور", `${stats.present} يوم`, "-"]);
     rows.push(["ملخص النشاط", "أيام الغياب", `${stats.absent} يوم`, "-"]);
     rows.push(["ملخص النشاط", "إجمالي النقاط", `${totalPoints} نقطة`, totalPoints]);
+
 
     // 3. سجل التقييمات
     points.forEach(p => {
         rows.push(["سجل التقييمات والنقاط", p.date, p.type, p.amount]);
     });
 
+
     // 4. سجل الحضور
     stats.history.forEach(h => {
         rows.push(["سجل الحضور والغياب", `${h.date} (${h.day})`, h.status === 'present' ? 'حضور' : 'غياب', '-']);
     });
 
+
     window.exportToExcelStyle(headers, rows, reportTitle, `تقرير_العضو_${s.name}`);
 }
+
 
 window.pdfDetailedStudentReport = async function(code) { 
     const s = state.members.find(st => st.id === code);
@@ -1899,17 +2057,20 @@ window.pdfDetailedStudentReport = async function(code) {
     window.savePDF(`تقرير_العضو_${s.name}`, content);
 }
 
+
 window.printStudentsList = function() {
     let rows = state.members.map((s, i) => `<tr><td style="width:30px;">${i+1}</td><td style="width:60px;">${s.id}</td><td style="font-weight:bold; width:220px;">${escapeHTML(s.name)}</td><td style="width:90px;">${escapeHTML(stageMap[s.level] || s.level)}</td><td style="width:80px;">${s.date}</td></tr>`).join('');
     const content = `<table class="ultra-compact-table"><thead><tr><th style="width: 30px;">م</th><th style="width: 60px;">الكود</th><th style="width: 220px;">الاسم</th><th style="width: 90px;">اللجنة</th><th style="width: 80px;">تاريخ الانضمام</th></tr></thead><tbody>${rows}</tbody></table>`;
     window.printHTML('قائمة الأعضاء المسجلين', content);
 }
 
+
 window.pdfStudentsList = function() { 
     let rows = state.members.map((s, i) => `<tr><td style="width:30px;">${i+1}</td><td style="width:60px;">${s.id}</td><td style="font-weight:bold; width:220px;">${escapeHTML(s.name)}</td><td style="width:90px;">${escapeHTML(stageMap[s.level] || s.level)}</td><td style="width:80px;">${s.date}</td></tr>`).join('');
     const content = `<table class="ultra-compact-table"><thead><tr><th style="width: 30px;">م</th><th style="width: 60px;">الكود</th><th style="width: 220px;">الاسم</th><th style="width: 90px;">اللجنة</th><th style="width: 80px;">تاريخ الانضمام</th></tr></thead><tbody>${rows}</tbody></table>`;
     window.savePDF('قائمة الأعضاء المسجلين', content);
 }
+
 
 window.pdfCombinedReport = function() {
     if(!state.currentReportData.combined || state.currentReportData.combined.length === 0) return window.showToast('لا توجد بيانات للطباعة', 'error');
@@ -1920,11 +2081,13 @@ window.pdfCombinedReport = function() {
         ? state.currentReportData.combined.map((c, i) => `<tr><td>${i+1}</td><td>${c.id}</td><td style="font-weight:bold;">${escapeHTML(c.name)}</td><td>${escapeHTML(stageMap[c.level]||c.level)}</td><td style="color:blue; font-weight:bold;">${c.totalPoints}</td><td style="font-weight:bold; color:${c.presentCount > 0 ? 'green' : 'red'};">${c.presentCount > 0 ? 'حاضر' : 'غائب'}</td><td>${c.presentCount > 0 ? (c.presentTime || '-') : '-'}</td></tr>`).join('')
         : state.currentReportData.combined.map((c, i) => `<tr><td>${i+1}</td><td>${c.id}</td><td style="font-weight:bold;">${escapeHTML(c.name)}</td><td>${escapeHTML(c.level)}</td><td style="color:blue; font-weight:bold;">${c.totalPoints}</td><td style="color:green; font-weight:bold;">${c.presentCount}</td><td style="color:red; font-weight:bold;">${c.absentCount}</td><td style="color:green; font-size:9.5px; line-height:1.4;">${c.presentDates.join(' ، ') || '-'}</td><td style="color:red; font-size:9.5px; line-height:1.4;">${c.absentDates.join(' ، ') || '-'}</td></tr>`).join('');
 
+
     const content = `<table class="ultra-compact-table"><thead><tr>${isDaily 
         ? '<th style="width:5%;">م</th><th style="width:10%;">الكود</th><th style="width:38%;">الاسم</th><th style="width:11%;">اللجنة</th><th style="width:12%;">النقاط</th><th style="width:11%;">الحالة</th><th style="width:13%;">وقت الحضور</th>' 
         : '<th style="width:4%;">م</th><th style="width:8%;">الكود</th><th style="width:22%;">الاسم</th><th style="width:8%;">اللجنة</th><th style="width:7%;">النقاط</th><th style="width:5%;">حضور</th><th style="width:5%;">غياب</th><th style="width:20.5%;">تواريخ الحضور</th><th style="width:20.5%;">تواريخ الغياب</th>'}</tr></thead><tbody>${rows}</tbody></table>`;
     window.savePDF(title, content);
 }
+
 
 window.printCombinedReport = function() {
     if(!state.currentReportData.combined || state.currentReportData.combined.length === 0) return window.showToast('لا توجد بيانات للطباعة', 'error');
@@ -1935,12 +2098,14 @@ window.printCombinedReport = function() {
         ? state.currentReportData.combined.map((c, i) => `<tr><td>${i+1}</td><td>${c.id}</td><td style="font-weight:bold;">${escapeHTML(c.name)}</td><td>${escapeHTML(stageMap[c.level]||c.level)}</td><td style="color:blue; font-weight:bold;">${c.totalPoints}</td><td style="font-weight:bold; color:${c.presentCount > 0 ? 'green' : 'red'};">${c.presentCount > 0 ? 'حاضر' : 'غائب'}</td><td>${c.presentCount > 0 ? (c.presentTime || '-') : '-'}</td></tr>`).join('')
         : state.currentReportData.combined.map((c, i) => `<tr><td>${i+1}</td><td>${c.id}</td><td style="font-weight:bold;">${escapeHTML(c.name)}</td><td>${escapeHTML(c.level)}</td><td style="color:blue; font-weight:bold;">${c.totalPoints}</td><td style="color:green; font-weight:bold;">${c.presentCount}</td><td style="color:red; font-weight:bold;">${c.absentCount}</td><td style="color:green; font-size:9.5px; line-height:1.4;">${c.presentDates.join(' ، ') || '-'}</td><td style="color:red; font-size:9.5px; line-height:1.4;">${c.absentDates.join(' ، ') || '-'}</td></tr>`).join('');
 
+
     // توزيع النسب المئوية الموزونة لتستوعب 9 أعمدة داخل الورقة العمودية 100% بالضبط
     const content = `<table class="ultra-compact-table"><thead><tr>${isDaily 
         ? '<th style="width:5%;">م</th><th style="width:10%;">الكود</th><th style="width:38%;">الاسم</th><th style="width:11%;">اللجنة</th><th style="width:12%;">النقاط</th><th style="width:11%;">الحالة</th><th style="width:13%;">وقت الحضور</th>' 
         : '<th style="width:4%;">م</th><th style="width:8%;">الكود</th><th style="width:22%;">الاسم</th><th style="width:8%;">اللجنة</th><th style="width:7%;">النقاط</th><th style="width:5%;">حضور</th><th style="width:5%;">غياب</th><th style="width:20.5%;">تواريخ الحضور</th><th style="width:20.5%;">تواريخ الغياب</th>'}</tr></thead><tbody>${rows}</tbody></table>`;
     window.printHTML(title, content);
 }
+
 
 window.printAttendanceReport = function() {
     if(!state.currentReportData.combined || state.currentReportData.combined.length === 0) return window.showToast('لا توجد بيانات للطباعة', 'error');
@@ -1951,11 +2116,13 @@ window.printAttendanceReport = function() {
         ? state.currentReportData.combined.map((c, i) => `<tr><td>${i+1}</td><td>${c.id}</td><td style="font-weight:bold;">${escapeHTML(c.name)}</td><td>${escapeHTML(stageMap[c.level]||c.level)}</td><td style="font-weight:bold; color:${c.presentCount > 0 ? 'green' : 'red'};">${c.presentCount > 0 ? 'حاضر' : 'غائب'}</td><td>${c.presentCount > 0 ? (c.presentTime || '-') : '-'}</td></tr>`).join('')
         : state.currentReportData.combined.map((c, i) => `<tr><td>${i+1}</td><td>${c.id}</td><td style="font-weight:bold;">${escapeHTML(c.name)}</td><td>${escapeHTML(stageMap[c.level]||c.level)}</td><td style="color:green; font-weight:bold;">${c.presentCount}</td><td style="color:red; font-weight:bold;">${c.absentCount}</td><td style="color:green; font-size:9.5px; line-height:1.4;">${c.presentDates.join(' ، ') || '-'}</td><td style="color:red; font-size:9.5px; line-height:1.4;">${c.absentDates.join(' ، ') || '-'}</td></tr>`).join('');
 
+
     const content = `<table class="ultra-compact-table"><thead><tr>${isDaily 
         ? '<th style="width:5%;">م</th><th style="width:12%;">الكود</th><th style="width:42%;">الاسم</th><th style="width:12%;">اللجنة</th><th style="width:14%;">الحالة</th><th style="width:15%;">وقت الحضور</th>' 
         : '<th style="width:4%;">م</th><th style="width:9%;">الكود</th><th style="width:25%;">الاسم</th><th style="width:9%;">اللجنة</th><th style="width:6%;">حضور</th><th style="width:6%;">غياب</th><th style="width:20.5%;">تواريخ الحضور</th><th style="width:20.5%;">تواريخ الغياب</th>'}</tr></thead><tbody>${rows}</tbody></table>`;
     window.printHTML(title, content);
 }
+
 
 window.pdfAttendanceReport = function() { 
     if(!state.currentReportData.combined || state.currentReportData.combined.length === 0) return window.showToast('لا توجد بيانات للطباعة', 'error');
@@ -1966,11 +2133,13 @@ window.pdfAttendanceReport = function() {
         ? state.currentReportData.combined.map((c, i) => `<tr><td>${i+1}</td><td>${c.id}</td><td style="font-weight:bold;">${escapeHTML(c.name)}</td><td>${escapeHTML(stageMap[c.level]||c.level)}</td><td style="font-weight:bold; color:${c.presentCount > 0 ? 'green' : 'red'};">${c.presentCount > 0 ? 'حاضر' : 'غائب'}</td><td>${c.presentCount > 0 ? (c.presentTime || '-') : '-'}</td></tr>`).join('')
         : state.currentReportData.combined.map((c, i) => `<tr><td>${i+1}</td><td>${c.id}</td><td style="font-weight:bold;">${escapeHTML(c.name)}</td><td>${escapeHTML(stageMap[c.level]||c.level)}</td><td style="color:green; font-weight:bold;">${c.presentCount}</td><td style="color:red; font-weight:bold;">${c.absentCount}</td><td style="color:green; font-size:9.5px; line-height:1.4;">${c.presentDates.join(' ، ') || '-'}</td><td style="color:red; font-size:9.5px; line-height:1.4;">${c.absentDates.join(' ، ') || '-'}</td></tr>`).join('');
 
+
     const content = `<table class="ultra-compact-table"><thead><tr>${isDaily 
         ? '<th style="width:5%;">م</th><th style="width:12%;">الكود</th><th style="width:42%;">الاسم</th><th style="width:12%;">اللجنة</th><th style="width:14%;">الحالة</th><th style="width:15%;">وقت الحضور</th>' 
         : '<th style="width:4%;">م</th><th style="width:9%;">الكود</th><th style="width:25%;">الاسم</th><th style="width:9%;">اللجنة</th><th style="width:6%;">حضور</th><th style="width:6%;">غياب</th><th style="width:20.5%;">تواريخ الحضور</th><th style="width:20.5%;">تواريخ الغياب</th>'}</tr></thead><tbody>${rows}</tbody></table>`;
     window.savePDF(title, content);
 }
+
 
 window.printPointsReport = function() {
     if(!state.currentReportData.points || state.currentReportData.points.length === 0) return window.showToast('لا توجد بيانات للطباعة', 'error');
@@ -1980,6 +2149,7 @@ window.printPointsReport = function() {
     window.printHTML(title, content);
 }
 
+
 window.pdfPointsReport = function() { 
     if(!state.currentReportData.points || state.currentReportData.points.length === 0) return window.showToast('لا توجد بيانات للطباعة', 'error');
     const title = getReportTitleHeader("تقرير النقاط والمهام");
@@ -1988,6 +2158,7 @@ window.pdfPointsReport = function() {
     window.savePDF(title, content);
 }
 
+
 // ==========================================
 // 14. Full Professional Excel Engine
 // ==========================================
@@ -1995,14 +2166,18 @@ window.exportToExcelStyle = async function(headers, rows, reportTitle, fileName)
     await requireXLSX();
     if (typeof XLSX === 'undefined') { window.showToast('مكتبة الإكسيل غير محملة', 'error'); return; }
 
+
     const wb = XLSX.utils.book_new();
     wb.Workbook = { Views: [{ RTL: true }] };
+
 
     const wsData = [ [reportTitle], headers, ...rows ];
     const ws = XLSX.utils.aoa_to_sheet(wsData);
     const colCount = headers.length;
 
+
     ws['!merges'] = [ { s: { r: 0, c: 0 }, e: { r: 0, c: colCount - 1 } } ];
+
 
     const borderStyle = {
         top: { style: "thin", color: { rgb: "D1D5DB" } },
@@ -2017,6 +2192,7 @@ window.exportToExcelStyle = async function(headers, rows, reportTitle, fileName)
         right: { style: "thin", color: { rgb: "000000" } }
     };
 
+
     if (ws['A1']) {
         ws['A1'].s = {
             font: { name: 'Cairo', sz: 15, bold: true, color: { rgb: "DC2626" } },
@@ -2024,6 +2200,7 @@ window.exportToExcelStyle = async function(headers, rows, reportTitle, fileName)
             fill: { fgColor: { rgb: "F9FAFB" } }
         };
     }
+
 
     for (let col = 0; col < colCount; col++) {
         const cellRef = XLSX.utils.encode_cell({ r: 1, c: col });
@@ -2036,6 +2213,7 @@ window.exportToExcelStyle = async function(headers, rows, reportTitle, fileName)
             };
         }
     }
+
 
     const totalRows = wsData.length;
     for (let r = 2; r < totalRows; r++) {
@@ -2052,6 +2230,7 @@ window.exportToExcelStyle = async function(headers, rows, reportTitle, fileName)
         }
     }
 
+
     ws['!cols'] = headers.map((h, colIndex) => {
         let maxLen = h ? h.toString().length : 10;
         for (let r = 2; r < totalRows; r++) {
@@ -2064,11 +2243,14 @@ window.exportToExcelStyle = async function(headers, rows, reportTitle, fileName)
         return { wch: Math.min(Math.max(maxLen + 4, 14), 40) };
     });
 
+
     ws['!rows'] = [{ hpt: 35 }, { hpt: 26 }];
+
 
     XLSX.utils.book_append_sheet(wb, ws, "التقرير");
     XLSX.writeFile(wb, `${fileName}.xlsx`);
 }
+
 
 window.exportStudentsListExcel = function() {
     const filterStage = document.getElementById('studentListFilter').value;
@@ -2077,10 +2259,12 @@ window.exportStudentsListExcel = function() {
     if(filterStage !== 'all') filtered = filtered.filter(s => s.level === filterStage);
     if(queryVal !== '') filtered = filtered.filter(s => normalizeArabic((s.name||'').toLowerCase()).includes(queryVal) || (s.id||'').includes(queryVal));
 
+
     const headers = ["م", "الكود", "الاسم", "اللجنة", "رقم الهاتف", "تاريخ الانضمام"];
     const rows = filtered.map((s, index) => [ index + 1, s.id, s.name, stageMap[s.level] || s.level, s.ownPhone || s.phone || 'غير مسجل', s.date || '-' ]);
     window.exportToExcelStyle(headers, rows, "قائمة الأعضاء المسجلين YLY", "قائمة_الأعضاء_YLY");
 }
+
 
 window.exportCombinedExcel = function() {
     if(!state.currentReportData.combined || state.currentReportData.combined.length === 0) return window.showToast('لا توجد بيانات للتصدير', 'error');
@@ -2098,6 +2282,7 @@ window.exportCombinedExcel = function() {
     window.exportToExcelStyle(headers, rows, titleHeader, "تقرير_شامل_YLY");
 }
 
+
 window.exportAttendanceReportExcel = function() {
     if(!state.currentReportData.combined || state.currentReportData.combined.length === 0) return window.showToast('لا توجد بيانات للتصدير', 'error');
     const isDaily = document.getElementById('reportType').value === 'daily';
@@ -2114,6 +2299,7 @@ window.exportAttendanceReportExcel = function() {
     window.exportToExcelStyle(headers, rows, titleHeader, "تقرير_الحضور_والغياب_YLY");
 }
 
+
 window.exportPointsReportExcel = function() {
     if(!state.currentReportData.points || state.currentReportData.points.length === 0) return window.showToast('لا توجد بيانات للتصدير', 'error');
     const titleHeader = getReportTitleHeader("تقرير النقاط والمهام YLY");
@@ -2121,6 +2307,7 @@ window.exportPointsReportExcel = function() {
     const rows = state.currentReportData.points.map((p, i) => [ i + 1, p.stdId, p.name, p.type, p.amount, p.date, p.time || '-' ]);
     window.exportToExcelStyle(headers, rows, titleHeader, "تقرير_النقاط_والمهام_YLY");
 }
+
 
 // ==========================================
 // 15. Backup System
@@ -2134,6 +2321,7 @@ window.exportData = function() {
     a.download = `backup_YLY_${today}.json`;
     a.click();
 }
+
 
 window.importData = function(input) {
     const file = input.files[0];
@@ -2155,6 +2343,7 @@ window.importData = function(input) {
     reader.readAsText(file);
 }
 
+
 window.showCustomAlert = function(title, message) {
     document.getElementById('alertTitle').innerText = title;
     document.getElementById('alertMessage').innerText = message;
@@ -2162,10 +2351,12 @@ window.showCustomAlert = function(title, message) {
     playSound('error');
 }
 
+
 window.closeCustomAlert = function() {
     document.getElementById('customAlertModal').style.display = 'none';
     state.isPaused = false;
 }
+
 
 window.dismissInstallBanner = function() {
     const pwaBanner = document.getElementById('pwaInstallBanner');
@@ -2197,6 +2388,7 @@ document.getElementById('internalAttendancePage').addEventListener('scroll', fun
     }
 });
 
+
 document.getElementById('internalReportPage').addEventListener('scroll', function() {
     let list = state.currentReportCategory === 'points' ? state.currentReportData.points : state.currentReportData.combined;
     const filterStage = document.getElementById('intRepFilter').value;
@@ -2205,6 +2397,7 @@ document.getElementById('internalReportPage').addEventListener('scroll', functio
     if(searchQuery) list = list.filter(item => (item.name||'').toLowerCase().includes(searchQuery) || (item.id && item.id.includes(searchQuery)) || (item.stdId && item.stdId.includes(searchQuery)));
     if(filterStage !== 'all') list = list.filter(item => item.level === filterStage || item.stdLevel === filterStage);
 
+
     if (this.scrollTop + this.clientHeight >= this.scrollHeight - 50) {
         const totalPages = Math.ceil(list.length / 30) || 1;
         if (state.reportCurrentPage < totalPages) {
@@ -2212,6 +2405,7 @@ document.getElementById('internalReportPage').addEventListener('scroll', functio
             if (loading && loading.classList.contains('hidden')) {
                 loading.classList.remove('hidden');
                 loading.classList.add('flex');
+
 
                 setTimeout(() => {
                     state.reportCurrentPage++;

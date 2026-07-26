@@ -18,8 +18,7 @@
     <title>YLY Management | Pro System</title>
     
     <!-- Tailwind CSS -->
-    <link rel="stylesheet" href="tailwind.min.css">
-
+    <script defer src="https://cdn.tailwindcss.com"></script>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -608,17 +607,11 @@
                 <div class="title"><h1 id="intAttTitle"></h1></div>
                 <div><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" alt="Logo" loading="lazy"></div>
             </div>
-            <div id="intAttTableArea" class="pb-4 relative">
+            <div id="intAttTableArea">
                 <table class="ultra-compact-table">
                     <thead id="intAttHead"></thead>
                     <tbody id="intAttBody"></tbody>
                 </table>
-                
-                <!-- مؤشر التحميل الكسول الجديد (يظهر عند النزول لأسفل) -->
-                <div id="intAttLoading" class="hidden flex justify-center items-center py-4 gap-2 no-print">
-                    <div class="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                    <span class="text-xs font-bold text-gray-600">جاري تحميل المزيد...</span>
-                </div>
             </div>
         </div>
     </div>
@@ -653,19 +646,13 @@
                 <div class="title"><h1 id="intRepTitle"></h1></div>
                 <div><img src="https://res.cloudinary.com/dsxrjmcxs/image/upload/c_limit,w_400,q_auto,f_auto/v1784657850/s60xlqx1otmwcijtjw1l.png" alt="Logo" loading="lazy"></div>
             </div>
-            <div id="intRepTableArea" class="pb-4 relative">
+            <div id="intRepTableArea">
                 <table class="ultra-compact-table">
                     <thead id="intRepHead"></thead>
                     <tbody id="intRepBody"></tbody>
                 </table>
-                
-                <!-- مؤشر التحميل الكسول الجديد (يظهر عند النزول لأسفل) -->
-                <div id="intRepLoading" class="hidden flex justify-center items-center py-4 gap-2 no-print">
-                    <div class="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                    <span class="text-xs font-bold text-gray-600">جاري تحميل المزيد...</span>
-                </div>
             </div>
-            <!-- تم حذف div الخاص بـ intRepPagination بالكامل -->
+            <div id="intRepPagination" class="flex justify-between items-center mt-3 bg-white p-2 rounded border shadow-sm no-print hidden"></div>
         </div>
     </div>
 

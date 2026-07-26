@@ -774,15 +774,54 @@
     <!-- سيتم إدراج JavaScript هنا في المرحلة الثالثة -->
     <script type="module" src="app.js"></script>
 
-<!-- كود تشغيل الـ Service Worker ليعمل التطبيق بدون إنترنت -->
+<!-- كود تشغيل الـ Service Worker وإظهار بنر التثبيت تلقائياً -->
 <script>
+  let deferredPrompt;
+  const pwaBanner = document.getElementById('pwaInstallBanner');
+  const installBtn = document.getElementById('pwaInstallBtn');
+
+  // 1. تسجيل الـ Service Worker
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('./service-worker.js')
-        .then(reg => console.log('Service Worker Registered!', reg))
+        .then(reg => console.log('Service Worker Registered Successfully!', reg))
         .catch(err => console.error('Service Worker Registration Failed!', err));
     });
   }
+
+  // 2. الاستماع لحدث التثبيت وإظهار البنر
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (pwaBanner) {
+      pwaBanner.classList.remove('hidden');
+      setTimeout(() => {
+        pwaBanner.classList.remove('translate-y-24', 'opacity-0');
+        pwaBanner.classList.add('translate-y-0', 'opacity-100');
+      }, 100);
+    }
+  });
+
+  // 3. الضغط على زر التثبيت
+  if (installBtn) {
+    installBtn.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`User response to install prompt: ${outcome}`);
+        deferredPrompt = null;
+        dismissInstallBanner();
+      }
+    });
+  }
+
+  // 4. إغلاق بنر التثبيت
+  window.dismissInstallBanner = function() {
+    if (!pwaBanner) return;
+    pwaBanner.classList.remove('translate-y-0', 'opacity-100');
+    pwaBanner.classList.add('translate-y-24', 'opacity-0');
+    setTimeout(() => pwaBanner.classList.add('hidden'), 500);
+  };
 </script>
 </body>
 </html>

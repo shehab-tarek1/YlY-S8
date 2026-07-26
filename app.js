@@ -1626,19 +1626,28 @@ window.savePDF = async function(title, content, isLandscape = false) {
     window.showToast('جاري تجهيز ملف PDF، يرجى الانتظار...', 'success');
     await requireHtml2Pdf();
     
-    // إنشاء حاوية مخفية باستخدام Fixed لمنع قفزات الشاشة (Layout Shifts)
-    const container = document.createElement('div');
-    container.style.position = 'fixed'; 
-    container.style.left = '-9999px'; // الإخفاء من اليسار آمن جداً مع اللغات RTL
-    container.style.top = '0';
-    // تحديد عرض ورقة A4 حقيقي لضمان عدم هروب التقرير لليمين أو اليسار
-    container.style.width = isLandscape ? '297mm' : '210mm'; 
-    container.style.backgroundColor = '#ffffff';
-    container.style.zIndex = '-9999';
-    
-    container.innerHTML = getPrintTemplate(title, content);
-    document.body.appendChild(container);
+    // 1. الصندوق الوهمي (الخدعة): حجمه صفر ويخفي ما بداخله لمنع تشوه الشاشة
+    const wrapper = document.createElement('div');
+    wrapper.style.position = 'absolute';
+    wrapper.style.top = '0';
+    wrapper.style.left = '0';
+    wrapper.style.width = '0px';
+    wrapper.style.height = '0px';
+    wrapper.style.overflow = 'hidden'; // يخفي التقرير عن عين المستخدم
+    wrapper.style.zIndex = '-1';
 
+    // 2. الحاوية الحقيقية التي سيتم تصويرها (ستأخذ حجمها الطبيعي داخل الصندوق)
+    const container = document.createElement('div');
+    const pdfWidth = isLandscape ? 1122 : 794; 
+    container.style.width = pdfWidth + 'px'; // عرض A4 حقيقي لمنع التمركز الخاطئ
+    container.style.backgroundColor = '#ffffff';
+    container.innerHTML = getPrintTemplate(title, content);
+
+    // تركيب العناصر في الصفحة
+    wrapper.appendChild(container);
+    document.body.appendChild(wrapper);
+
+    // 3. إعدادات الـ PDF
     const opt = {
         margin:       [10, 10, 10, 10],
         filename:     `${title.replace(/\s+/g, '_')}.pdf`,
@@ -1647,9 +1656,8 @@ window.savePDF = async function(title, content, isLandscape = false) {
             scale: 2, 
             useCORS: true, 
             logging: false,
-            letterRendering: true, // خاصية هامة جداً لربط الحروف العربية في الجداول
-            scrollX: 0,
-            scrollY: 0
+            letterRendering: true, // يمنع تقطيع الحروف العربية
+            windowWidth: pdfWidth
         },
         jsPDF:        { 
             unit: 'mm', 
@@ -1659,7 +1667,7 @@ window.savePDF = async function(title, content, isLandscape = false) {
         pagebreak:    { mode: ['css', 'legacy'] }
     };
 
-    // ننتظر 800 ملي ثانية لضمان تحميل خط Cairo بالكامل وتطبيقه على الجداول المعقدة
+    // 4. ننتظر 800 ملي ثانية ليقوم المتصفح برسم الجداول والخطوط، ثم نستخرج الملف
     setTimeout(async () => {
         try {
             await html2pdf().set(opt).from(container).save();
@@ -1667,8 +1675,9 @@ window.savePDF = async function(title, content, isLandscape = false) {
         } catch (err) {
             window.showToast('حدث خطأ أثناء استخراج PDF', 'error');
         } finally {
-            if (document.body.contains(container)) {
-                document.body.removeChild(container);
+            // تنظيف الصفحة تماماً بعد الانتهاء
+            if (document.body.contains(wrapper)) {
+                document.body.removeChild(wrapper);
             }
         }
     }, 800); 

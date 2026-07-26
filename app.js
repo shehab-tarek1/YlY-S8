@@ -808,7 +808,6 @@ window.startScanner = async function(elemId, mode) {
     try {
         await state.html5QrCode.start({ facingMode: "environment" }, config, async (decodedText) => {
             if(state.isPaused) return;
-            state.isPaused = true;
             try {
                 if(mode === 'attendance') await handleAttendanceScan(decodedText);
                 else if(mode === 'payment') handlePaymentScan(decodedText);
@@ -2193,4 +2192,5 @@ document.getElementById('internalReportPage').addEventListener('scroll', functio
         }
     }
 });
+
 

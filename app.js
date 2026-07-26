@@ -1626,21 +1626,20 @@ window.savePDF = async function(title, content, isLandscape = false) {
     window.showToast('جاري تجهيز ملف PDF، يرجى الانتظار...', 'success');
     await requireHtml2Pdf();
     
-    // إنشاء الحاوية خارج الشاشة تماماً (بمسافة شاشتين لليمين) لمنع أي تشوه في الموقع
-    const wrapper = document.createElement('div');
-    wrapper.style.position = 'fixed';
-    wrapper.style.right = '200vw'; 
-    wrapper.style.top = '0';
-    wrapper.style.zIndex = '-9999';
-    wrapper.dir = 'rtl'; // إجبار الحاوية الأم على اللغة العربية لإصلاح مشكلة الكلمات المعكوسة
+    // إنشاء الحاوية ووضعها "خلف" الموقع مباشرة لضمان تصويرها بدون أن يراها المستخدم
+    const container = document.createElement('div');
+    container.style.position = 'fixed'; 
+    container.style.top = '0';
+    container.style.left = '0';
+    container.style.zIndex = '-9999'; // يختفي خلف واجهة الموقع
     
-    // تحديد عرض حقيقي مطابق للورقة لإصلاح مشكلة انزياح الجدول لليمين
+    // تحديد عرض A4 حقيقي (794px) لضمان عدم انزياح الجدول لليمين وعدم قصه
     const pdfWidth = isLandscape ? 1122 : 794; 
-    wrapper.style.width = pdfWidth + 'px'; 
-    wrapper.style.backgroundColor = '#ffffff';
+    container.style.width = pdfWidth + 'px'; 
+    container.style.backgroundColor = '#ffffff';
     
-    wrapper.innerHTML = getPrintTemplate(title, content);
-    document.body.appendChild(wrapper);
+    container.innerHTML = getPrintTemplate(title, content);
+    document.body.appendChild(container);
 
     const opt = {
         margin:       [10, 10, 10, 10],
@@ -1650,8 +1649,9 @@ window.savePDF = async function(title, content, isLandscape = false) {
             scale: 2, 
             useCORS: true, 
             logging: false,
-            windowWidth: pdfWidth, // إجبار الكاميرا على نفس العرض
-            width: pdfWidth // منع الكاميرا من قص الجداول
+            letterRendering: true, // يضمن عدم تقطيع الحروف العربية
+            windowWidth: pdfWidth,
+            width: pdfWidth // مهم جداً لإجبار الكاميرا على تصوير العرض بالكامل
         },
         jsPDF:        { 
             unit: 'mm', 
@@ -1663,19 +1663,20 @@ window.savePDF = async function(title, content, isLandscape = false) {
 
     // استخدام document.fonts.ready لضمان تحميل خط Cairo بالكامل قبل التصوير
     document.fonts.ready.then(() => {
+        // انتظار إضافي 800 ملي ثانية لضمان ترتيب الجداول المعقدة
         setTimeout(async () => {
             try {
-                await html2pdf().set(opt).from(wrapper).save();
+                await html2pdf().set(opt).from(container).save();
                 window.showToast('تم تحميل ملف PDF بنجاح', 'success');
             } catch (err) {
                 window.showToast('حدث خطأ أثناء استخراج PDF', 'error');
             } finally {
                 // تنظيف الصفحة فور الانتهاء
-                if (document.body.contains(wrapper)) {
-                    document.body.removeChild(wrapper);
+                if (document.body.contains(container)) {
+                    document.body.removeChild(container);
                 }
             }
-        }, 500);
+        }, 800);
     });
 };
 

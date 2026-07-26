@@ -1593,56 +1593,35 @@ function getPrintTemplate(title, content) {
 }
 
 window.savePDF = async function(title, content, isLandscape = false) {
-    window.showToast('جاري تجهيز ملف PDF...', 'success');
+    window.showToast('جاري تجهيز ملف PDF، يرجى الانتظار...', 'success');
     await requireHtml2Pdf();
     
+    // إنشاء الحاوية خارج الشاشة تماماً (بمسافة شاشتين لليمين) لمنع أي تشوه في الموقع
+    const wrapper = document.createElement('div');
+    wrapper.style.position = 'fixed';
+    wrapper.style.right = '200vw'; 
+    wrapper.style.top = '0';
+    wrapper.style.zIndex = '-9999';
+    wrapper.dir = 'rtl'; // إجبار الحاوية الأم على اللغة العربية لإصلاح مشكلة الكلمات المعكوسة
+    
+    // تحديد عرض حقيقي مطابق للورقة لإصلاح مشكلة انزياح الجدول لليمين
     const pdfWidth = isLandscape ? 1122 : 794; 
+    wrapper.style.width = pdfWidth + 'px'; 
+    wrapper.style.backgroundColor = '#ffffff';
     
-    // 1. غلاف كامل الشاشة مُثبت في نقطة الصفر (LTR) لمنع انزياح الجدول لليمين
-    const overlay = document.createElement('div');
-    overlay.style.cssText = `
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100vw !important;
-        height: 100vh !important;
-        background: #ffffff !important;
-        z-index: 999999 !important;
-        overflow-y: auto !important;
-        direction: ltr !important; /* تثبيت بداية نقطة التصوير في أقصى اليسار العلوي (0,0) */
-    `;
+    wrapper.innerHTML = getPrintTemplate(title, content);
+    document.body.appendChild(wrapper);
 
-    // 2. الحاوية الداخلية بمقاس A4 والنص عربي جهة اليمين
-    const target = document.createElement('div');
-    target.style.cssText = `
-        width: ${pdfWidth}px !important;
-        margin: 0 !important;
-        padding: 15px !important;
-        background: #ffffff !important;
-        direction: rtl !important; /* اتجاه الكتابة عربي من اليمين للشمال */
-        box-sizing: border-box !important;
-    `;
-    
-    target.innerHTML = getPrintTemplate(title, content);
-    overlay.appendChild(target);
-    document.body.appendChild(overlay);
-
-    // 3. إعدادات التصوير السليمة (بدون letterRendering)
     const opt = {
-        margin:       [5, 5, 5, 5],
+        margin:       [10, 10, 10, 10],
         filename:     `${title.replace(/\s+/g, '_')}.pdf`,
         image:        { type: 'jpeg', quality: 1 },
         html2canvas:  { 
             scale: 2, 
             useCORS: true, 
             logging: false,
-            // تم حذف letterRendering: true لأنه هو المتسبب في عكس الحروف العربية!
-            width: pdfWidth,        
-            windowWidth: pdfWidth,  
-            x: 0,
-            y: 0,
-            scrollX: 0,
-            scrollY: 0
+            windowWidth: pdfWidth, // إجبار الكاميرا على نفس العرض
+            width: pdfWidth // منع الكاميرا من قص الجداول
         },
         jsPDF:        { 
             unit: 'mm', 
@@ -1652,19 +1631,22 @@ window.savePDF = async function(title, content, isLandscape = false) {
         pagebreak:    { mode: ['css', 'legacy'] }
     };
 
-    // 4. الانتظار والتصوير ثم التنظيف
-    setTimeout(async () => {
-        try {
-            await html2pdf().set(opt).from(target).save();
-            window.showToast('تم تحميل ملف PDF بنجاح', 'success');
-        } catch (err) {
-            window.showToast('حدث خطأ أثناء استخراج PDF', 'error');
-        } finally {
-            if (document.body.contains(overlay)) {
-                document.body.removeChild(overlay);
+    // استخدام document.fonts.ready لضمان تحميل خط Cairo بالكامل قبل التصوير
+    document.fonts.ready.then(() => {
+        setTimeout(async () => {
+            try {
+                await html2pdf().set(opt).from(wrapper).save();
+                window.showToast('تم تحميل ملف PDF بنجاح', 'success');
+            } catch (err) {
+                window.showToast('حدث خطأ أثناء استخراج PDF', 'error');
+            } finally {
+                // تنظيف الصفحة فور الانتهاء
+                if (document.body.contains(wrapper)) {
+                    document.body.removeChild(wrapper);
+                }
             }
-        }
-    }, 500);
+        }, 500);
+    });
 };
 
 window.printContent = function(elementId, title) {

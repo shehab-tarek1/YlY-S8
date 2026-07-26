@@ -1706,6 +1706,13 @@ window.savePDF = async function(title, content, customFileName) {
     }
 };
 
+window.printContent = function(elementId, title) {
+    const content = `<table class="ultra-compact-table"><thead>${document.getElementById('intAttHead').innerHTML}</thead><tbody>${document.getElementById('intAttBody').innerHTML}</tbody></table>`;
+    window.printHTML(title, content);
+}
+
+window.pdfContent = function(elementId, title) { window.printContent(elementId, title); }
+
 // دوال حفظ الـ PDF المباشرة بأسمائها الصريحة للتقارير
 window.pdfCombinedReport = function() {
     if(!state.currentReportData.combined || state.currentReportData.combined.length === 0) return window.showToast('لا توجد بيانات للتحميل', 'error');

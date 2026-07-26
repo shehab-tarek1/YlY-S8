@@ -1626,40 +1626,22 @@ window.savePDF = async function(title, content, isLandscape = false) {
     window.showToast('جاري تجهيز ملف PDF، يرجى الانتظار...', 'success');
     await requireHtml2Pdf();
     
-    // 1. إنشاء غلاف كامل الشاشة خلف الموقع يُجبر الإحداثيات على التثبيت من اليسار (LTR)
-    const overlay = document.createElement('div');
-    overlay.style.cssText = `
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100vw !important;
-        height: 100vh !important;
-        z-index: -9999 !important;
-        direction: ltr !important; /* منع انزياح العناصر لليمين خار الشاشة */
-        display: flex !important;
-        justify-content: center !important;
-        align-items: flex-start !important;
-        overflow: hidden !important;
-        background: #ffffff !important;
-    `;
-
-    // 2. إنشاء حاوية الـ A4 الداخلية المحبوسة في المنتصف تماماً
-    const target = document.createElement('div');
-    const pdfWidth = isLandscape ? 1122 : 794; 
-    target.style.cssText = `
-        width: ${pdfWidth}px !important;
-        min-width: ${pdfWidth}px !important;
-        max-width: ${pdfWidth}px !important;
-        background: #ffffff !important;
-        direction: rtl !important; /* إعادة المحتوى للغة العربية من اليمين للياسر */
-        box-sizing: border-box !important;
-    `;
+    // إنشاء الحاوية خارج الشاشة تماماً (بمسافة شاشتين لليمين) لمنع أي تشوه في الموقع
+    const wrapper = document.createElement('div');
+    wrapper.style.position = 'fixed';
+    wrapper.style.right = '200vw'; 
+    wrapper.style.top = '0';
+    wrapper.style.zIndex = '-9999';
+    wrapper.dir = 'rtl'; // إجبار الحاوية الأم على اللغة العربية لإصلاح مشكلة الكلمات المعكوسة
     
-    target.innerHTML = getPrintTemplate(title, content);
-    overlay.appendChild(target);
-    document.body.appendChild(overlay);
+    // تحديد عرض حقيقي مطابق للورقة لإصلاح مشكلة انزياح الجدول لليمين
+    const pdfWidth = isLandscape ? 1122 : 794; 
+    wrapper.style.width = pdfWidth + 'px'; 
+    wrapper.style.backgroundColor = '#ffffff';
+    
+    wrapper.innerHTML = getPrintTemplate(title, content);
+    document.body.appendChild(wrapper);
 
-    // 3. إعدادات التصوير الموجهة للحاوية الداخلية مباشرة
     const opt = {
         margin:       [10, 10, 10, 10],
         filename:     `${title.replace(/\s+/g, '_')}.pdf`,
@@ -1668,8 +1650,8 @@ window.savePDF = async function(title, content, isLandscape = false) {
             scale: 2, 
             useCORS: true, 
             logging: false,
-            letterRendering: true,
-            windowWidth: pdfWidth
+            windowWidth: pdfWidth, // إجبار الكاميرا على نفس العرض
+            width: pdfWidth // منع الكاميرا من قص الجداول
         },
         jsPDF:        { 
             unit: 'mm', 
@@ -1679,21 +1661,21 @@ window.savePDF = async function(title, content, isLandscape = false) {
         pagebreak:    { mode: ['css', 'legacy'] }
     };
 
-    // 4. انتظار تحميل الخطوط ثم تصوير الهدف المحبوس في المنتصف
+    // استخدام document.fonts.ready لضمان تحميل خط Cairo بالكامل قبل التصوير
     document.fonts.ready.then(() => {
         setTimeout(async () => {
             try {
-                // تصوير target بدلاً من overlay لضمان التقاط الجدول فقط بدون زوائد
-                await html2pdf().set(opt).from(target).save();
+                await html2pdf().set(opt).from(wrapper).save();
                 window.showToast('تم تحميل ملف PDF بنجاح', 'success');
             } catch (err) {
                 window.showToast('حدث خطأ أثناء استخراج PDF', 'error');
             } finally {
-                if (document.body.contains(overlay)) {
-                    document.body.removeChild(overlay);
+                // تنظيف الصفحة فور الانتهاء
+                if (document.body.contains(wrapper)) {
+                    document.body.removeChild(wrapper);
                 }
             }
-        }, 800);
+        }, 500);
     });
 };
 

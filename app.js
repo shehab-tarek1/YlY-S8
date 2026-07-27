@@ -1,5 +1,19 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, onSnapshot, query, where, updateDoc, enableMultiTabIndexedDbPersistence, enableNetwork } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { 
+    initializeFirestore, 
+    persistentLocalCache, 
+    persistentMultipleTabManager, 
+    collection, 
+    addDoc, 
+    getDocs, 
+    doc, 
+    deleteDoc, 
+    onSnapshot, 
+    query, 
+    where, 
+    updateDoc, 
+    enableNetwork 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 // ==========================================
@@ -16,7 +30,16 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+
+// تهيئة قاعدة البيانات المحلية الذكية لمنع التضارب بين المتصفح والتطبيق المثبت PWA
+const db = initializeFirestore(app, {
+    localCache: persistentLocalCache({
+        tabManager: persistentMultipleTabManager()
+    })
+});
+
+const auth = getAuth(app);
+
 // ميزة المزامنة الفورية التلقائية عند عودة الإنترنت (Auto-Sync Listener)
 window.addEventListener('online', async () => {
     try {
@@ -36,7 +59,6 @@ window.addEventListener('offline', () => {
         window.showToast('🔴 انقطع الاتصال - تم تفعيل الوضع المحلي لعدم إيقاف العمل', 'error');
     }
 });
-const auth = getAuth(app);
 
 // ==========================================
 // 2. Global State

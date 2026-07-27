@@ -1,19 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { 
-    initializeFirestore, 
-    persistentLocalCache, 
-    persistentMultipleTabManager, 
-    collection, 
-    addDoc, 
-    getDocs, 
-    doc, 
-    deleteDoc, 
-    onSnapshot, 
-    query, 
-    where, 
-    updateDoc, 
-    enableNetwork 
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, onSnapshot, query, where, updateDoc, enableMultiTabIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 // ==========================================
@@ -30,35 +16,16 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-
-// تهيئة قاعدة البيانات المحلية الذكية لمنع التضارب بين المتصفح والتطبيق المثبت PWA
-const db = initializeFirestore(app, {
-    localCache: persistentLocalCache({
-        tabManager: persistentMultipleTabManager()
-    })
+const db = getFirestore(app);
+// تفعيل حفظ البيانات وعمل السيرفر في وضع الأوفلاين (Offline Persistence)
+enableMultiTabIndexedDbPersistence(db).catch((err) => {
+    if (err.code == 'failed-precondition') {
+        console.warn('تنبيه: التخزين الأوفلاين يعمل في تبويب واحد فقط.');
+    } else if (err.code == 'unimplemented') {
+        console.warn('تنبيه: المتصفح الحالي لا يدعم التخزين المحلي لـ Firestore.');
+    }
 });
-
 const auth = getAuth(app);
-
-// ميزة المزامنة الفورية التلقائية عند عودة الإنترنت (Auto-Sync Listener)
-window.addEventListener('online', async () => {
-    try {
-        await enableNetwork(db); // إجبار فايبربيس على الاتصال الفوري بالسيرفر
-        if (window.showToast) {
-            window.showToast('🟢 تم عودة الإنترنت - جاري رفع ومزامنة البيانات تلقائياً...', 'success');
-        }
-        if (typeof window.updateCounters === 'function') window.updateCounters();
-        if (typeof window.updateFinance === 'function') window.updateFinance();
-    } catch (e) {
-        console.error("Auto sync error:", e);
-    }
-});
-
-window.addEventListener('offline', () => {
-    if (window.showToast) {
-        window.showToast('🔴 انقطع الاتصال - تم تفعيل الوضع المحلي لعدم إيقاف العمل', 'error');
-    }
-});
 
 // ==========================================
 // 2. Global State
@@ -2225,5 +2192,4 @@ document.getElementById('internalReportPage').addEventListener('scroll', functio
         }
     }
 });
-
 
